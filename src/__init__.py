@@ -45,8 +45,23 @@ def create_app():
     jwt.init_app(app)
     sess.init_app(app)
 
-    from .routes import main_bp
-    app.register_blueprint(main_bp)
+    from .routes.comment_routes import comment_bp
+    from .routes.feed_routes import feed_bp
+    from .routes.group_routes import group_bp
+    from .routes.project_routes import project_bp
+    from .routes.user_routes import user_bp
+    from .routes.utility_routes import utility_bp
+    from .routes.autofiller_routes import autofiller_bp
+
+    app.register_blueprint(comment_bp)
+    app.register_blueprint(feed_bp)
+    app.register_blueprint(group_bp)
+    app.register_blueprint(project_bp)    
+    app.register_blueprint(user_bp)
+    app.register_blueprint(utility_bp)
+    app.register_blueprint(autofiller_bp)
+
+
 
     return app
 
