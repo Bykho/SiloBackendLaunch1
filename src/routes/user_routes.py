@@ -49,7 +49,12 @@ def get_users_by_ids():
 @user_bp.route('/profile/<username>', methods=['GET'])
 @jwt_required()
 def other_student_profile(username):
-    user = mongo.db.users.find_one({"username": username})
+    jwt_claims = get_jwt()
+    user_id = jwt_claims.get('_id')
+    user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
+    print('username from get_jwt: ', user.get('username'))
+    username = user.get('username')
+
     if not user:
         return jsonify({"error": "User not found"}), 404
     portfolio = user.get('portfolio', [])
@@ -169,9 +174,12 @@ def login():
 @user_bp.route('/studentProfileEditor', methods=['GET', 'POST'])
 @jwt_required()
 def edit_student_profile():
-    print('accessing studentProfileEditor route')
-    username = get_jwt_identity()
-    user = mongo.db.users.find_one({"username": username})
+    jwt_claims = get_jwt()
+    user_id = jwt_claims.get('_id')
+    user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
+    print('username from get_jwt: ', user.get('username'))
+    username = user.get('username')
+
     if not user:
         return jsonify({"error": "User not found"}), 404
     
@@ -252,4 +260,48 @@ def student_profile():
 
     return jsonify(user_details)
 
+
+
+@user_bp.route('/massProjectPublish', methods=['POST'])
+@jwt_required()
+def massProjectPublish():
+    jwt_claims = get_jwt()
+    username = jwt_claims.get('username')
+    print('Username from JWT:', username)
+    user = mongo.db.users.find_one({"username": username})
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    data = request.get_json()
+    if not data or 'selectedPortfolio' not in data:
+        return jsonify({"error": "Invalid data"}), 422
+
+    user_id = user['_id']
+
+    project_ids = []
+    for project in data['selectedPortfolio']:
+        new_project = {
+            'projectName': project.get('projectName', ''),
+            'projectDescription': project.get('projectDescription', ''),
+            'createdBy': username,
+            'upvotes': [],
+            'layers': [],
+            'links': [],
+            'created_at': datetime.datetime.utcnow(),
+        }
+
+        proj_insert_result = mongo.db.projects.insert_one(new_project)
+        project_id = proj_insert_result.inserted_id
+        project_ids.append(project_id)
+
+    user_update_result = mongo.db.users.update_one(
+        {"_id": user['_id']},
+        {"$push": {"portfolio": {"$each": project_ids}}}
+    )
+
+    if user_update_result.modified_count == 0:
+        return jsonify({"error": "Failed to update user portfolio"}), 500
+
+    return jsonify({"message": "Projects published successfully"}), 200
 

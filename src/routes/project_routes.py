@@ -1,7 +1,7 @@
 
 
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from bson import ObjectId
 from .. import mongo
 from ..routes_schema_utility import get_user_details, get_user_context_details, get_user_feed_details, get_portfolio_details, get_project_feed_details, convert_objectid_to_str
@@ -48,13 +48,15 @@ def return_projects_from_ids():
     except Exception as e:
         print(f"Error fetching projects: {e}")
         return jsonify({"error": "Failed to fetch projects"}), 500
+            
 
 @project_bp.route('/addBlocProject', methods=['POST'])
 @jwt_required()
 def add_bloc_project():
     print('opened the route')
-    username = get_jwt_identity()
-    print('Username from JWT:', username)
+    jwt_claims = get_jwt()
+    user_id = jwt_claims.get('_id')
+    print('User ID from JWT:', user_id)
     data = request.get_json()
     project_data = data.get('data')
     print('got the project keys, ', project_data.keys())
@@ -84,7 +86,7 @@ def add_bloc_project():
         print('got passed the else stage')
         new_project = {
             "comments": [],
-            "createdBy": username,
+            "createdBy": user_id,
             "projectName": project_data.get('projectName'),
             "links": project_data.get('links'),
             'upvotes': [],
@@ -101,14 +103,14 @@ def add_bloc_project():
             new_project["_id"] = project_id
             new_project = convert_objectid_to_str(new_project) 
             # Log the user document to debug the update issue
-            user = mongo.db.users.find_one({"username": username})
+            user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
             print('User found for update:', user)
             if not user:
                 print('User not found in the database')
                 return jsonify({"error": "User not found"}), 404
             # Add the project ID to the user's portfolio
             update_result = mongo.db.users.update_one(
-                {"username": username},
+                {"_id": ObjectId(user_id)},
                 {"$push": {"portfolio": project_id}}
             )
             print('update_result: ', update_result)
@@ -186,8 +188,10 @@ def delete_project():
 @project_bp.route('/updateProject', methods=['POST'])
 @jwt_required()
 def update_project(project_name):
-    username = get_jwt_identity()
-    user = mongo.db.users.find_one({"username": username})
+    jwt_claims = get_jwt()
+    user_id = jwt_claims.get('_id')
+    print('User ID from JWT:', user_id)
+    user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
     if not user:
         return jsonify({"error": "User not found"}), 404
     data = request.get_json()
@@ -198,7 +202,7 @@ def update_project(project_name):
         return jsonify({"error": "Project not found"}), 404
     for key in data:
         user['portfolio'][project_index][key] = data[key]
-    mongo.db.users.update_one({"username": username}, {"$set": {"portfolio": user['portfolio']}})
+    mongo.db.users.update_one({"_id": ObjectId(user_id)}, {"$set": {"portfolio": user['portfolio']}})
     return jsonify({'message': 'Project updated successfully'}), 200
 
 

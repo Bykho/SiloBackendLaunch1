@@ -1,7 +1,7 @@
 
 
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from bson import ObjectId
 from .. import mongo
 import datetime
@@ -12,25 +12,29 @@ group_bp = Blueprint('group', __name__)
 @group_bp.route('/joinGroup', methods=['POST'])
 @jwt_required()
 def join_group():
-    print()
     #print('entered the /joinGroup route')
-    username = get_jwt_identity()
-    #print('here is the username: ', username)
-    user = mongo.db.users.find_one({"username": username})
-    #print('here is the user: ',user)
+    jwt_claims = get_jwt()
+    user_id = jwt_claims.get('_id')
+    #print('User ID from JWT:', user_id)
+    user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
+    #print('here is the user: ', user)
     if not user:
         return jsonify({"error": "User not found"}), 404
+    
     data = request.get_json()
-    print('here is the data, ', data)
+    #print('here is the data: ', data)
     group_id = data.get('groupId')
     if not group_id:
         return jsonify({"error": "Group ID is required"}), 400
+    
     group = mongo.db.groups.find_one({"_id": ObjectId(group_id)})
     print('here is the group: ', group)
     if not group:
         return jsonify({"error": "Group not found"}), 404
+    
     if user['_id'] in group['users']:
         return jsonify({"error": "User already in the group"}), 400
+    
     mongo.db.groups.update_one(
         {"_id": ObjectId(group_id)},
         {"$push": {"users": user['_id']}}
@@ -39,13 +43,17 @@ def join_group():
         {"_id": user['_id']},
         {"$push": {"groups": ObjectId(group_id)}}
     )
+    
     return jsonify({"message": "Successfully joined the group"}), 200
+
 
 @group_bp.route('/groupCreate', methods=['POST'])
 @jwt_required()
 def groupCreate():
-    username = get_jwt_identity()
-    user = mongo.db.users.find_one({"username": username})
+    jwt_claims = get_jwt()
+    user_id = jwt_claims.get('_id')
+    print('User ID from JWT:', user_id)
+    user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
 
     if not user:
         return jsonify({"error": "User not found"}), 404
@@ -57,7 +65,7 @@ def groupCreate():
     new_group = {
         'groupName': data['groupName'],
         'groupDescription': data['groupDescription'],
-        'createdBy': username,
+        'createdBy': user_id,
         'users': [],
         'project_content': data['groupProject_Content'],
         'projects': [],
@@ -69,6 +77,8 @@ def groupCreate():
     group_id = group_insert_result.inserted_id
 
     return jsonify({"message": "Group created successfully", "group_id": str(group_id)}), 200
+
+
 
 @group_bp.route('/returnGroups', methods=['GET'])
 @jwt_required()
@@ -98,8 +108,10 @@ def return_groups():
 @group_bp.route('/returnMyGroups', methods=['GET'])
 @jwt_required()
 def returnMyGroups():
-    username = get_jwt_identity()
-    user = mongo.db.users.find_one({"username": username})
+    jwt_claims = get_jwt()
+    user_id = jwt_claims.get('_id')
+    print('User ID from JWT:', user_id)
+    user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
     if not user:
         return jsonify({"error": "User not found"}), 404
 
@@ -121,13 +133,13 @@ def returnMyGroups():
                 "created_at": group["created_at"],
                 "projects": [str(project_id) for project_id in group.get("projects", [])]  # Convert project ObjectId to string
             })
-        #print('RETURNMYGROUPS groups_to_be_returned: ', groups_to_be_returned)
         print('/RETURNMYGROUPS here is groups_to_be_returned: ', groups_to_be_returned)
         groups_to_be_returned = convert_objectid_to_str(groups_to_be_returned)
         return jsonify(groups_to_be_returned), 200
     except Exception as e:
         print(f"Error fetching groups: {e}")
         return jsonify({"error": "Failed to fetch groups"}), 500
+
     
 
 @group_bp.route('/saveProjectToGroup', methods=['POST'])
