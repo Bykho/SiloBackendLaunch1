@@ -1,0 +1,12 @@
+
+
+# Ignore the .env file
+.env
+
+# Ignore other common files and directories
+__pycache__/
+*.py[cod]
+*.sqlite3
+.DS_Store
+.env
+
