@@ -15,9 +15,9 @@ import uuid
 import hashlib
 from bson import json_util, ObjectId
 import copy
-from .routes_schema_utility import get_user_details, get_user_context_details, get_user_feed_details, get_portfolio_details, get_project_feed_details
-from .fake_data import sample_users
-from . import mongo
+from ..routes_schema_utility import get_user_details, get_user_context_details, get_user_feed_details, get_portfolio_details, get_project_feed_details
+from ..fake_data import sample_users
+from .. import mongo
 import logging
 
 load_dotenv()

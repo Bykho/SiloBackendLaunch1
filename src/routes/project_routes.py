@@ -84,9 +84,11 @@ def add_bloc_project():
             return jsonify({"error": "Failed to update project"}), 500
     else:
         print('got passed the else stage')
+        user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
+        print('User found for update:', user)
         new_project = {
             "comments": [],
-            "createdBy": user_id,
+            "createdBy": user.get('username'),
             "projectName": project_data.get('projectName'),
             "links": project_data.get('links'),
             'upvotes': [],
@@ -103,8 +105,6 @@ def add_bloc_project():
             new_project["_id"] = project_id
             new_project = convert_objectid_to_str(new_project) 
             # Log the user document to debug the update issue
-            user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
-            print('User found for update:', user)
             if not user:
                 print('User not found in the database')
                 return jsonify({"error": "User not found"}), 404
