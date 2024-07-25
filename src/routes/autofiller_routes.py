@@ -114,7 +114,7 @@ def summarize_text_layers(text):
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant. Please do not include headers like 'Summary:' when summarizing content. Return everything in a valid JSON format and write from the first person."},
-                {"role": "user", "content": f"I need to create a project page by summarizing the following text into multiple self-contained sections. Please give a section that describes the abstract idea in the text, a section that describes the methodology described in the text, a section that describes the future work in the text, a section describing the results, and another section that describes another topic in the text that is relevant. Make each section long. Please ensure that the entirety of your response is formatted as a valid JSON array with each paragraph as an object containing 'index' and 'content' keys. Do not include any additional text outside of the JSON array. There should be no json tags in the front or any leading/trailing text. Only give the json. THERE SHOULD BE NO: ```json in the response. Here is the text:\n\n{text}"}
+                {"role": "user", "content": f"I need to create a project page by summarizing the following text into multiple self-contained sections. Please give a section that describes the abstract idea in the text, a section that describes the methodology described in the text, a section that describes the future work in the text, a section describing the results, and another section that describes another topic in the text that is relevant. Make each section long. Please ensure that the entirety of your response is formatted as a valid JSON array with each paragraph as an object containing 'index’, ‘content’, and ‘header’ keys. The ‘header’ field should include what section of the project it is between ‘abstract’, ‘methodology’, ‘future work’, ‘results’, and the other topic. Do not include any additional text outside of the JSON array. There should be no json tags in the front or any leading/trailing text. Only give the json. THERE SHOULD BE NO: ```json in the response. Here is the text:\n\n{text}"}
             ],
             max_tokens=1800,
             n=1,
@@ -135,6 +135,7 @@ def summarize_text_layers(text):
     except Exception as e:
         print(f"Error summarizing text: {e}")
         return json.dumps([])  # Return an empty JSON array if there's an error
+
 
 def validate_and_correct_json(json_str):
     try:

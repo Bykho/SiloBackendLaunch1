@@ -46,12 +46,11 @@ def get_users_by_ids():
         print(f"Error fetching users: {e}")
         return jsonify({"error": "Failed to fetch users"}), 500
 
-@user_bp.route('/profile/<username>', methods=['GET'])
+@user_bp.route('/profile/<id>', methods=['GET'])
 @jwt_required()
-def other_student_profile(username):
+def other_student_profile(id):
     jwt_claims = get_jwt()
-    user_id = jwt_claims.get('_id')
-    user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
+    user = mongo.db.users.find_one({"_id": ObjectId(id)})
     print('username from get_jwt: ', user.get('username'))
     username = user.get('username')
 
