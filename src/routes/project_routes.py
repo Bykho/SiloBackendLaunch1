@@ -156,10 +156,12 @@ def return_user_projects():
 @project_bp.route('/deleteProject', methods=['DELETE'])
 @jwt_required()
 def delete_project():
+    print('deleting project')
     data = request.get_json()
     project_id = data.get('projectId')
     user_id = data.get('userId')
-
+    print(f"projectID: {project_id}, userID: {user_id}, data: {data}")
+    
     if not project_id or not user_id:
         return jsonify({"error": "Project ID and User ID are required"}), 400
 
@@ -173,16 +175,33 @@ def delete_project():
     project_delete_result = mongo.db.projects.delete_one({"_id": project_object_id})
     if project_delete_result.deleted_count != 1:
         return jsonify({"error": "Failed to delete the project from the projects collection"}), 500
+    print('Project deleted from projects collection')
+
+    # Retrieve the user's document
+    user = mongo.db.users.find_one({"_id": user_object_id})
+    if not user:
+        return jsonify({"error": "User not found"}), 404
 
     # Remove the project ID from the user's portfolio
+    portfolio = user.get('portfolio', [])
+    if project_object_id in portfolio:
+        portfolio.remove(project_object_id)
+    else:
+        return jsonify({"error": "Project ID not found in user's portfolio"}), 404
+
+    # Update the user's document with the modified portfolio
     user_update_result = mongo.db.users.update_one(
         {"_id": user_object_id},
-        {"$pull": {"portfolio": project_id}}
+        {"$set": {"portfolio": portfolio}}
     )
     if user_update_result.modified_count != 1:
         return jsonify({"error": "Failed to update the user's portfolio"}), 500
+    print('Project ID removed from user portfolio')
 
     return jsonify({"message": "Project deleted successfully"}), 200
+
+
+
 
 
 @project_bp.route('/updateProject', methods=['POST'])
