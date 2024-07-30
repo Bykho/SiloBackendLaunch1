@@ -112,10 +112,8 @@ def summarize_text_layers(text):
         print('Got to summarize_text_layers')
         response = openai.ChatCompletion.create(
             model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant. Please do not include headers like 'Summary:' when summarizing content. Return everything in a valid JSON format and write from the first person."},
-                {"role": "user", "content": f"I need to create a project page by summarizing the following text into multiple self-contained sections. Please give a section that describes the abstract idea in the text, a section that describes the methodology described in the text, a section that describes the future work in the text, a section describing the results, and another section that describes another topic in the text that is relevant. Make each section long. Please ensure that the entirety of your response is formatted as a valid JSON array with each paragraph as an object containing 'index' and 'content' keys. Do not include any additional text outside of the JSON array. There should be no json tags in the front or any leading/trailing text. Only give the json. THERE SHOULD BE NO: ```json in the response. Here is the text:\n\n{text}"}
-            ],
+            messages=[ {"role": "system", "content": "You are a helpful assistant. Please do not include headers like 'Summary:' when summarizing content. Return everything in a valid JSON format and write from the first person."}, 
+                      {"role": "user", "content": f"I need to create a project page by summarizing the following text into multiple self-contained sections. Each section should be long and detailed. Please provide the following sections: abstract, methodology, future work, results, and another relevant topic. Format the response as a JSON array where each object has a key representing the section title (e.g., ‘abstract’, ‘methodology’, ‘future work’, ‘results’, and a header for the last topic) and a 'content' key containing the paragraph text. Do not include any additional text or formatting outside the JSON array. Ensure there are no JSON tags or extraneous text. Only provide the JSON array. Here is the text:\n\n{text}"} ],
             max_tokens=1800,
             n=1,
             stop=None,
@@ -170,7 +168,7 @@ def validate_and_correct_json(json_str):
 @cross_origin()
 def autofill_code_project():
     data = request.get_json()
-
+    
     if not data:
         return jsonify({'error': 'No data provided'}), 400
 
@@ -190,9 +188,9 @@ def autofill_code_project():
         # Call OpenAI API to process the combined code
         response = openai.ChatCompletion.create(
             model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant. Please do not include headers like 'Summary:' when summarizing content. Return everything in a valid JSON format and write from the first person."},
-                {"role": "user", "content": f"Analyze the following combined code files and respond in a JSON format. The JSON should have the following keys 'abstract summary', 'methodology', 'approach', and 'purpose'. There might be code from multiple files in this project. Treat each code file as if it were relating to the same project. Have each value in the JSON be long. Start the abstract with 'In this project...'. Here is the code:\n\n{combined_code}"},
+            messages = [
+                {"role": "system", "content": "You are a helpful assistant. Return everything in a valid JSON format and write from the first person."}, 
+                {"role": "user", "content": f"Analyze the following combined code files and respond in a JSON format. The JSON should have the keys: 'abstract summary', 'methodology', 'approach', 'purpose', and another relevant topic header. Each key should map to a paragraph. Format the response as a JSON array where each object contains a key representing the section title (e.g., 'summary', 'methodology', 'approach', 'purpose', and a header for the last topic) with the value containing the paragraph text. Treat each code file as part of the same project.  Do not include any additional text or formatting outside the JSON array. Ensure there are no JSON tags or extraneous text. Only provide the JSON array. Start the abstract with 'In this project...'. Here is the code:\n\n{combined_code}"}
             ],
             max_tokens=1500,
             n=1,
@@ -201,12 +199,15 @@ def autofill_code_project():
         )
         
         returned_summary = response.choices[0].message['content'].strip()
-        summary_json = json.loads(returned_summary)
-        
-        summary_array = [[key, value] for key, value in summary_json.items()]
-        print('here is the project summarized as array: ', summary_array)
+        print('here is returned_summary: ', returned_summary)
+        print('here is the type for returned_summary: ', type(returned_summary))        
 
-        return jsonify({'message': 'Files processed successfully', 'summary': summary_array}), 200
+        summary_json = json.loads(returned_summary)
+        print('here is the type for summary_json: ', type(summary_json))        
+
+        #print('here is the project summarized as array: ', summary_array)
+
+        return jsonify({'surrounding_summary': {}, 'summary_content': summary_json}), 200
 
     except Exception as e:
         print(f"Error processing code files: {e}")
