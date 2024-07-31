@@ -181,12 +181,25 @@ def get_public_profile(username, user_id):
     try:
         user = mongo.db.users.find_one({"_id": ObjectId(user_id), "shared": True})
         if user:
+            portfolio = user.get('portfolio', [])
+            project_ids = [ObjectId(project_id) for project_id in portfolio]
+            projects = list(mongo.db.projects.find({"_id": {"$in": project_ids}}))
+            
+            for project in projects:
+                # Assuming comments should be excluded for public profile
+                project["comments"] = []  # Clear comments for public profile
+
+            projects = [convert_objectid_to_str(project) for project in projects]
             user_data = get_user_details(user)
+            user_data['portfolio'] = projects
+            user_data = convert_objectid_to_str(user_data)
+
             return jsonify(user_data), 200
         else:
             return jsonify({"message": "User not found or profile not shared"}), 404
     except Exception as e:
         return jsonify({"message": str(e)}), 500
+
     
 
 @user_bp.route('/login', methods=['POST'])
