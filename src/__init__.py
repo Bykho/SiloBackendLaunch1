@@ -10,6 +10,8 @@ from flask_session import Session
 from datetime import timedelta
 import certifi
 import ssl
+from flask_mail import Mail
+
 
 load_dotenv()
 
@@ -17,6 +19,7 @@ load_dotenv()
 mongo = PyMongo()
 jwt = JWTManager()
 sess = Session()
+mail = Mail()
 
 #seeing if commit works
 
@@ -34,13 +37,15 @@ def create_app():
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=1)
     app.config['SESSION_TYPE'] = 'filesystem'
 
-    #@app.after_request
-    #def after_request(response):
-    #    #response.headers.add('Access-Control-Allow-')
-    #    response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-    #    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-    #    return response
 
+    app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
+    app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
+    app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS') == 'True'
+    app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+    app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+    app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_USERNAME')
+
+    mail.init_app(app)
     mongo.init_app(app)
     jwt.init_app(app)
     sess.init_app(app)

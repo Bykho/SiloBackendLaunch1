@@ -4,12 +4,15 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt
 from werkzeug.security import generate_password_hash, check_password_hash
 from bson import ObjectId
-from .. import mongo
+from .. import mongo, mail
 from ..routes_schema_utility import get_user_details, get_user_context_details, get_user_feed_details, get_portfolio_details, get_project_feed_details, get_project_details, convert_objectid_to_str
 import datetime
 from flask_cors import cross_origin
 import logging
-
+from flask_mail import Message
+import datetime
+import random
+import string
 
 
 user_bp = Blueprint('user', __name__)
@@ -349,4 +352,93 @@ def massProjectPublish():
         return jsonify({"error": "Failed to update user portfolio"}), 500
 
     return jsonify({"message": "Projects published successfully"}), 200
+
+
+
+
+
+
+
+@user_bp.route('/send-test-email', methods=['POST'])
+def send_test_email():
+    data = request.get_json()
+    recipient_email = data.get('email')
+    print('recipient_email: ', recipient_email)
+    if not recipient_email:
+        return jsonify({"message": "Email is required"}), 400
+
+    try:
+        msg = Message(subject="Test Email",
+                      sender=mail.sender,  # Use mail.sender to get the default sender
+                      recipients=[recipient_email])
+        msg.body = "This is a test email sent from Flask app."
+        mail.send(msg)
+        return jsonify({"message": "Test email sent to " + recipient_email}), 200
+    except Exception as e:
+        return jsonify({"message": str(e)}), 500
+
+
+@user_bp.route('/send-reset-code', methods=['POST'])
+def send_reset_code():
+    data = request.get_json()
+    email = data.get('email')
+    
+    user = mongo.db.users.find_one({"email": email})
+    if not user:
+        return jsonify({"message": "Email not found"}), 404
+
+    reset_code = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
+    expiration_time = datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+
+    mongo.db.retrieval_codes.insert_one({
+        "email": email,
+        "reset_code": reset_code,
+        "expires_at": expiration_time
+    })
+
+    msg = Message(subject="Password Reset Code",
+                  sender=mail.sender,  # Use mail.sender to get the default sender
+                  recipients=[email])
+    msg.body = f"Your password reset code is: {reset_code}. This code will expire in 30 minutes."
+    mail.send(msg)
+
+    return jsonify({"message": "Reset code sent"}), 200
+
+@user_bp.route('/verify-reset-code', methods=['POST'])
+def verify_reset_code():
+    data = request.get_json()
+    email = data.get('email')
+    code = data.get('code')
+
+    reset_entry = mongo.db.retrieval_codes.find_one({"email": email, "reset_code": code})
+
+    if not reset_entry:
+        return jsonify({"message": "Invalid code"}), 400
+
+    if reset_entry['expires_at'] < datetime.datetime.utcnow():
+        return jsonify({"message": "Code expired"}), 400
+
+    return jsonify({"message": "Code verified"}), 200
+
+@user_bp.route('/reset-password', methods=['POST'])
+def reset_password():
+    data = request.get_json()
+    email = data.get('email')
+    code = data.get('code')
+    new_password = data.get('newPassword')
+
+    reset_entry = mongo.db.retrieval_codes.find_one({"email": email, "reset_code": code})
+
+    if not reset_entry:
+        return jsonify({"message": "Invalid code"}), 400
+
+    if reset_entry['expires_at'] < datetime.datetime.utcnow():
+        return jsonify({"message": "Code expired"}), 400
+
+    hashed_password = generate_password_hash(new_password)
+    mongo.db.users.update_one({"email": email}, {"$set": {"password": hashed_password}})
+
+    mongo.db.retrieval_codes.delete_one({"email": email, "reset_code": code})
+
+    return jsonify({"message": "Password reset successfully"}), 200
 
