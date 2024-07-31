@@ -94,6 +94,7 @@ def register():
     if not mongo.db.users.find_one({"email": email}):
         hashed_password = generate_password_hash(password)
         data['password'] = str(hashed_password)
+        data['shared'] = False
         result = mongo.db.users.insert_one(data)
         user = mongo.db.users.find_one({"_id": result.inserted_id})
         user_details = get_user_context_details(user)
@@ -156,6 +157,37 @@ def register():
         response = jsonify({'message': 'Email already exists'})
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response, 409
+
+@user_bp.route('/toggleShareProfile', methods=['POST'])
+@jwt_required()
+def toggle_share_profile():
+    try:
+        data = request.get_json()
+        user_id = data.get('user_id')
+        if not user_id:
+            return jsonify({"message": "User ID is required"}), 400
+        user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
+        if user:
+            mongo.db.users.update_one({"_id": user['_id']}, {"$set": {"shared": True}})
+            return jsonify({"message": "Profile share status updated", "shared": True}), 200
+        else:
+            return jsonify({"message": "User not found"}), 404
+    except Exception as e:
+        return jsonify({"message": str(e)}), 500
+
+
+@user_bp.route('/public/<username>/<user_id>', methods=['GET'])
+def get_public_profile(username, user_id):
+    try:
+        user = mongo.db.users.find_one({"_id": ObjectId(user_id), "shared": True})
+        if user:
+            user_data = get_user_details(user)
+            return jsonify(user_data), 200
+        else:
+            return jsonify({"message": "User not found or profile not shared"}), 404
+    except Exception as e:
+        return jsonify({"message": str(e)}), 500
+    
 
 @user_bp.route('/login', methods=['POST'])
 def login():
