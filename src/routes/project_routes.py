@@ -92,6 +92,7 @@ def add_bloc_project():
             "projectName": project_data.get('projectName'),
             "links": project_data.get('links'),
             'upvotes': [],
+            'tags': project_data.get('tags'),
             "projectDescription": project_data.get('projectDescription'),
             "layers": project_data.get('layers'),
             "created_at": datetime.datetime.utcnow()

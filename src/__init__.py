@@ -57,6 +57,7 @@ def create_app():
     from .routes.user_routes import user_bp
     from .routes.utility_routes import utility_bp
     from .routes.autofiller_routes import autofiller_bp
+    from .routes.test_groq import groq_bp
 
     app.register_blueprint(comment_bp)
     app.register_blueprint(feed_bp)
@@ -65,7 +66,7 @@ def create_app():
     app.register_blueprint(user_bp)
     app.register_blueprint(utility_bp)
     app.register_blueprint(autofiller_bp)
-
+    app.register_blueprint(groq_bp)
 
 
     return app

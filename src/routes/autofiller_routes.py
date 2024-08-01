@@ -221,9 +221,6 @@ def autofill_code_project():
 
 
 
-
-
-
 @autofiller_bp.route('/autofillCodeProject', methods=['POST'])
 @cross_origin()
 def autofill_code_project():
