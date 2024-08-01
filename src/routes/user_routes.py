@@ -354,6 +354,25 @@ def massProjectPublish():
     return jsonify({"message": "Projects published successfully"}), 200
 
 
+@user_bp.route('/getUserUpvotes', methods=['POST'])
+@jwt_required()
+def get_user_upvotes():
+    try:
+        data = request.get_json()
+        user_id = data.get('user_id')
+        if not user_id:
+            return jsonify({"message": "User ID is required"}), 400
+
+        user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
+        if not user:
+            return jsonify({"message": "User not found"}), 404
+
+        upvotes = user.get('upvotes', [])
+        print('GETUSERUPVOTES here is the upvotes array: ', convert_objectid_to_str(upvotes))
+        return jsonify({"upvotes": convert_objectid_to_str(upvotes)}), 200
+    except Exception as e:
+        return jsonify({"message": str(e)}), 500
+
 
 
 
