@@ -163,7 +163,7 @@ def validate_and_correct_json(json_str):
             return []
 
 
-
+'''
 @autofiller_bp.route('/autofillCodeProject', methods=['POST'])
 @cross_origin()
 def autofill_code_project():
@@ -212,5 +212,97 @@ def autofill_code_project():
     except Exception as e:
         print(f"Error processing code files: {e}")
         return jsonify({'error': 'Failed to process code files'}), 500
+'''
 
+
+
+
+
+
+
+
+
+
+
+@autofiller_bp.route('/autofillCodeProject', methods=['POST'])
+@cross_origin()
+def autofill_code_project():
+    data = request.get_json()
+    
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+
+    user = data.get('user')
+    projects = data.get('projects')
+
+    if not user or not projects:
+        return jsonify({'error': 'Incomplete data provided'}), 400
+
+    try:
+        # Combine all code files into one large string
+        combined_code = ""
+        for project in projects:
+            content = project['content']
+            combined_code += f"\n\n# {project['repoName']}/{project['filePath']}\n\n" + content + "\n\n\n"
+
+        # Generate surrounding summary and summary content
+        surrounding_summary = validate_and_correct_json(summarize_code_description_title_tags(combined_code))
+        summary_content = validate_and_correct_json(summarize_code_layers(combined_code))
+
+        print(f'here is the surrounding_summary: {surrounding_summary}')
+        print(f'here is the summary_content: {summary_content}')
+
+        return jsonify({'surrounding_summary': surrounding_summary, 'summary_content': summary_content}), 200
+
+    except Exception as e:
+        print(f"Error processing code files: {e}")
+        return jsonify({'error': 'Failed to process code files'}), 500
+
+def summarize_code_description_title_tags(text):
+    try:
+        print('Got to summarize_code_description_title_tags')
+        response = openai.ChatCompletion.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant. Please do not include headers like 'Summary:' when summarizing content. Write from the first person and all responses should be JSON format."},
+                {"role": "user", "content": f"For the following code files, please write a concise (less than 400 words) description for this project. Also, provide a list for suggested tags concerning general topics the code is about (tags like: machine learning, computer vision, NLP, robotics, genomics, etc). Lastly please provide a string name for this project. Please always format your response as a json with keys: projectName, tags, and projectDescription. This is very important: the entirety of your response should constitute a valid JSON. There should be no json tags in the front or any leading/trailing text. Only give the json. Here is the text:\n\n{text}"}
+            ],
+            max_tokens=600,
+            n=1,
+            stop=None,
+            temperature=0.1
+        )
+        print("SUMMARIZE CODE DESCRIPTION TITLE TAGS here is the response: ", response.choices[0].message['content'].strip())
+        return response.choices[0].message['content'].strip()
+    except Exception as e:
+        print(f"Error summarizing code description: {e}")
+        return '{}'
+
+def summarize_code_layers(text):
+    try:
+        print('Got to summarize_code_layers')
+        response = openai.ChatCompletion.create(
+            model="gpt-4o-mini",
+            messages=[ {"role": "system", "content": "You are a helpful assistant. Please do not include headers like 'Summary:' when summarizing content. Return everything in a valid JSON format and write from the first person."}, 
+                      {"role": "user", "content": f"I need to create a project page by summarizing the following code into multiple self-contained sections. Each section should be long and detailed. Please provide the following sections: abstract, methodology, future work, results, and another relevant topic. Format the response as a JSON array where each object has a key representing the section title (e.g., ‘abstract’, ‘methodology’, ‘future work’, ‘results’, and a header for the last topic) and a 'content' key containing the paragraph text. Do not include any additional text or formatting outside the JSON array. Ensure there are no JSON tags or extraneous text. Only provide the JSON array. Here is the text:\n\n{text}"} ],
+            max_tokens=1800,
+            n=1,
+            stop=None,
+            temperature=0.1
+        )
+
+        message_content = response.choices[0].message['content'].strip()
+        print('here is the layers summarized: ', message_content)
+        # Validate JSON format
+        try:
+            json_content = json.loads(message_content)
+            print('here is json content: ', json_content)
+        except json.JSONDecodeError as e:
+            print(f"JSONDecodeError: {e}")
+            return json.dumps([])  # Return an empty JSON array if there's an error
+        return message_content
+    except Exception as e:
+        print(f"Error summarizing code layers: {e}")
+        return json.dumps([])  # Return an empty JSON array if there's an error
+    
 
