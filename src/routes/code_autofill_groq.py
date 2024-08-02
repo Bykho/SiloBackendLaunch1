@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from flask import current_app as app
 import re
 
-groq_bp = Blueprint('groq', __name__)
+groq_code_autofill_bp = Blueprint('groq_code_autofill_bp', __name__)
 
 # Load environment variables from .env file
 load_dotenv()
@@ -30,7 +30,7 @@ def summarize_code_description_title_tags(text):
                     "content": f"For the following code files, please write a concise (less than 400 words) description for this project. Also, provide a list for suggested tags concerning general topics the code is about (tags like: machine learning, computer vision, NLP, robotics, genomics, etc). Lastly please provide a string name for this project. Please always format your response as a json with keys: projectName, tags, and projectDescription. This is very important: the entirety of your response should constitute a valid JSON. There should be no json tags in the front or any leading/trailing text. Only give the json. Here is the text:\n\n{text}"
                 }
             ],
-            model="llama3-8b-8192",
+            model="llama3-70b-8192",
             max_tokens=600,
             temperature=0.2
         )
@@ -76,10 +76,6 @@ def summarize_code_layers(text):
         print(f"Error summarizing code layers: {e}")
         return []
 
-
-
-
-
 def validate_and_correct_json(json_str):
     try:
         json_obj = json.loads(json_str)
@@ -92,9 +88,28 @@ def remove_trailing_commas(json_str):
     json_str = re.sub(r',\s*([}\]])', r'\1', json_str)
     return json_str
 
+def validate_json(json_str):
+    try:
+        json.loads(json_str)
+        return True
+    except json.JSONDecodeError:
+        return False
 
+def validate_and_regenerate_json(combined_code):
+    surrounding_summary = summarize_code_description_title_tags(combined_code)
+    summary_content = summarize_code_layers(combined_code)
 
-@groq_bp.route('/groqAutofillCodeProject', methods=['POST'])
+    if not validate_json(surrounding_summary):
+        print("Invalid JSON for surrounding_summary, regenerating...")
+        surrounding_summary = summarize_code_description_title_tags(combined_code)
+
+    if not validate_json(json.dumps(summary_content)):
+        print("Invalid JSON for summary_content, regenerating...")
+        summary_content = summarize_code_layers(combined_code)
+
+    return surrounding_summary, summary_content
+
+@groq_code_autofill_bp.route('/groqAutofillCodeProject', methods=['POST'])
 @cross_origin()
 def autofill_code_project():
     data = request.get_json()
@@ -115,9 +130,7 @@ def autofill_code_project():
             content = project['content']
             combined_code += f"\n\n# {project['repoName']}/{project['filePath']}\n\n" + content + "\n\n\n"
 
-        # Generate surrounding summary and summary content
-        surrounding_summary = validate_and_correct_json(summarize_code_description_title_tags(combined_code))
-        summary_content = summarize_code_layers(combined_code)
+        surrounding_summary, summary_content = validate_and_regenerate_json(combined_code)
 
         print(f'here is the surrounding_summary: {surrounding_summary}')
         print(f'here is the summary_content: {summary_content}')
