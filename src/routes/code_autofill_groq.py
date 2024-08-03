@@ -16,6 +16,12 @@ client = Groq(
     api_key=os.environ.get("GROQCLOUD_API_KEY"),
 )
 
+groq_limit = 4000
+
+OpenAILimit = 10000
+
+chunkLimit = 30000
+
 def summarize_code_description_title_tags(text):
     try:
         print('Got to summarize_code_description_title_tags')

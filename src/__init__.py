@@ -59,7 +59,7 @@ def create_app():
     from .routes.autofiller_routes import autofiller_bp
     from .routes.code_autofill_groq import groq_code_autofill_bp
     from .routes.pdf_autofill_groq import pdf_autofill_groq
-
+    from .routes.codeAutoHolder import codeAutoHolder
     from .routes.resume_autofill_groq import resume_autifll_groq
 
     app.register_blueprint(comment_bp)
@@ -72,6 +72,7 @@ def create_app():
     app.register_blueprint(groq_code_autofill_bp)
     app.register_blueprint(resume_autifll_groq)
     app.register_blueprint(pdf_autofill_groq)
+    app.register_blueprint(codeAutoHolder)
 
 
     return app
