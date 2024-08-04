@@ -1212,6 +1212,63 @@ def upvote_project():
     app.logger.info(f"Upvote successful: {new_upvote}")
     return jsonify(new_upvote), 200
 
+@main_bp.route('/api/notifications')
+@jwt_required()
+def get_notifications():
+    username = get_jwt_identity()
+    user = mongo.db.users.find_one({"username": username})
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    
+    notifications = mongo.db.notifications.find(
+        {"user_id": user['_id'], "is_read": False}
+    ).sort("created_at", -1).limit(10)
+    
+    return jsonify([
+        {
+            'id': str(n['_id']),
+            'type': n['type'],
+            'message': n['message'],
+            'created_at': n['created_at'].isoformat()
+        } for n in notifications
+    ]), 200
+
+@main_bp.route('/api/notifications/mark_read/<notification_id>', methods=['POST'])
+@jwt_required()
+def mark_notification_read(notification_id):
+    username = get_jwt_identity()
+    user = mongo.db.users.find_one({"username": username})
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    result = mongo.db.notifications.update_one(
+        {"_id": ObjectId(notification_id), "user_id": user['_id']},
+        {"$set": {"is_read": True}}
+    )
+    if result.modified_count > 0:
+        return jsonify({'success': True}), 200
+    else:
+        return jsonify({'success': False, 'message': 'Notification not found or already read'}), 404
+
+@main_bp.route('/api/create_notification', methods=['POST'])
+@jwt_required()
+def create_notification():
+    username = get_jwt_identity()
+    user = mongo.db.users.find_one({"username": username})
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    data = request.get_json()
+    new_notification = {
+        'user_id': user['_id'],
+        'type': data['type'],
+        'message': data['message'],
+        'created_at': datetime.datetime.utcnow(),
+        'is_read': False
+    }
+    result = mongo.db.notifications.insert_one(new_notification)
+    return jsonify({'success': True, 'id': str(result.inserted_id)}), 201
+
 
 
 
