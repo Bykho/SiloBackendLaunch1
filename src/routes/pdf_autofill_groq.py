@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 import re
 import json
 import concurrent.futures
+import uuid
 
 pdf_autofill_groq = Blueprint('pdf_autofill_groq', __name__)
 
@@ -25,6 +26,8 @@ client = Groq(
 groq_limit = 8000
 OpenAILimit = 50000
 chunkLimit = 120000
+
+status_dict = {}
 
 # Removes trailing commas from a JSON string
 def remove_trailing_commas(json_str):
@@ -183,13 +186,16 @@ def summarize_sub_sections(text, chunk_size=20000):
     return aggregated_summary
 
 # Main function to validate and regenerate JSON summaries
-def validate_and_regenerate_json(file_text):
+def validate_and_regenerate_json(file_text, request_id):
     def sizeSplitter(combined_code):
         if len(combined_code) < groq_limit:
             print('under groq_limit')
             print()
+            status_dict[request_id] = 'Summarizing description and tags using Groq'
             summary_description = groq_summarize_text_description_title_tags(combined_code)
+            status_dict[request_id] = 'Summarizing layers using Groq'
             summary_layers = groq_summarize_text_layers(combined_code)
+            status_dict[request_id] = 'Processing complete'
             print('under groq_limit, summary_layers: ', summary_layers)
             print()
             print('under groq_limit, summary_description: ', summary_description)
@@ -197,8 +203,11 @@ def validate_and_regenerate_json(file_text):
         elif groq_limit < len(combined_code) < OpenAILimit:
             print('under OpenAILimit')
             print()
+            status_dict[request_id] = 'Summarizing description and tags using OPENAI'
             summary_description = openai_summarize_text_description_title_tags(combined_code)
+            status_dict[request_id] = 'Summarizing layers using OPENAI'
             summary_layers = openai_summarize_text_layers(combined_code)
+            status_dict[request_id] = 'Processing complete'
             print('under openAi limit: ', summary_layers, summary_description)
             return summary_description, summary_layers
         elif OpenAILimit < len(combined_code) < chunkLimit:
@@ -221,8 +230,6 @@ def validate_and_regenerate_json(file_text):
     print('about to go into sizeSplitter')
     surrounding_summary, summary_content = sizeSplitter(file_text)
     print('got passed size splitter')
-    summary_content = remove_content_key(summary_content)
-    print('got to remove_content_key')
 
     if not validate_json(json.dumps(surrounding_summary)) or not isinstance(summary_content, list):
         surrounding_summary, summary_content = sizeSplitter(file_text)
@@ -253,16 +260,26 @@ def projectFileParser():
     if not data or 'fileText' not in data:
         return jsonify({'error': 'No fileText provided'}), 400
     file_text = data['fileText']
+
+    request_id = str(uuid.uuid4())
+    status_dict[request_id] = 'Processing started'
+    
     try:
-        surrounding_summary, summary_content = validate_and_regenerate_json(file_text)
+        surrounding_summary, summary_content = validate_and_regenerate_json(file_text, request_id)
         print()
         print()
         print('projectFileParser: surrounding_summary, ', surrounding_summary)
         print()
         print('projectFileParser: summary_content, ', summary_content)
 
-        return jsonify({'surrounding_summary': surrounding_summary, 'summary_content': summary_content}), 200
+        return jsonify({'request_id': request_id, 'surrounding_summary': surrounding_summary, 'summary_content': summary_content}), 200
     except Exception as e:
+        status_dict[request_id] = 'Failed to parse proj file'
         return jsonify({'error': 'Failed to parse proj file'}), 500
 
 
+@pdf_autofill_groq.route('/groqProjectStatus/<request_id>', methods=['GET'])
+@cross_origin()
+def project_status(request_id):
+    status = status_dict.get(request_id, 'Invalid request ID')
+    return jsonify({'status': status})
