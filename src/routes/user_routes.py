@@ -464,13 +464,14 @@ def reset_password():
 @user_bp.route('/api/notifications')
 @jwt_required()
 def get_notifications():
-    username = get_jwt_identity()
-    user = mongo.db.users.find_one({"username": username})
+    jwt_claims = get_jwt()
+    user_id = jwt_claims.get('_id')
+    user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
     if not user:
         return jsonify({"error": "User not found"}), 404
     
     notifications = mongo.db.notifications.find(
-        {"user_id": user['_id'], "is_read": False}
+        {"user_id": ObjectId(user_id), "is_read": False}
     ).sort("created_at", -1).limit(10)
     
     return jsonify([
@@ -485,13 +486,14 @@ def get_notifications():
 @user_bp.route('/api/notifications/mark_read/<notification_id>', methods=['POST'])
 @jwt_required()
 def mark_notification_read(notification_id):
-    username = get_jwt_identity()
-    user = mongo.db.users.find_one({"username": username})
+    jwt_claims = get_jwt()
+    user_id = jwt_claims.get('_id')
+    user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
     if not user:
         return jsonify({"error": "User not found"}), 404
 
     result = mongo.db.notifications.update_one(
-        {"_id": ObjectId(notification_id), "user_id": user['_id']},
+        {"_id": ObjectId(notification_id), "user_id": ObjectId(user_id)},
         {"$set": {"is_read": True}}
     )
     if result.modified_count > 0:
@@ -502,14 +504,15 @@ def mark_notification_read(notification_id):
 @user_bp.route('/api/create_notification', methods=['POST'])
 @jwt_required()
 def create_notification():
-    username = get_jwt_identity()
-    user = mongo.db.users.find_one({"username": username})
+    jwt_claims = get_jwt()
+    user_id = jwt_claims.get('_id')
+    user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
     if not user:
         return jsonify({"error": "User not found"}), 404
 
     data = request.get_json()
     new_notification = {
-        'user_id': user['_id'],
+        'user_id': ObjectId(user_id),
         'type': data['type'],
         'message': data['message'],
         'created_at': datetime.datetime.utcnow(),
