@@ -190,7 +190,9 @@ def validate_and_regenerate_json(file_text):
             print()
             summary_description = groq_summarize_text_description_title_tags(combined_code)
             summary_layers = groq_summarize_text_layers(combined_code)
-            print('under groq_limit: ', summary_layers, summary_description)
+            print('under groq_limit, summary_layers: ', summary_layers)
+            print()
+            print('under groq_limit, summary_description: ', summary_description)
             return summary_description, summary_layers
         elif groq_limit < len(combined_code) < OpenAILimit:
             print('under OpenAILimit')
@@ -205,6 +207,7 @@ def validate_and_regenerate_json(file_text):
             aggregated_summary = summarize_sub_sections(combined_code, 9000)
             summary_description = openai_summarize_text_description_title_tags(aggregated_summary)
             summary_layers = openai_summarize_text_layers(aggregated_summary)
+            summary_layers = remove_content_key(summary_layers)
             print()
             print('under chunkLimit: summary_layers ', summary_layers)
             print()
@@ -215,10 +218,11 @@ def validate_and_regenerate_json(file_text):
             return summary_description, summary_layers
         else:
             raise ValueError("The combined code exceeds the maximum allowed limit for processing.")
-
+    print('about to go into sizeSplitter')
     surrounding_summary, summary_content = sizeSplitter(file_text)
-
+    print('got passed size splitter')
     summary_content = remove_content_key(summary_content)
+    print('got to remove_content_key')
 
     if not validate_json(json.dumps(surrounding_summary)) or not isinstance(summary_content, list):
         surrounding_summary, summary_content = sizeSplitter(file_text)
@@ -227,6 +231,7 @@ def validate_and_regenerate_json(file_text):
     return surrounding_summary, summary_content
 
 def remove_content_key(summary_content):
+    print('got to remove_content_key')
     updated_summary = []
     for item in summary_content:
         # Get the key (e.g., 'abstract', 'methodology', etc.)
@@ -235,8 +240,9 @@ def remove_content_key(summary_content):
         content = item[key]['content']
         # Create a new dictionary with the key and its content
         updated_summary.append({key: content})
+    print('got to the end of remove content key with updated summary')
     return updated_summary
-
+    
 # Route to handle the project file parser request
 @pdf_autofill_groq.route('/groqProjectFileParser', methods=['POST', 'OPTIONS'])
 @cross_origin()
@@ -249,6 +255,12 @@ def projectFileParser():
     file_text = data['fileText']
     try:
         surrounding_summary, summary_content = validate_and_regenerate_json(file_text)
+        print()
+        print()
+        print('projectFileParser: surrounding_summary, ', surrounding_summary)
+        print()
+        print('projectFileParser: summary_content, ', summary_content)
+
         return jsonify({'surrounding_summary': surrounding_summary, 'summary_content': summary_content}), 200
     except Exception as e:
         return jsonify({'error': 'Failed to parse proj file'}), 500
