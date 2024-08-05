@@ -119,6 +119,7 @@ def get_project_details(project):
         "projectDescription": project.get('projectDescription', ''),
         "projectName": project.get('projectName', ''),
         "tags": project.get('tags', []),
+        "user_id": str(project.get('user_id', ''))
     }
 
 
@@ -142,4 +143,5 @@ def get_project_feed_details(project):
         "projectDescription": project.get('projectDescription', ''),
         "projectName": project.get('projectName', ''),
         "tags": project.get('tags', []),
+        "user_id": str(project.get('user_id', ''))
     }
