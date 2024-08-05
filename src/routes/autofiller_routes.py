@@ -71,7 +71,7 @@ def summarize_text_for_sign(text):
 @autofiller_bp.route('/projectFileParser', methods=['POST', 'OPTIONS'])
 @cross_origin()
 def projectFileParser():
-    print('Opened the resume parser route')
+    print('Opened the projectFileParser route')
     if request.method == 'OPTIONS':
         return jsonify({'status': 'OK'}), 200
     data = request.get_json()

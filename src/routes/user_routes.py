@@ -49,14 +49,15 @@ def get_users_by_ids():
         print(f"Error fetching users: {e}")
         return jsonify({"error": "Failed to fetch users"}), 500
 
-@user_bp.route('/profile/<username>', methods=['GET'])
+@user_bp.route('/profile/<id>', methods=['GET'])
 @jwt_required()
-def other_student_profile(username):
-    jwt_claims = get_jwt()
-    user_id = jwt_claims.get('_id')
+def other_student_profile(id):
+    try:
+        user_id = ObjectId(id)
+    except Exception as e:
+        return jsonify({"error": "Invalid user ID"}), 400
+    
     user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
-    print('username from get_jwt: ', user.get('username'))
-    username = user.get('username')
 
     if not user:
         return jsonify({"error": "User not found"}), 404
@@ -336,6 +337,7 @@ def massProjectPublish():
             'upvotes': [],
             'layers': [],
             'links': [],
+            'user_id': str(user_id),
             'created_at': datetime.datetime.utcnow(),
         }
 
@@ -461,12 +463,16 @@ def reset_password():
 
     return jsonify({"message": "Password reset successfully"}), 200
 
+
+
 @user_bp.route('/api/notifications/')
 @jwt_required()
 def get_notifications():
+    print('notifications is getting run')
     jwt_claims = get_jwt()
     user_id = jwt_claims.get('_id')
     user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
+
     if not user:
         return jsonify({"error": "User not found"}), 404
     
@@ -522,3 +528,5 @@ def create_notification():
     }
     result = mongo.db.notifications.insert_one(new_notification)
     return jsonify({'success': True, 'id': str(result.inserted_id)}), 201
+
+
