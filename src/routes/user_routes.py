@@ -516,7 +516,8 @@ def create_notification():
         'type': data['type'],
         'message': data['message'],
         'created_at': datetime.datetime.utcnow(),
-        'is_read': False
+        'is_read': False,
+        'project_id': data['project_id']
     }
     result = mongo.db.notifications.insert_one(new_notification)
     return jsonify({'success': True, 'id': str(result.inserted_id)}), 201
