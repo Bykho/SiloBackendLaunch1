@@ -41,7 +41,7 @@ def return_projects_from_ids():
                 "links": project.get("links", []),
                 "created_at": project.get("created_at", ""),
                 "comments": project.get("comments", []),
-                "visible": project.get("visible", True)
+                "visibility": project.get("visibility", True)
             })
         #print('proejcts from ids project list: ', project_list)
         project_list = convert_objectid_to_str(project_list)
@@ -75,7 +75,7 @@ def add_bloc_project():
                 "layers": project_data.get('layers'),
                 "updated_at": datetime.datetime.utcnow(),
                 "tags": project_data.get('tags'),
-                "visible": project_data.get('visible')
+                "visibility": project_data.get('visibility', True)
             }}
         )
         if update_result.modified_count == 1:
@@ -101,7 +101,7 @@ def add_bloc_project():
             "projectDescription": project_data.get('projectDescription'),
             "layers": project_data.get('layers'),
             "created_at": datetime.datetime.utcnow(),
-            "visible": project_data.get('visible')
+            "visibility": project_data.get('visibility', True)
         }
         result = mongo.db.projects.insert_one(new_project)
         print('here is the result: ', result)
