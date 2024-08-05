@@ -78,7 +78,7 @@ def add_bloc_project():
         )
         if update_result.modified_count == 1:
             updated_project = mongo.db.projects.find_one({"_id": ObjectId(project_id)})
-            updated_project = convert_objectid_to_str(updated_project)  # Use your function
+            updated_project = convert_objectid_to_str(updated_project)
             print('here is the project getting sent up, ', updated_project)
 
             return jsonify(updated_project), 200
@@ -181,28 +181,17 @@ def delete_project():
         return jsonify({"error": "Failed to delete the project from the projects collection"}), 500
     print('Project deleted from projects collection')
 
-    # Retrieve the user's document
-    user = mongo.db.users.find_one({"_id": user_object_id})
-    if not user:
-        return jsonify({"error": "User not found"}), 404
-
-    # Remove the project ID from the user's portfolio
-    portfolio = user.get('portfolio', [])
-    if project_object_id in portfolio:
-        portfolio.remove(project_object_id)
-    else:
-        return jsonify({"error": "Project ID not found in user's portfolio"}), 404
-
-    # Update the user's document with the modified portfolio
+    # Remove the project ID from the user's portfolio directly in MongoDB
     user_update_result = mongo.db.users.update_one(
         {"_id": user_object_id},
-        {"$set": {"portfolio": portfolio}}
+        {"$pull": {"portfolio": str(project_id)}}
     )
     if user_update_result.modified_count != 1:
         return jsonify({"error": "Failed to update the user's portfolio"}), 500
     print('Project ID removed from user portfolio')
 
     return jsonify({"message": "Project deleted successfully"}), 200
+
 
 
 
