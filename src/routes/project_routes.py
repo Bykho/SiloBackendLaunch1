@@ -48,7 +48,8 @@ def return_projects_from_ids():
     except Exception as e:
         print(f"Error fetching projects: {e}")
         return jsonify({"error": "Failed to fetch projects"}), 500
-            
+
+
 
 @project_bp.route('/addBlocProject', methods=['POST'])
 @jwt_required()
@@ -71,7 +72,8 @@ def add_bloc_project():
                 "links": project_data.get('links'),
                 "projectDescription": project_data.get('projectDescription'),
                 "layers": project_data.get('layers'),
-                "updated_at": datetime.datetime.utcnow()
+                "updated_at": datetime.datetime.utcnow(),
+                "tags": project_data.get('tags')
             }}
         )
         if update_result.modified_count == 1:
@@ -113,7 +115,7 @@ def add_bloc_project():
             # Add the project ID to the user's portfolio
             update_result = mongo.db.users.update_one(
                 {"_id": ObjectId(user_id)},
-                {"$push": {"portfolio": project_id}}
+                {"$push": {"portfolio": {"$each": [project_id], "$position": 0}}}
             )
             print('update_result: ', update_result)
             if update_result.modified_count == 1:
