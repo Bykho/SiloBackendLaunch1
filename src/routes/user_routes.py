@@ -461,7 +461,7 @@ def reset_password():
 
     return jsonify({"message": "Password reset successfully"}), 200
 
-@user_bp.route('/api/notifications')
+@user_bp.route('/api/notifications/')
 @jwt_required()
 def get_notifications():
     jwt_claims = get_jwt()
@@ -471,7 +471,7 @@ def get_notifications():
         return jsonify({"error": "User not found"}), 404
     
     notifications = mongo.db.notifications.find(
-        {"user_id": ObjectId(user_id), "is_read": False}
+        {"recipient_id": ObjectId(user_id), "is_read": False}
     ).sort("created_at", -1).limit(10)
     
     return jsonify([
@@ -517,7 +517,8 @@ def create_notification():
         'message': data['message'],
         'created_at': datetime.datetime.utcnow(),
         'is_read': False,
-        'project_id': data['project_id']
+        'project_id': data['project_id'],
+        'recipient_id': data['recipient_id']
     }
     result = mongo.db.notifications.insert_one(new_notification)
     return jsonify({'success': True, 'id': str(result.inserted_id)}), 201
