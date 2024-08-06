@@ -25,7 +25,7 @@ client = Groq(
 
 groq_limit = 8000
 OpenAILimit = 50000
-chunkLimit = 120000
+chunkLimit = 80000
 
 status_dict = {}
 
@@ -227,6 +227,7 @@ def validate_and_regenerate_json(file_text, request_id):
             return summary_description, summary_layers
         else:
             raise ValueError("The combined code exceeds the maximum allowed limit for processing.")
+        
     print('about to go into sizeSplitter')
     surrounding_summary, summary_content = sizeSplitter(file_text)
     print('got passed size splitter')
@@ -241,11 +242,8 @@ def remove_content_key(summary_content):
     print('got to remove_content_key')
     updated_summary = []
     for item in summary_content:
-        # Get the key (e.g., 'abstract', 'methodology', etc.)
         key = list(item.keys())[0]
-        # Get the content associated with the key
         content = item[key]['content']
-        # Create a new dictionary with the key and its content
         updated_summary.append({key: content})
     print('got to the end of remove content key with updated summary')
     return updated_summary
@@ -266,13 +264,10 @@ def projectFileParser():
     
     try:
         surrounding_summary, summary_content = validate_and_regenerate_json(file_text, request_id)
-        print()
-        print()
-        print('projectFileParser: surrounding_summary, ', surrounding_summary)
-        print()
-        print('projectFileParser: summary_content, ', summary_content)
-
         return jsonify({'request_id': request_id, 'surrounding_summary': surrounding_summary, 'summary_content': summary_content}), 200
+    except ValueError as e:
+        status_dict[request_id] = 'Failed to parse proj file'
+        return jsonify({'error': str(e)}), 413  # 413 Payload Too Large
     except Exception as e:
         status_dict[request_id] = 'Failed to parse proj file'
         return jsonify({'error': 'Failed to parse proj file'}), 500

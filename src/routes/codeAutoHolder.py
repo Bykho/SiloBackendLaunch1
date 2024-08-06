@@ -215,9 +215,14 @@ def validate_and_regenerate_json(combined_code):
             return surrounding_summary, summary_layers
         else:
             print('Size was too large for chunking')
-            raise ValueError("The combined code exceeds the maximum allowed limit for processing.")
+            raise ValueError("As of this release, the files you have selected exceeds the maximum lines allowed for processing.")
 
-    surrounding_summary, summary_content = sizeSplitter(combined_code)
+    try:
+        surrounding_summary, summary_content = sizeSplitter(combined_code)
+    except ValueError as ve:
+        print(f"validate_and_regenerate_json: caught ValueError: {ve}")
+        raise ve
+    
     print('Surrounding Summary:', surrounding_summary)
     print('Summary Content:', summary_content)
 
@@ -258,6 +263,10 @@ def autofill_code_project():
             'summary_content': summary_content
         }), 200
 
+    except ValueError as e:
+        print(f"Error processing code files: {e}")
+        return jsonify({'error': str(e)}), 413  # 413 Payload Too Large
+    
     except Exception as e:
         print(f"Error processing code files: {e}")
         return jsonify({'error': 'Failed to process code files'}), 500
