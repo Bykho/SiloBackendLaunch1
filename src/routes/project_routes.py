@@ -196,10 +196,6 @@ def delete_project():
     return jsonify({"message": "Project deleted successfully"}), 200
 
 
-
-
-
-
 @project_bp.route('/updateProject', methods=['POST'])
 @jwt_required()
 def update_project(project_name):

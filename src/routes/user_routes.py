@@ -339,6 +339,7 @@ def massProjectPublish():
             'links': [],
             'user_id': str(user_id),
             'created_at': datetime.datetime.utcnow(),
+            'visibility': project.get('visibility', True)
         }
 
         proj_insert_result = mongo.db.projects.insert_one(new_project)
@@ -465,8 +466,9 @@ def reset_password():
 
 
 
-@user_bp.route('/api/notifications/')
+@user_bp.route('/notifications', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def get_notifications():
     print('notifications is getting run')
     jwt_claims = get_jwt()
@@ -476,10 +478,13 @@ def get_notifications():
     if not user:
         return jsonify({"error": "User not found"}), 404
     
-    notifications = mongo.db.notifications.find(
-        {"recipient_id": ObjectId(user_id), "is_read": False}
+    notifications_cursor = mongo.db.notifications.find(
+        {"recipient_id": str(user_id), "is_read": False}
     ).sort("created_at", -1).limit(10)
     
+    notifications = list(notifications_cursor)  # Convert cursor to a list
+    print('NOTIFICATIONS notifications:', notifications)
+
     return jsonify([
         {
             'id': str(n['_id']),
@@ -489,8 +494,9 @@ def get_notifications():
         } for n in notifications
     ]), 200
 
-@user_bp.route('/api/notifications/mark_read/<notification_id>', methods=['POST'])
+@user_bp.route('/notifications_mark_read/<notification_id>', methods=['POST'])
 @jwt_required()
+@cross_origin()
 def mark_notification_read(notification_id):
     jwt_claims = get_jwt()
     user_id = jwt_claims.get('_id')
@@ -507,8 +513,9 @@ def mark_notification_read(notification_id):
     else:
         return jsonify({'success': False, 'message': 'Notification not found or already read'}), 404
 
-@user_bp.route('/api/create_notification', methods=['POST'])
+@user_bp.route('/create_notification', methods=['POST'])
 @jwt_required()
+@cross_origin()
 def create_notification():
     jwt_claims = get_jwt()
     user_id = jwt_claims.get('_id')
