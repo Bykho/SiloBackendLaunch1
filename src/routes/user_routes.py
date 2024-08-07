@@ -490,6 +490,8 @@ def get_notifications():
             'id': str(n['_id']),
             'type': n['type'],
             'message': n['message'],
+            'project_name': n['project_name'],
+            'from_user': n['from_user'],
             'created_at': n['created_at'].isoformat()
         } for n in notifications
     ]), 200
@@ -528,6 +530,8 @@ def create_notification():
         'user_id': ObjectId(user_id),
         'type': data['type'],
         'message': data['message'],
+        'project_name': data['project_name'],
+        'from_user': data['from_user'],
         'created_at': datetime.datetime.utcnow(),
         'is_read': False,
         'project_id': data['project_id'],
