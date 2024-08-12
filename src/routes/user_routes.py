@@ -507,7 +507,7 @@ def mark_notification_read(notification_id):
         return jsonify({"error": "User not found"}), 404
 
     result = mongo.db.notifications.update_one(
-        {"_id": ObjectId(notification_id), "user_id": ObjectId(user_id)},
+        {"_id": ObjectId(notification_id), "recipient_id": str(user_id)},
         {"$set": {"is_read": True}}
     )
     if result.modified_count > 0:
