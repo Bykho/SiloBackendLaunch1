@@ -1212,7 +1212,7 @@ def upvote_project():
     app.logger.info(f"Upvote successful: {new_upvote}")
     return jsonify(new_upvote), 200
 
-@main_bp.route('/getProjectsFromUpvotes', methods=['POST'])
+@main_bp.route('/getProjectsFromUpvotes', methods=['GET'])
 @jwt_required()
 def get_projects_from_upvotes():
     data = request.get_json()
