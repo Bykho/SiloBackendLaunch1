@@ -71,6 +71,7 @@ def groupCreate():
         'projects': [],
         'comment_json': {'General Discussion': []},  # Initialize as an array
         'created_at': datetime.datetime.utcnow(),
+        'bounties': [],
     }
 
     group_insert_result = mongo.db.groups.insert_one(new_group)
@@ -95,6 +96,7 @@ def return_groups():
                 "users": [str(user_id) for user_id in group["users"]],  # Convert each user_id to string
                 "project_content": group["project_content"],
                 "comment_json": group.get("comment_json", {}),  # Include comment_json or an empty JSON object
+                "bounties": group.get("bounties", []),
                 "created_at": group["created_at"],
                 "projects": [str(project_id) for project_id in group.get("projects", [])]  # Convert project ObjectId to string
             })
@@ -131,6 +133,7 @@ def returnMyGroups():
                 "project_content": group["project_content"],
                 "comment_json": group.get("comment_json", {}),  # Include comment_json or an empty JSON object
                 "created_at": group["created_at"],
+                "bounties": group.get("bounties", []),
                 "projects": [str(project_id) for project_id in group.get("projects", [])]  # Convert project ObjectId to string
             })
         print('/RETURNMYGROUPS here is groups_to_be_returned: ', groups_to_be_returned)
@@ -197,3 +200,96 @@ def update_comment_json():
         return jsonify({"error": str(e)}), 500
 
 
+@group_bp.route('/getBountiesByIds', methods=['POST'])
+@jwt_required()
+def get_bounties_by_ids():
+    data = request.get_json()
+    bounty_ids = data.get('bounties')
+    if not bounty_ids:
+        return jsonify({"error": "Bounty IDs are required"}), 400
+
+    try:
+        bounty_ids = [ObjectId(bounty_id) for bounty_id in bounty_ids]
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    try:
+        bounties = mongo.db.bounties.find({"_id": {"$in": bounty_ids}})
+        bounty_list = []
+        for bounty in bounties:
+            bounty_list.append({
+                "_id": str(bounty["_id"]),
+                "author": bounty.get("author", ""),
+                "text": bounty.get("text", ""),
+                "project_links": bounty.get("project_links", ""),
+                "group_target": str(bounty.get("group_target", "")),
+                "upvotes": [str(upvote_id) for upvote_id in bounty.get("upvotes", [])],
+            })
+        return jsonify(bounty_list), 200
+    except Exception as e:
+        return jsonify({"error": f"Error fetching comments: {e}"}), 500
+
+@group_bp.route('/handleGroupBountyPost', methods=['POST'])
+@jwt_required()
+def handle_group_bounty_post():
+    try:
+        data = request.get_json()
+        bounty_text = data.get('text')
+        group_id = data.get('groupId')
+        title = data.get('title', 'n/a')
+        project_links = data.get('project_links', [])
+
+        print()
+        print()
+        print('/HANDLEGROUPBOUNTYPOST: bounty_text, ', bounty_text)
+        print('/HANDLEGROUPBOUNTYPOST: group_id, ', group_id)
+        print('/HANDLEGROUPBOUNTYPOST: title, ', title)
+
+        if not bounty_text or not group_id or not title:
+            return jsonify({"error": "Text, group ID, and title are required"}), 400
+        
+        group = mongo.db.groups.find_one({"_id": ObjectId(group_id)})
+        if not group:
+            return jsonify({"error": "Group not found"}), 404
+    
+        print('HANDLEGROUPBOUNTYPOST group name: ', group["groupName"])
+    
+        user = mongo.db.users.find_one({"username": get_jwt_identity()})
+        if not user:
+            return jsonify({"error": "User not found"}), 404      
+
+        new_bounty = {
+            "author_id": user['_id'],
+            "author": user['username'],
+            "title": title,
+            "text": bounty_text,
+            "group_target": ObjectId(group_id),
+            "upvotes": [],
+            "responses": [],
+            "project_links": project_links
+        }
+
+        # Insert the new bounty into the bounties collection
+        result = mongo.db.bounties.insert_one(new_bounty)
+
+        # Retrieve the automatically generated ID from the insert operation
+        new_bounty_id = result.inserted_id
+
+        # Update group's bounties field (just add the bounty ID to the bounties array)
+        mongo.db.groups.update_one(
+            {"_id": ObjectId(group_id)},
+            {"$push": {"bounties": new_bounty_id}}
+        )
+
+        # Update user's bounties field
+        mongo.db.users.update_one(
+            {"_id": user['_id']},
+            {"$push": {"bounties": new_bounty_id}}
+        )
+        # Fetch updated comments
+        updated_group = mongo.db.groups.find_one({"_id": ObjectId(group_id)})
+        updated_bounties = [str(bounty_id) for bounty_id in updated_group['bounties']]
+        return jsonify({"message": "Successfully added bounty", "newBounty": convert_objectid_to_str(new_bounty)}), 200
+    except Exception as e:
+        print(f"Error handling group bounty: {e}")
+        return jsonify({"error": "Failed to handle bounty"}), 500
