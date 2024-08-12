@@ -1212,7 +1212,26 @@ def upvote_project():
     app.logger.info(f"Upvote successful: {new_upvote}")
     return jsonify(new_upvote), 200
 
+@main_bp.route('/getProjectsFromUpvotes', methods=['POST'])
+@jwt_required()
+def get_projects_from_upvotes():
+    data = request.get_json()
+    upvote_ids = data.get('upvote_ids', [])
+    
+    if not upvote_ids:
+        return jsonify({"error": "Upvote IDs are required"}), 400
 
+    try:
+        # Convert string IDs to ObjectId
+        object_ids = [ObjectId(upvote_id) for upvote_id in upvote_ids]
+    except:
+        return jsonify({"error": "Invalid upvote ID format"}), 400
+
+    # Fetch upvotes and extract project IDs
+    upvotes = mongo.db.upvotes.find({"_id": {"$in": object_ids}})
+    project_ids = [str(upvote['project_id']) for upvote in upvotes]
+
+    return jsonify({"project_ids": project_ids}), 200
 
 
 #Dependent frontend: RankedFeed.js, TagsFeed.js
