@@ -2,7 +2,8 @@
 
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
-from bson import ObjectId
+from bson import ObjectId, errors
+from bson.objectid import InvalidId
 from .. import mongo
 import datetime
 from ..routes_schema_utility import get_user_details, get_user_context_details, get_user_feed_details, get_portfolio_details, get_project_feed_details, convert_objectid_to_str
@@ -320,8 +321,9 @@ def get_bounty_responses():
             response['bounty_id'] = str(response['bounty_id'])
             response['date'] = response['date'].isoformat()
 
+        for response in responses:
+            print('response: ', response["text"])
 
-        print('responses: ', responses)
         return jsonify(responses), 200
 
     except Exception as e:
@@ -332,6 +334,8 @@ def get_bounty_responses():
 @group_bp.route('/addBountyResponse', methods=['POST'])
 @jwt_required()
 def add_bounty_response():
+    print()
+    print()
     data = request.get_json()
     bounty_id = data.get('bountyId')
     author_id = data.get("author_id")
@@ -353,10 +357,24 @@ def add_bounty_response():
         if not user:
             return jsonify({"error": "User not found"}), 404
 
-        bounty = mongo.db.bounties.find_one({"_id": ObjectId(bounty_id)})
-        print('bounty: ', bounty)
+        print('got to before bounty search')
+        print('here is bounty_id: ', bounty_id)
+        print('here is bounty_id type: ', type(bounty_id))
+
+        try:
+            bounty_object_id = ObjectId(bounty_id)
+        except InvalidId as e:
+            print(f"Invalid ObjectId: {e}")
+            return jsonify({"error": "Invalid Bounty ID"}), 400
+        
+        print('here is the type for bounty_object_id: ', type(bounty_object_id))
+        
+        print(' last check: ', mongo.db.bounties.find_one({"_id": bounty_object_id}))
+        bounty = mongo.db.bounties.find_one({"_id": bounty_object_id})
+        #print('bounty title: ', bounty['bounty_title'] ,' bounty text: ', bounty["text"])
 
         if not bounty:
+            print('no bounty found')
             return jsonify({"error": "Bounty not found"}), 404
 
         new_response = {
@@ -368,7 +386,9 @@ def add_bounty_response():
             "bounty_id": bounty['_id'],
             "responses": []
         }
-
+        print()
+        print('new_response: ', new_response)
+        print()
         mongo.db.bounties.update_one(
             {"_id": ObjectId(bounty_id)},
             {"$push": {"responses": new_response}}
