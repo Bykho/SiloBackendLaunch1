@@ -293,3 +293,90 @@ def handle_group_bounty_post():
     except Exception as e:
         print(f"Error handling group bounty: {e}")
         return jsonify({"error": "Failed to handle bounty"}), 500
+    
+
+@group_bp.route('/getBountyResponses', methods=['POST'])
+@jwt_required()
+def get_bounty_responses():
+    print('getBountyResponses')
+    data = request.get_json()
+    bounty_id = data.get('bountyId')
+
+    if not bounty_id:
+        return jsonify({"error": "Bounty ID is required"}), 400
+
+    try:
+        bounty = mongo.db.bounties.find_one({"_id": ObjectId(bounty_id)})
+        print('bounty: ', bounty["responses"][0]["text"])
+        if not bounty:
+            return jsonify({"error": "Bounty not found"}), 404
+        
+        # Retrieve and return the responses
+        responses = bounty.get('responses', [])
+
+        # Convert ObjectId and datetime fields to strings
+        for response in responses:
+            response['author_id'] = str(response['author_id'])
+            response['bounty_id'] = str(response['bounty_id'])
+            response['date'] = response['date'].isoformat()
+
+
+        print('responses: ', responses)
+        return jsonify(responses), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Error fetching responses: {e}"}), 500
+
+
+#USE USERID FOR LOOKUP.
+@group_bp.route('/addBountyResponse', methods=['POST'])
+@jwt_required()
+def add_bounty_response():
+    data = request.get_json()
+    bounty_id = data.get('bountyId')
+    author_id = data.get("author_id")
+    response_text = data.get('text')
+
+    print('bounty_id: ', bounty_id)
+    print('author_id: ', author_id)
+    print('response_text: ', response_text)
+
+    if not bounty_id or not response_text:
+        return jsonify({"error": "Bounty ID and response text are required"}), 400
+
+    try:
+        print('got to right before the mongo.db.users.find_one in addbountyresponse')
+        user = mongo.db.users.find_one({"_id": ObjectId(author_id)})
+        print('hello')
+        print('user.username: ', user["username"])
+
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+
+        bounty = mongo.db.bounties.find_one({"_id": ObjectId(bounty_id)})
+        print('bounty: ', bounty)
+
+        if not bounty:
+            return jsonify({"error": "Bounty not found"}), 404
+
+        new_response = {
+            "author_name": user['username'],
+            "author_id": user['_id'],
+            "text": response_text,
+            "date": datetime.datetime.utcnow(),
+            "bounty_title": bounty['title'],
+            "bounty_id": bounty['_id'],
+            "responses": []
+        }
+
+        mongo.db.bounties.update_one(
+            {"_id": ObjectId(bounty_id)},
+            {"$push": {"responses": new_response}}
+        )
+
+        return jsonify({"message": "Response added successfully", "new_response": convert_objectid_to_str(new_response)}), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Error adding response: {e}"}), 500
+
+
