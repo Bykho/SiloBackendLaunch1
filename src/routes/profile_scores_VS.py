@@ -2,7 +2,7 @@
 
 
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt
 from bson import json_util, ObjectId
 from .. import mongo
 from ..routes_schema_utility import get_user_details, get_user_context_details, get_user_feed_details, get_portfolio_details, get_project_feed_details, convert_objectid_to_str
@@ -21,6 +21,8 @@ VSscores_bp = Blueprint('VSscores_bp', __name__)
 def VSprofileScore():
     print('\n \n \n')
     print('made it into VSprofileScore')
+    jwt_claims = get_jwt()
+    user_id = jwt_claims.get('_id')
     try:
 
         api_key = os.getenv("VECTORSHIFT_API_KEY")
@@ -49,8 +51,8 @@ def VSprofileScore():
                 "Task1": "Please score this text from 0 to 100 in terms of how theoretically focused this work is. When considering the score 1-100 consider 100 as the top theoretical expert in this field -- be critical or even harsh and favor lower scores. Only give a number 1-100, no extra text. The response key for this should be 'Theory'",
                 "Task2": "Please score this text from 0 to 100 in terms of the level of technical depth (taht is to say, the extent to which it demonstrates full technical knowledge) in this work. When considering the score 1-100 consider 100 as the top technical expert in this field -- be critical or even harsh and favor lower scores. Only give a number 1-100, no extra text. The response key for this should be 'Technical Depth'",
                 "Task3": "Please score this text from 0 to 100 in terms of how practically focused this work is. When considering the score 1-100 consider 100 as the most practiced expert in this field -- be critical or even harsh and favor lower scores. Only give a number 1-100, no extra text. The response key for this should be 'Practicum'",
-                "Task4": "Please score this text from 0 to 100 in terms of how collaborative this work is. When considering the score 1-100 consider 100 as the most collaborative project of all time, 0 a solo project -- be critical or even harsh. Only give a number 1-100, no extra text. The response key for this should be 'Collaboration'",
-                "Task5": "Please score this text from 0 to 100 in terms of how entrepeneurially focused this work is. When considering the score 1-100 consider 100 as the most entrepeneurial person ever, 0 to be a person who is most likely an employee -- be critical or even harsh. Only give a number 1-100, no extra text. The response key for this should be 'Entrepreneurship'",
+                "Task4": "Please score this text from 0 to 100 in terms of how innovative/creative this work is. When considering the score 1-100 consider 100 as the most innovative/new/creative ideas of all time, at 0 we have someone that just recreates already created things -- be critical or even harsh. Only give a number 1-100, no extra text. The response key for this should be 'Innovation'",
+                "Task5": "Please score this text from 0 to 100 in terms of how much of a leader the person who made this work seems to be. When considering the score 1-100 consider 100 as the greatest leader of all time, 0 to be a person who is most likely an employee -- be critical or even harsh. Only give a number 1-100, no extra text. The response key for this should be 'Leadership'",
                 "Document": combined_text
             }),
             "pipeline_name": "Document task completion agent Template",
@@ -71,8 +73,8 @@ def VSprofileScore():
             'Theory': output_dict.get('Theory'),
             'Technical Depth': output_dict.get('Technical Depth'),
             'Practicum': output_dict.get('Practicum'),
-            'Collaboration': output_dict.get('Collaboration'),
-            'Entrepreneurship': output_dict.get('Entrepreneurship')
+            'Innovation': output_dict.get('Innovation'),
+            'Leadership': output_dict.get('Leadership')
         }
 
         # Print the created dictionary to verify
@@ -80,6 +82,14 @@ def VSprofileScore():
   
         # Clean up the temporary file
         os.remove(temp_file_path)
+
+        # Add the score_dict to the user's "scores" field
+        mongo.db.users.update_one(
+            {"_id": ObjectId(user_id)},
+            {"$push": {"scores": score_dict}}
+        )
+        print(f"Scores {score_dict} added to user {user_id}.")
+
 
         # Return the response from Vectorshift
         return jsonify(score_dict), 200

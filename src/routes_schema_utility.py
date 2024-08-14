@@ -98,6 +98,7 @@ def get_user_feed_details(user):
         "university": user.get('university', ''),
         "user_type": user.get('user_type', ''),
         "portfolio": user.get('portfolio', ''),
+        "scores": user.get('scores', [])
     }
     return convert_objectid_to_str(user_details)
 
