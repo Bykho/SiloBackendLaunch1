@@ -61,6 +61,7 @@ def create_app():
     from .routes.pdf_autofill_groq import pdf_autofill_groq
     from .routes.codeAutoHolder import codeAutoHolder
     from .routes.resume_autofill_groq import resume_autifll_groq
+    from .routes.profile_scores_VS import VSscores_bp
 
     app.register_blueprint(comment_bp)
     app.register_blueprint(feed_bp)
@@ -73,6 +74,7 @@ def create_app():
     app.register_blueprint(resume_autifll_groq)
     app.register_blueprint(pdf_autofill_groq)
     app.register_blueprint(codeAutoHolder)
+    app.register_blueprint(VSscores_bp)
 
 
     return app
