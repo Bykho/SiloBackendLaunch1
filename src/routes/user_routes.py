@@ -99,7 +99,7 @@ def register():
         hashed_password = generate_password_hash(password)
         data['password'] = str(hashed_password)
         data['shared'] = False
-        data['score'] = []
+        data['scores'] = []
         result = mongo.db.users.insert_one(data)
         user = mongo.db.users.find_one({"_id": result.inserted_id})
         user_details = get_user_context_details(user)

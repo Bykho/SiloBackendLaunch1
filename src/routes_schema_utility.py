@@ -48,7 +48,8 @@ def get_user_details(user):
         "links": user.get('links', []),
         "github_link": user.get("github_link", ''),
         "resume": user.get('resume', ''),
-        "groups": user.get('groups', [])
+        "groups": user.get('groups', []),
+        "scores": user.get('scores', [])
     }
     return convert_objectid_to_str(user_details)
 
