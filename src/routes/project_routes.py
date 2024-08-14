@@ -133,8 +133,9 @@ def add_bloc_project():
 @project_bp.route('/returnUserProjects', methods=['POST'])
 @jwt_required()
 def return_user_projects():
+    jwt_claims = get_jwt()
+    user_id = jwt_claims.get('_id')    
     data = request.get_json()
-    user_id = data.get('userId')
 
     if not user_id:
         return jsonify({"error": "User ID is required"}), 400
