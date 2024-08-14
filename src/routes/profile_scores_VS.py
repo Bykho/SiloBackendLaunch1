@@ -48,11 +48,11 @@ def VSprofileScore():
         }
         data = {
             "inputs": json.dumps({
-                "Task1": "Please score this text from 0 to 100 in terms of how theoretically focused this work is. When considering the score 1-100 consider 100 as the top theoretical expert in this field -- be critical or even harsh and favor lower scores. Only give a number 1-100, no extra text. The response key for this should be 'Theory'",
-                "Task2": "Please score this text from 0 to 100 in terms of the level of technical depth (taht is to say, the extent to which it demonstrates full technical knowledge) in this work. When considering the score 1-100 consider 100 as the top technical expert in this field -- be critical or even harsh and favor lower scores. Only give a number 1-100, no extra text. The response key for this should be 'TechnicalDepth'",
-                "Task3": "Please score this text from 0 to 100 in terms of how practically focused this work is. When considering the score 1-100 consider 100 as the most practiced expert in this field -- be critical or even harsh and favor lower scores. Only give a number 1-100, no extra text. The response key for this should be 'Practicum'",
-                "Task4": "Please score this text from 0 to 100 in terms of how innovative/creative this work is. When considering the score 1-100 consider 100 as the most innovative/new/creative ideas of all time, at 0 we have someone that just recreates already created things -- be critical or even harsh. Only give a number 1-100, no extra text. The response key for this should be 'Innovation'",
-                "Task5": "Please score this text from 0 to 100 in terms of how much of a leader the person who made this work seems to be. When considering the score 1-100 consider 100 as the greatest leader of all time, 0 to be a person who is most likely an employee -- be critical or even harsh. Only give a number 1-100, no extra text. The response key for this should be 'Leadership'",
+                "Task1": "Please score this text from 0 to 100 in terms of how theoretically focused this work is. When considering the score 1-100 consider 100 as the top theoretical expert in this field -- be critical or even harsh and favor lower scores. As a reference, only a user on par with the greatest minds in science should get a 100, while a first year engineering student with very minimal experience should get close to 0. Only give a number 1-100, no extra text. The response key for this should be 'Theory'",
+                "Task2": "Please score this text from 0 to 100 in terms of the level of technical depth (taht is to say, the extent to which it demonstrates full technical knowledge) in this work. When considering the score 1-100 consider 100 as the top technical expert in this field -- be critical or even harsh and favor lower scores. As a reference, only a user on par with the greatest minds in science should get a 100, while a first year engineering student with very minimal experience should get close to 0. Only give a number 1-100, no extra text. The response key for this should be 'TechnicalDepth'",
+                "Task3": "Please score this text from 0 to 100 in terms of how practically focused this work is. When considering the score 1-100 consider 100 as the most practiced expert in this field -- be critical or even harsh and favor lower scores. Only give a number 1-100, no extra text. As a reference, only a user on par with the greatest minds in science should get a 100, while a first year engineering student with very minimal experience should get close to 0. The response key for this should be 'Practicum'",
+                "Task4": "Please score this text from 0 to 100 in terms of how innovative/creative this work is. When considering the score 1-100 consider 100 as the most innovative/new/creative ideas of all time, at 0 we have someone that just recreates already created things -- be critical or even harsh. As a reference, only a user on par with the greatest minds in science should get a 100, while a first year engineering student with very minimal experience should get close to 0. Only give a number 1-100, no extra text. The response key for this should be 'Innovation'",
+                "Task5": "Please score this text from 0 to 100 in terms of how much of a leader the person who made this work seems to be. When considering the score 1-100 consider 100 as the greatest leader of all time, 0 to be a person who is most likely an employee -- be critical or even harsh. As a reference, only a user on par with the greatest minds in science should get a 100, while a first year engineering student with very minimal experience should get close to 0. Only give a number 1-100, no extra text. The response key for this should be 'Leadership'",
                 "Document": combined_text
             }),
             "pipeline_name": "Document task completion agent Template",
@@ -70,7 +70,10 @@ def VSprofileScore():
         # Extract the nested JSON string from 'output_1' and convert it to a dictionary
          # Fix the single quotes to double quotes in the JSON string
         json_output_str = response_data['output_1'].replace("'", "\"")
+        #output_str = json_output_str.replace('\n', ', ')
 
+        print('here is output_str: ', json_output_str)
+        print('here is output_str type: ', type(json_output_str))
         # Extract the nested JSON string from 'output_1' and convert it to a dictionary
         output_dict = json.loads(json_output_str)
 
