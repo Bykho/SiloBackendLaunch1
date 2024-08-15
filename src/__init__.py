@@ -13,8 +13,19 @@ import ssl
 from flask_mail import Mail
 
 
+print("MONGO_URI before load_dotenv:", os.getenv('MONGO_URI'))
 load_dotenv()
+print("MONGO_URI after load_dotenv:", os.getenv('MONGO_URI'))
 
+print("Current working directory:", os.getcwd())
+
+mongo_uri = os.getenv('MONGO_URI')
+
+if mongo_uri is None:
+    print("MONGO_URI is not set correctly. Falling back to default.")
+    mongo_uri = 'default_value_if_missing'
+
+print("MONGO_URI set to:", mongo_uri)
 
 mongo = PyMongo()
 jwt = JWTManager()
@@ -33,7 +44,8 @@ def create_app():
     app.config['SECRET_KEY'] = 'your_secret_key'
     app.config["JWT_SECRET_KEY"] = 'your_jwt_secret_key'
     app.config['JWT_TOKEN_LOCATION'] = ['headers']
-    app.config['MONGO_URI'] = os.getenv('MONGO_URI')
+    app.config['MONGO_URI'] = mongo_uri
+    print("Connecting to MongoDB URI:", app.config['MONGO_URI'])
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=1)
     app.config['SESSION_TYPE'] = 'filesystem'
 
