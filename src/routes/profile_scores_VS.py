@@ -55,7 +55,7 @@ def VSprofileScore():
                 "Task5": "Please score this text from 0 to 100 in terms of how much of a leader the person who made this work seems to be. When considering the score 1-100 consider 100 as the greatest leader of all time, 0 to be a person who is most likely an employee -- be critical or even harsh. As a reference, only a user on par with the greatest minds in science should get a 100, while a first year engineering student with very minimal experience should get close to 0. Only give a number 1-100, no extra text. The response key for this should be 'Leadership'",
                 "Document": combined_text
             }),
-            "pipeline_name": "Document task completion agent Template",
+            "pipeline_name": "Scores Pipe",
             "username": "bykho",
         }
 
