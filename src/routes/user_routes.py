@@ -10,6 +10,7 @@ import datetime
 from flask_cors import cross_origin
 import logging
 from flask_mail import Message
+from mixpanel_utils import *
 import datetime
 import random
 import string
@@ -219,6 +220,9 @@ def login():
     user_details = get_user_context_details(user)
     user_details = {key: str(value) if isinstance(value, ObjectId) else value for key, value in user_details.items()}
     access_token = create_access_token(identity=user['username'], additional_claims=user_details)
+
+    track_event(user['_id'], 'login', {'email': email, 'time': datetime.datetime.utcnow()})
+    set_user_profile(user['_id'], {'name': user['username'], 'email': user['email'], 'last_login': datetime.datetime.utcnow()})
     return jsonify(access_token=access_token), 200
 
 @user_bp.route('/studentProfileEditor', methods=['GET', 'POST'])
