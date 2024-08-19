@@ -1,8 +1,12 @@
 
 from mixpanel import Mixpanel
+from dotenv import load_dotenv
+import os
 
-# Initialize Mixpanel
-mp = Mixpanel("4136be07334e206478667cb7e81e39e2")
+load_dotenv()
+
+api_key = os.getenv("MIXPANEL_KEY")
+mp = Mixpanel(api_key)
 
 def track_event(user_id, event_name, properties=None):
     mp.track(user_id, event_name, properties)
