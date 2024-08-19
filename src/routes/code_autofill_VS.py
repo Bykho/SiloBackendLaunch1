@@ -12,6 +12,7 @@ import os
 from dotenv import load_dotenv
 import json
 import requests
+from io import BytesIO
 
 
 # Load environment variables from .env file
@@ -22,42 +23,46 @@ VS_code_autofill_bp = Blueprint('VS_code_autofill_bp', __name__)
 @VS_code_autofill_bp.route('/VS_code_autofill_bp', methods=['POST'])
 def code_autofill_VS_bp():
     data = request.json
-    extracted_text =  data.get('extracted_text')
+    branch_name = data.get('branch_name')
+    file_names = data.get('file_names')
+    repo_name = data.get('repo_names')
+    owner_name = data.get('owner_name')
+
     api_key = os.getenv("VECTORSHIFT_API_KEY")
-    if not api_key:
-        return jsonify({"error": "API key not found in environment variables"}), 500
 
-    if not extracted_text:
-        return jsonify({"error": "No extracted text provided"}), 400
-    
-    temp_file_path = "/tmp/combined_data.txt"
-    with open(temp_file_path, 'w') as temp_file:
-        temp_file.write(extracted_text)
-    
-    url = "https://api.vectorshift.ai/api/pipelines/run"
- 
-    files = {
-        "Document": open(temp_file_path, 'rb')
-    }
+    if not api_key or len(api_key.strip()) == 0:
+        return jsonify({"error": "Invalid API key"}), 500
 
-    headers = {
-        "Api-Key": "YOUR_API_KEY",
-    }
 
-    data = {
-        # String inputs, or JSON representations of files for File inputs
-        "inputs": json.dumps({
-            "input_2": "Provide a high-level summary of the entire codebase. Focus on the overall functionality, purpose, and main components of the project. Describe the project's goals, the problem it solves, and how the code is structured to achieve these goals.",
-            "input_3": "Break down the specific methods and approaches used in the code. This should include explanations of the algorithms, design patterns, or architectural decisions that were implemented. Discuss how these methods contribute to the overall functionality and efficiency of the project.",
-            "input_5": "Summarize the different layers or modules within the code. Each section should cover a different aspect, such as the abstract, results, future work, and any additional topics relevant to the codebase. This will help in understanding how the code is divided into different functional areas.",
-            "input_1": "Generate a concise project name and a list of relevant tags that categorize the project's domain. The tags should reflect the key topics the code addresses, such as 'machine learning', 'computer vision', 'NLP', etc.",
-            "input_4": "Identify potential areas of improvement or expansion for the project. This section should highlight any limitations of the current implementation and suggest future enhancements or directions that could be taken to build upon the existing code.",
-    }),
-        "pipeline_name": "Code Pipe",
-        "username": "bykho",
-    }
+    try:
+        url = "https://api.vectorshift.ai/api/pipelines/run"
+        headers = {
+            "Api-Key": api_key,
+        }
+        data = {
+            "inputs": json.dumps({
+                "input_1": "Provide a high-level summary of the entire codebase. Focus on the overall functionality, purpose, and main components of the project. Describe the project's goals, the problem it solves, and how the code is structured to achieve these goals. Make it long. This entry should be a string with the key ‘Description’.",
+                "input_2": "Break down the specific methods and approaches used in the code. This should include explanations of the algorithms, design patterns, or architectural decisions that were implemented. Discuss how these methods contribute to the overall functionality and efficiency of the project. This entry should be a string with the key ‘Methodology’.",
+                "input_3": "Generate a concise description of the intention by hind the project. This should largely detail the purpose of the project. This entry should be a string with the key ‘Purpose’.",
+                "input_4": "Generate a concise project name and a list of relevant tags that categorize the project's domain. The tags should reflect the key topics the code addresses, such as 'machine learning', 'computer vision', 'NLP', etc. This entry should be a string with the key ‘Tags’.",
+                "input_5": "Identify potential areas of improvement or expansion for the project. This section should highlight any limitations of the current implementation and suggest future enhancements or directions that could be taken to build upon the existing code. This entry should be a string with the key ‘Future Work’.",
+                "LLMSystem": "You are a helpful assistant that extracts information explained in the Tasks from a document contained in the Context and returns a perfect JSON with the responses. Do not have any trailing apostrophes or say the word ‘JSON’. Just give me the dictionary that would work for JSON. That dictionary should have the following keys: ‘Description’ with the value being a string, ‘Methodology’ with the value being a string, ‘Purpose’ with the value being a string, ‘Tags’ with the value being an array of relevant topics, and ‘Future Work’ with the value being a string describing ways this project could be extended. Make it be a perfect JSON dictionary.",
+                "branch_name": branch_name,
+                "file_name": file_names,
+                "repo_name": repo_name,
+                "owner_name": owner_name,
+        }),
+            "pipeline_name": "Code Pipe",
+            "username": "bykho",
+        }
+        response = requests.post(url, headers=headers, data=data)
+        response = response.json()
 
-    response = requests.post(url, headers=headers, data=data, files=files)
-    response = response.json()
+    except Exception as e:
+        return jsonify({"error": f"Failed to process request: {str(e)}"}), 500
 
-            
+    if response.get("error"):
+        return jsonify({"error": "Error from VectorShift API", "details": response.get("error")}), 500
+
+    # Proceed with further processing or return the relevant data
+    return jsonify(response)
