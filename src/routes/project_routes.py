@@ -6,6 +6,7 @@ from bson import ObjectId
 from .. import mongo
 from ..routes_schema_utility import get_user_details, get_user_context_details, get_user_feed_details, get_portfolio_details, get_project_feed_details, convert_objectid_to_str
 import datetime
+from mixpanel_utils import track_event
 
 project_bp = Blueprint('project', __name__)
 
@@ -82,6 +83,7 @@ def add_bloc_project():
             updated_project = mongo.db.projects.find_one({"_id": ObjectId(project_id)})
             updated_project = convert_objectid_to_str(updated_project)
             print('here is the project getting sent up, ', updated_project)
+            track_event(str(user_id), "project edited", {"project_id": str(project_id), "action": "update"})
 
             return jsonify(updated_project), 200
         else:
@@ -122,6 +124,7 @@ def add_bloc_project():
             )
             print('update_result: ', update_result)
             if update_result.modified_count == 1:
+                track_event(str(user_id), "project added", {"project_id": str(project_id), "action": "create"})
                 return jsonify(new_project), 201
             else:
                 print('couldnt process the update')

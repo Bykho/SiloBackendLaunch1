@@ -6,6 +6,7 @@ from bson import ObjectId
 from ..routes_schema_utility import get_user_details, convert_objectid_to_str, get_user_context_details, get_user_feed_details, get_portfolio_details, get_project_feed_details
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt
 from .. import mongo
+from mixpanel_utils import track_event
 
 comment_bp = Blueprint('comment', __name__)
 
@@ -133,6 +134,8 @@ def handle_comment(username):
         comments = list(mongo.db.comments.find({"_id": {"$in": comment_ids}}))
         project = convert_objectid_to_str(project)
         comments = [convert_objectid_to_str(comment) for comment in comments]
+        
+        track_event(str(author['_id']), "commented", {"project_id": str(project_id), "action": "comment"})
 
         return jsonify({"project": project, "comments": comments}), 200
 

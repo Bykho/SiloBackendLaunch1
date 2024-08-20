@@ -13,6 +13,7 @@ import datetime
 import openai
 import uuid
 import hashlib
+from mixpanel_utils import track_event
 
 
 utility_bp = Blueprint('utility', __name__)
@@ -104,6 +105,7 @@ def upvote_project():
     new_upvote["user_id"] = str(new_upvote["user_id"])
 
     app.logger.info(f"Upvote successful: {new_upvote}")
+    track_event(str(user_id), "project upvoted", {"project_id": str(project_id)})
     return jsonify(new_upvote), 200
 
 

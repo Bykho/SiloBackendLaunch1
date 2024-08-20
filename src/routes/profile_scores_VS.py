@@ -10,6 +10,7 @@ import json
 import requests
 import os
 from dotenv import load_dotenv
+from mixpanel_utils import track_event
 
 # Load environment variables from .env file
 load_dotenv()
@@ -101,7 +102,7 @@ def VSprofileScore():
         )
         print(f"Scores {score_dict} added to user {user_id}.")
 
-
+        track_event(str(user_id), "profile scored", {"action": "score", "new_scores": score_dict})
         # Return the response from Vectorshift
         return jsonify(score_dict), 200
 

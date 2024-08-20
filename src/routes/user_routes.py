@@ -158,6 +158,8 @@ def register():
             "new_user": user
         })
         response.headers.add('Access-Control-Allow-Origin', '*')
+        track_event(str(user['_id']), 'signup', {'email': email, 'time': datetime.datetime.utcnow()})
+        set_user_profile(str(user['_id']), {'name': user['username'], 'email': user['email'], 'signup time': datetime.datetime.utcnow()})
         return response, 201
     else:
         response = jsonify({'message': 'Email already exists'})
