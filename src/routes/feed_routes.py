@@ -54,7 +54,7 @@ def get_directory_info():
 @jwt_required()
 def user_filtered_search(value):
     try:
-        if not value.strip():  # Check if value is empty or just spaces
+        if value.strip() == "":  # Check if value is empty or just spaces
             users = mongo.db.users.find()
         else: 
             users = mongo.db.users.find({
