@@ -13,7 +13,7 @@ import datetime
 import openai
 import uuid
 import hashlib
-from mixpanel_utils import track_event
+from ..routes.mixpanel_utils import track_event
 
 
 utility_bp = Blueprint('utility', __name__)

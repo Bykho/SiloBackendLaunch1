@@ -6,7 +6,7 @@ from bson import ObjectId
 from .. import mongo
 from ..routes_schema_utility import get_user_details, get_user_context_details, get_user_feed_details, get_portfolio_details, get_project_feed_details, convert_objectid_to_str
 import datetime
-from mixpanel_utils import track_event
+from ..routes.mixpanel_utils import track_event
 
 project_bp = Blueprint('project', __name__)
 

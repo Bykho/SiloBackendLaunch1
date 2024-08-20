@@ -10,7 +10,7 @@ import datetime
 from flask_cors import cross_origin
 import logging
 from flask_mail import Message
-from src.routes.mixpanel_utils import *
+from ..routes.mixpanel_utils import track_event
 import datetime
 import random
 import string

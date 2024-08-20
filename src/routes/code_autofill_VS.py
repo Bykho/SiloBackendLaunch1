@@ -25,9 +25,13 @@ def code_autofill_VS_bp():
     data = request.json
     branch_name = data.get('branch_name')
     file_names = data.get('file_names')
-    repo_name = data.get('repo_names')
+    extracted_file_names = [file_name.split('/')[-1] for file_name in file_names]
+    joined_file_names = '\n'.join(extracted_file_names).replace(" ", "")
+    file_names = joined_file_names
+    repo_name = data.get('repo_name')
     owner_name = data.get('owner_name')
 
+    print(f"Owner_name: {owner_name}, \n Repo_name: {repo_name}, \n Branch_name: {branch_name}, \n File_names: {file_names}")
     api_key = os.getenv("VECTORSHIFT_API_KEY")
 
     if not api_key or len(api_key.strip()) == 0:
@@ -56,7 +60,22 @@ def code_autofill_VS_bp():
             "username": "bykho",
         }
         response = requests.post(url, headers=headers, data=data)
+        print('Here is the first response')
+        print(f"{response}")
+        print()
         response = response.json()
+        print('Here is the second response')
+        print(f"{response}")
+        print()
+        print(f'here is the type for the response {type(response)} \n')
+        print('here is response[AnthropicOutput]')
+        print(f"{response['AnthropicOutput']}")
+        print()
+        print('here is response[OpenAIOutput]')
+        print(f"{response['OpenAIOutput']} \n here is type(response['OpenAIOutput']): {type(response['OpenAIOutput'])}")
+        print(f"{response['AnthropicOutput']} \n here is type(response['AnthropicOutput']): {type(response['AnthropicOutput'])}")
+        print(f" \n here is type(response[OpenAIOutput][Tags]) \n {type(response['OpenAIOutput']['Tags'])} \n ")
+        print(f" here is type(response[AnthropicOutput][Tags]) \n {type(response['AnthropicOutput']['Tags'])} \n ")
 
     except Exception as e:
         return jsonify({"error": f"Failed to process request: {str(e)}"}), 500

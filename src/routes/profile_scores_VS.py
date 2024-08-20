@@ -10,7 +10,7 @@ import json
 import requests
 import os
 from dotenv import load_dotenv
-from mixpanel_utils import track_event
+from ..routes.mixpanel_utils import track_event
 
 # Load environment variables from .env file
 load_dotenv()
