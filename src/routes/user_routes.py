@@ -10,7 +10,7 @@ import datetime
 from flask_cors import cross_origin
 import logging
 from flask_mail import Message
-from ..routes.mixpanel_utils import track_event
+from ..routes.mixpanel_utils import track_event, set_user_profile
 import datetime
 import random
 import string
@@ -159,7 +159,7 @@ def register():
         })
         response.headers.add('Access-Control-Allow-Origin', '*')
         track_event(str(user['_id']), 'signup', {'email': email, 'time': datetime.datetime.utcnow()})
-        set_user_profile(str(user['_id']), {'name': user['username'], 'email': user['email'], 'signup time': datetime.datetime.utcnow()})
+        set_user_profile(str(user['_id']), {'name': str(user['username']), 'email': str(user['email']), 'signup time': datetime.datetime.utcnow()})
         return response, 201
     else:
         response = jsonify({'message': 'Email already exists'})
