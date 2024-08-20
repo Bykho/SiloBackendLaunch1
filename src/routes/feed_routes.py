@@ -54,16 +54,19 @@ def get_directory_info():
 @jwt_required()
 def user_filtered_search(value):
     try:
-        users = mongo.db.users.find({
-            "$or": [
-                {"username": {"$regex": value, "$options": "i"}},
-                {"skills": {"$elemMatch": {"$regex": value, "$options": "i"}}},
-                {"interests": {"$elemMatch": {"$regex": value, "$options": "i"}}},
-                {"user_type": {"$regex": value, "$options": "i"}},
-                {"email": {"$regex": value, "$options": "i"}},
-                {"biography": {"$regex": value, "$options": "i"}}
-            ]
-        })
+        if not value.strip():  # Check if value is empty or just spaces
+            users = mongo.db.users.find()
+        else: 
+            users = mongo.db.users.find({
+                "$or": [
+                    {"username": {"$regex": value, "$options": "i"}},
+                    {"skills": {"$elemMatch": {"$regex": value, "$options": "i"}}},
+                    {"interests": {"$elemMatch": {"$regex": value, "$options": "i"}}},
+                    {"user_type": {"$regex": value, "$options": "i"}},
+                    {"email": {"$regex": value, "$options": "i"}},
+                    {"biography": {"$regex": value, "$options": "i"}}
+                ]
+            })
         directory = [get_user_feed_details(user) for user in users]
         response_data = convert_objectid_to_str(directory)
         return jsonify(response_data), 200
