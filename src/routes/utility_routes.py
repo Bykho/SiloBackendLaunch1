@@ -151,6 +151,7 @@ def join_waiting_list():
         "full_name": full_name,
         "timestamp": datetime.datetime.utcnow()
     })
+    track_event(str(email), "waiting list joined", {"full_name": str(full_name)})
     return jsonify({"message": "Email added to waiting list"}), 201
 
 
