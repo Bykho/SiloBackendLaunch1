@@ -143,7 +143,6 @@ def join_waiting_list():
     data = request.get_json()
     email = data.get('email')
     full_name = data.get('full_name')
-    referral_code = data.get('referral_code')
     referred_by = data.get('referred_by')
 
     if not email or not full_name:
@@ -153,9 +152,8 @@ def join_waiting_list():
     if existing_user:
         return jsonify({"error": "Email already in waiting list"}), 409
 
-    # Generate a unique referral code if not provided
-    if not referral_code:
-        referral_code = str(ObjectId())[:8].upper()
+    # Generate a unique referral code
+    referral_code = str(ObjectId())[:8].upper()
 
     new_user = {
         "email": email,
@@ -174,7 +172,7 @@ def join_waiting_list():
             {"referral_code": referred_by},
             {"$inc": {"referral_count": 1}}
         )
-
+    
     track_event(str(email), "waiting list joined", {
         "full_name": str(full_name),
         "referral_code": referral_code,
