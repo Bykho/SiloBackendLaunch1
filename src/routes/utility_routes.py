@@ -200,7 +200,8 @@ def get_referral_count():
 
     return jsonify({
         "message": "Referral count retrieved successfully",
-        "referral_count": referral_count
+        "referral_count": referral_count,
+        "referral_code": user.get('referral_code')
     }), 200
 
 @utility_bp.route('/')
