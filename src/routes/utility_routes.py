@@ -184,6 +184,24 @@ def join_waiting_list():
         "referral_code": referral_code
     }), 201
 
+@utility_bp.route('/getReferralCount', methods=['POST'])
+def get_referral_count():
+    data = request.get_json()
+    email = data.get('email')
+
+    if not email:
+        return jsonify({"error": "Email is required"}), 400
+
+    user = mongo.db.waiting_list.find_one({"email": email})
+    if not user:
+        return jsonify({"error": "Email not found in waiting list"}), 404
+
+    referral_count = user.get('referral_count', 0)
+
+    return jsonify({
+        "message": "Referral count retrieved successfully",
+        "referral_count": referral_count
+    }), 200
 
 @utility_bp.route('/')
 def hello():
