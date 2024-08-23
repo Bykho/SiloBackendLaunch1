@@ -153,7 +153,7 @@ def join_waiting_list():
         return jsonify({"error": "Email already in waiting list"}), 409
 
     # Generate a unique referral code
-    referral_code = str(ObjectId())[:8].upper()
+    referral_code = str(uuid.uuid4())[:8].upper()
 
     new_user = {
         "email": email,
