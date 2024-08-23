@@ -137,22 +137,54 @@ def check_access_key():
     else:
         return jsonify({"message": "Invalid or used access key"}), 404
 
+
 @utility_bp.route('/joinWaitingList', methods=['POST'])
 def join_waiting_list():
     data = request.get_json()
     email = data.get('email')
     full_name = data.get('full_name')
+    referral_code = data.get('referral_code')
+    referred_by = data.get('referred_by')
+
     if not email or not full_name:
         return jsonify({"error": "Email and full name are required"}), 400
-    if mongo.db.waiting_list.find_one({"email": email}):
+
+    existing_user = mongo.db.waiting_list.find_one({"email": email})
+    if existing_user:
         return jsonify({"error": "Email already in waiting list"}), 409
-    mongo.db.waiting_list.insert_one({
+
+    # Generate a unique referral code if not provided
+    if not referral_code:
+        referral_code = str(ObjectId())[:8].upper()
+
+    new_user = {
         "email": email,
         "full_name": full_name,
+        "referral_code": referral_code,
+        "referred_by": referred_by,
+        "referral_count": 0,
         "timestamp": datetime.datetime.utcnow()
+    }
+
+    mongo.db.waiting_list.insert_one(new_user)
+
+    # Update referrer's count if applicable
+    if referred_by:
+        mongo.db.waiting_list.update_one(
+            {"referral_code": referred_by},
+            {"$inc": {"referral_count": 1}}
+        )
+
+    track_event(str(email), "waiting list joined", {
+        "full_name": str(full_name),
+        "referral_code": referral_code,
+        "referred_by": referred_by
     })
-    track_event(str(email), "waiting list joined", {"full_name": str(full_name)})
-    return jsonify({"message": "Email added to waiting list"}), 201
+
+    return jsonify({
+        "message": "Email added to waiting list",
+        "referral_code": referral_code
+    }), 201
 
 
 @utility_bp.route('/')
