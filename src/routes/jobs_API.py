@@ -12,13 +12,20 @@ import os
 
 
 load_dotenv()
-api_key = os.getenv("THEIRSTACK_KEY")
 
 jobs_bp = Blueprint('jobs', __name__)
 
 @jobs_bp.route('/search_jobs', methods=['GET'])
 def search_jobs():
+    print('opened route')
+    api_key = os.getenv("THEIRSTACK_KEY")
+
+
+    #switch to Post request w/ sending data.
+
     url = "https://api.theirstack.com/v1/jobs/search"
+
+    
     payload = {
         "order_by": [
             {
@@ -31,8 +38,8 @@ def search_jobs():
             }
         ],
         "page": 0,
-        "limit": 25,
-        "company_description_pattern_or": [],
+        "limit": 2,
+        "company_description_pattern_or": ["engineering", "software development", "mechanical engineering"],
         "company_description_pattern_not": [],
         "company_description_pattern_accent_insensitive": False,
         "min_revenue_usd": None,
@@ -44,7 +51,7 @@ def search_jobs():
         "min_funding_usd": None,
         "max_funding_usd": None,
         "funding_stage_or": [],
-        "industry_or": [],
+        "industry_or": ["engineering", "software development", "mechanical engineering"],  # Filter by industry
         "industry_not": [],
         "industry_id_or": [],
         "industry_id_not": [],
@@ -106,19 +113,51 @@ def search_jobs():
         "job_location_pattern_not": [],
         "scraper_name_pattern_or": [],
         "include_total_results": False,
-        "blur_company_data": True,
+        "blur_company_data": False,
         "group_by": []
     }
     headers = {
         "Content-Type": "application/json",
-        "Authorization": api_key  # Replace with your actual API key
+        "Authorization": f"Bearer {api_key}"  # Replace with your actual API key
     }
-    
+
     try:
         response = requests.post(url, json=payload, headers=headers)
         response.raise_for_status()  # Raises an HTTPError for bad responses
-        return jsonify(response.json()), 200
+        
+        jobs_data = response.json().get('data', [])
+        
+        # Insert each job as a new entry in MongoDB
+        if jobs_data:
+            for job in jobs_data:
+                mongo.db.theirstack_daily_jobs.insert_one(job)
+        
+        return jsonify({"message": "Jobs successfully saved to MongoDB", "saved_jobs": len(jobs_data)}), 200
+    
     except requests.RequestException as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@jobs_bp.route('/get_jobs', methods=['GET'])
+def get_jobs():
+    try:
+        jobs_cursor = mongo.db.theirstack_daily_jobs.find({}, {"id": 1, "company": 1, "cities": 1, "job_title": 1, "description": 1})
+        
+        jobs_list = list(jobs_cursor)
+        
+        for job in jobs_list:
+            job['_id'] = str(job['_id'])
+            
+            # Handle the cities field
+            if 'cities' in job and isinstance(job['cities'], list) and len(job['cities']) > 0:
+                job['cities'] = job['cities'][0]
+            else:
+                job['cities'] = "no location found"
+        
+        print(f"jobs_list: {jobs_list}")
+        return jsonify(jobs_list), 200
+    
+    except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
