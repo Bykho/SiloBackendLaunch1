@@ -198,6 +198,10 @@ def get_referral_count():
 
     referral_count = user.get('referral_count', 0)
 
+    track_event(str(email), "checked points", {
+    "points": str(referral_count)
+    })
+
     return jsonify({
         "message": "Referral count retrieved successfully",
         "referral_count": referral_count,
