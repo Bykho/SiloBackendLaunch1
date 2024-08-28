@@ -244,9 +244,12 @@ def unsubscribe():
     if not email:
         return jsonify({"error": "Email is required"}), 400
 
+    email = email.lower()
+
+
     try:
         # Find the user in the waiting list by email
-        user = mongo.db.waiting_list.find_one({"email": email})
+        user = mongo.db.waiting_list.find_one({"$expr": {"$eq": [{"$toLower": "$email"}, email]}})
         
         if not user:
             return jsonify({"error": "User not found in the waiting list"}), 404
