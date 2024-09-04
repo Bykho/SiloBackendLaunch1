@@ -38,8 +38,8 @@ def search_jobs():
             }
         ],
         "page": 0,
-        "limit": 2,
-        "company_description_pattern_or": ["engineering", "software development", "mechanical engineering"],
+        "limit": 10,
+        "company_description_pattern_or": [],
         "company_description_pattern_not": [],
         "company_description_pattern_accent_insensitive": False,
         "min_revenue_usd": None,
@@ -51,7 +51,7 @@ def search_jobs():
         "min_funding_usd": None,
         "max_funding_usd": None,
         "funding_stage_or": [],
-        "industry_or": ["engineering", "software development", "mechanical engineering"],  # Filter by industry
+        "industry_or": [],  # Filter by industry
         "industry_not": [],
         "industry_id_or": [],
         "industry_id_not": [],
@@ -113,7 +113,7 @@ def search_jobs():
         "job_location_pattern_not": [],
         "scraper_name_pattern_or": [],
         "include_total_results": False,
-        "blur_company_data": False,
+        "blur_company_data": True,
         "group_by": []
     }
     headers = {
