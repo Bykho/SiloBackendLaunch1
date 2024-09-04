@@ -10,6 +10,7 @@ __pycache__/
 .DS_Store
 .env
 .venv
+.venv/lib
 
 src/__pycache__/__init__.cpython-312.pyc
 .venv/lib/python3.12/site-packages/yarl/__pycache__/_url.cpython-312.pyc
