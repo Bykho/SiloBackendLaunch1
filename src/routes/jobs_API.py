@@ -8,8 +8,7 @@ from flask import Flask, jsonify
 import requests
 from dotenv import load_dotenv
 import os
-
-
+from datetime import datetime, timedelta
 
 load_dotenv()
 
@@ -38,7 +37,7 @@ def search_jobs():
             }
         ],
         "page": 0,
-        "limit": 10,
+        "limit": 5,
         "company_description_pattern_or": [],
         "company_description_pattern_not": [],
         "company_description_pattern_accent_insensitive": False,
@@ -51,7 +50,7 @@ def search_jobs():
         "min_funding_usd": None,
         "max_funding_usd": None,
         "funding_stage_or": [],
-        "industry_or": [],  # Filter by industry
+        "industry_or": [], 
         "industry_not": [],
         "industry_id_or": [],
         "industry_id_not": [],
@@ -64,13 +63,13 @@ def search_jobs():
         "company_technology_slug_not": [],
         "only_yc_companies": False,
         "company_location_pattern_or": [],
-        "company_country_code_or": [],
+        "company_country_code_or": ["US"],
         "company_country_code_not": [],
         "company_list_id_or": [],
         "company_list_id_not": [],
         "company_linkedin_url_exists": None,
         "revealed_company_data": None,
-        "company_name_or": [],
+        "company_name_or": ["Apple"],
         "company_name_case_insensitive_or": [],
         "company_id_or": [],
         "company_domain_or": [],
@@ -84,7 +83,7 @@ def search_jobs():
         "job_title_pattern_and": [],
         "job_title_pattern_or": [],
         "job_title_pattern_not": [],
-        "job_country_code_or": [],
+        "job_country_code_or": ["US"],
         "job_country_code_not": [],
         "posted_at_max_age_days": None,
         "posted_at_gte": None,
@@ -113,7 +112,7 @@ def search_jobs():
         "job_location_pattern_not": [],
         "scraper_name_pattern_or": [],
         "include_total_results": False,
-        "blur_company_data": True,
+        "blur_company_data": False,
         "group_by": []
     }
     headers = {
@@ -122,42 +121,50 @@ def search_jobs():
     }
 
     try:
-        response = requests.post(url, json=payload, headers=headers)
-        response.raise_for_status()  # Raises an HTTPError for bad responses
+        last_fetch = mongo.db.theirstack_metadata.find_one({"_id": "last_fetch"})
         
-        jobs_data = response.json().get('data', [])
+        #if last_fetch is None or datetime.utcnow() - last_fetch['timestamp'] > timedelta(hours=24):
+        if True: # Always fetch new data for testing
+            response = requests.post(url, json=payload, headers=headers)
+            response.raise_for_status()
+            
+            jobs_data = response.json().get('data', [])
+            
+            if jobs_data:
+                # Clear existing data
+                mongo.db.theirstack_daily_jobs.delete_many({})
+                
+                # Insert new data
+                mongo.db.theirstack_daily_jobs.insert_many(jobs_data)
+            
+            # Update last fetch time
+            mongo.db.theirstack_metadata.update_one(
+                {"_id": "last_fetch"},
+                {"$set": {"timestamp": datetime.utcnow()}},
+                upsert=True
+            )
+            
+            print(f"Updated jobs data. {len(jobs_data)} jobs fetched.")
+        else:
+            print("Jobs data is up to date.")
         
-        # Insert each job as a new entry in MongoDB
-        if jobs_data:
-            for job in jobs_data:
-                mongo.db.theirstack_daily_jobs.insert_one(job)
-        
-        return jsonify({"message": "Jobs successfully saved to MongoDB", "saved_jobs": len(jobs_data)}), 200
-    
-    except requests.RequestException as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@jobs_bp.route('/get_jobs', methods=['GET'])
-def get_jobs():
-    try:
-        jobs_cursor = mongo.db.theirstack_daily_jobs.find({}, {"id": 1, "company": 1, "cities": 1, "job_title": 1, "description": 1})
+        # Fetch jobs from MongoDB
+        jobs_cursor = mongo.db.theirstack_daily_jobs.find({}, {"id": 1, "company": 1, "location": 1, "job_title": 1, "description": 1, "final_url": 1})
         
         jobs_list = list(jobs_cursor)
         
         for job in jobs_list:
             job['_id'] = str(job['_id'])
-            
-            # Handle the cities field
-            if 'cities' in job and isinstance(job['cities'], list) and len(job['cities']) > 0:
-                job['cities'] = job['cities'][0]
-            else:
-                job['cities'] = "no location found"
+
+            if 'location' in job:
+                job['location'] = job['location']
+            if job['location'] is None:
+                job['location'] = "Location Not Listed"
         
-        print(f"jobs_list: {jobs_list}")
         return jsonify(jobs_list), 200
     
     except Exception as e:
+        print(f"Error in search_jobs: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
