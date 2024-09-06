@@ -37,7 +37,7 @@ def search_jobs():
             }
         ],
         "page": 0,
-        "limit": 5,
+        "limit": 200,
         "company_description_pattern_or": [],
         "company_description_pattern_not": [],
         "company_description_pattern_accent_insensitive": False,
@@ -82,7 +82,7 @@ def search_jobs():
         "job_title_not": [],
         "job_title_pattern_and": [],
         "job_title_pattern_or": [],
-        "job_title_pattern_not": [],
+        "job_title_pattern_not": ["consultant","support","administrator", "administrative", "business", "finance", "barber", "stylist", "artist"],
         "job_country_code_or": ["US"],
         "job_country_code_not": [],
         "posted_at_max_age_days": None,
@@ -93,7 +93,7 @@ def search_jobs():
         "discovered_at_gte": None,
         "discovered_at_lte": None,
         "job_description_pattern_or": [],
-        "job_description_pattern_not": [],
+        "job_description_pattern_not": ["marketing","sales", "finance","accounting","HR" ,"copywriter", "legal", "lawyer","attorney","administrative","business","teacher", "instructor", "nurse", "doctor", "physician", "chef","consulting", "consulting"],
         "job_description_pattern_is_case_insensitive": True,
         "remote": None,
         "only_jobs_with_reports_to": None,
@@ -123,8 +123,8 @@ def search_jobs():
     try:
         last_fetch = mongo.db.theirstack_metadata.find_one({"_id": "last_fetch"})
         
-        #if last_fetch is None or datetime.utcnow() - last_fetch['timestamp'] > timedelta(hours=24):
-        if True: # Always fetch new data for testing
+        if last_fetch is None or datetime.utcnow() - last_fetch['timestamp'] > timedelta(hours=24):
+        #if True:  Always fetch new data for testing
             response = requests.post(url, json=payload, headers=headers)
             response.raise_for_status()
             
