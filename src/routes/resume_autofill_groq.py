@@ -88,22 +88,119 @@ def validate_and_regenerate_json(file_text):
 
     return summary
 
+
+
 @resume_autifll_groq.route('/groqResumeParser', methods=['POST', 'OPTIONS'])
 @cross_origin()
 def resume_parser():
     print('Opened the resume parser route')
     if request.method == 'OPTIONS':
         return jsonify({'status': 'OK'}), 200
-    data = request.get_json()
-    if not data or 'resumeText' not in data:
-        return jsonify({'error': 'No resume text provided'}), 400
-    file_text = data['resumeText']
+    
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+    
+    file = request.files['file']
+    
     try:
+        file_text = extract_text_from_file(file)
+        
+        if not file_text:
+            return jsonify({'error': 'Failed to extract text from the file or file is empty'}), 400
+
         summary = validate_and_regenerate_json(file_text)
         print(f'here is the summary: {summary}')
         return jsonify({'summary': summary}), 200
     except Exception as e:
         print(f"Error parsing resume: {e}")
-        return jsonify({'error': 'Failed to parse resume'}), 500
+        return jsonify({'error': str(e)}), 500
     
+
+
+
+import os
+import io
+import PyPDF4
+from pdfminer.high_level import extract_text as pdfminer_extract
+import pytesseract
+from pdf2image import convert_from_bytes
+from docx import Document
+from werkzeug.datastructures import FileStorage
+
+def extract_text_from_file(file):
+    """
+    Extract text from PDF and DOCX files using multiple methods.
+    
+    :param file: A FileStorage object containing the document data
+    :return: Extracted text as a string
+    """
+    if not isinstance(file, FileStorage):
+        raise ValueError("Invalid file object")
+
+    filename = file.filename
+    file_extension = os.path.splitext(filename)[1].lower()
+
+    try:
+        if file_extension == '.pdf':
+            return extract_text_from_pdf(file)
+        elif file_extension == '.docx':
+            return extract_text_from_docx(file)
+        else:
+            raise ValueError("Unsupported file type. Only .pdf and .docx are supported.")
+    except Exception as e:
+        print(f"Error extracting text from file: {e}")
+        raise
+
+def extract_text_from_pdf(pdf_file):
+    """
+    Extract text from a PDF file using multiple methods.
+    """
+    text = ""
+    
+    # Method 1: PyPDF4 (for PDFs with embedded text)
+    try:
+        pdf_file.seek(0)
+        reader = PyPDF4.PdfFileReader(pdf_file)
+        for page in range(reader.numPages):
+            text += reader.getPage(page).extractText() or ""
+        
+        if text.strip():
+            return text.strip()
+    except Exception as e:
+        print(f"PyPDF4 extraction failed: {e}")
+    
+    # Method 2: pdfminer (for more complex PDFs with embedded text)
+    try:
+        pdf_file.seek(0)
+        text = pdfminer_extract(io.BytesIO(pdf_file.read()))
+        
+        if text.strip():
+            return text.strip()
+    except Exception as e:
+        print(f"pdfminer extraction failed: {e}")
+    
+    # Method 3: OCR with Tesseract (for scanned PDFs or images)
+    try:
+        pdf_file.seek(0)
+        images = convert_from_bytes(pdf_file.read())
+        for image in images:
+            text += pytesseract.image_to_string(image)
+        
+        if text.strip():
+            return text.strip()
+    except Exception as e:
+        print(f"OCR extraction failed: {e}")
+    
+    raise ValueError("Text extraction failed for all PDF methods.")
+
+def extract_text_from_docx(docx_file):
+    """
+    Extract text from a DOCX file.
+    """
+    try:
+        doc = Document(docx_file)
+        return '\n'.join([paragraph.text for paragraph in doc.paragraphs])
+    except Exception as e:
+        print(f"DOCX extraction failed: {e}")
+        raise ValueError("Text extraction failed for DOCX file.")
 

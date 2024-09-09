@@ -198,6 +198,10 @@ def get_referral_count():
 
     referral_count = user.get('referral_count', 0)
 
+    track_event(str(email), "checked points", {
+    "points": str(referral_count)
+    })
+
     return jsonify({
         "message": "Referral count retrieved successfully",
         "referral_count": referral_count,
@@ -229,3 +233,32 @@ def convert_objectid_to_str(data):
     else:
         return data
 
+
+
+
+@utility_bp.route('/unsubscribe', methods=['POST'])
+def unsubscribe():
+    data = request.get_json()
+    email = data.get('email')
+
+    if not email:
+        return jsonify({"error": "Email is required"}), 400
+
+    email = email.lower()
+
+
+    try:
+        # Find the user in the waiting list by email
+        user = mongo.db.waiting_list.find_one({"$expr": {"$eq": [{"$toLower": "$email"}, email]}})
+        
+        if not user:
+            return jsonify({"error": "User not found in the waiting list"}), 404
+
+        # Remove the user from the waiting list
+        mongo.db.waiting_list.delete_one({"email": email})
+
+        return jsonify({"message": "Successfully unsubscribed"}), 200
+
+    except Exception as e:
+        print(f"Error while unsubscribing: {e}")
+        return jsonify({"error": "Failed to unsubscribe"}), 500
