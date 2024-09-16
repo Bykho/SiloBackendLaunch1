@@ -9,20 +9,49 @@ from ..routes_schema_utility import get_user_details, get_user_context_details, 
 
 feed_bp = Blueprint('feed', __name__)
 
-@feed_bp.route('/returnFeed', methods=['GET'])
+@feed_bp.route('/returnFeed', methods=['POST'])
 @jwt_required()
 def returnFeed():
     username = get_jwt_identity()
-    projects = list(mongo.db.projects.find())
+    data = request.get_json()
 
+    # Get pagination parameters from the request
+    page = int(data.get('page', 1))
+    per_page = int(data.get('per_page', 10))
+
+    # Calculate skip value for pagination
+    skip = (page - 1) * per_page
+
+    # Query the database with pagination and sorting
+    projects = list(mongo.db.projects.find()
+                    .sort('created_at', -1)  # Sort by created_at in descending order
+                    .skip(skip)
+                    .limit(per_page))
+
+    # Process comments for each project
     for project in projects:
         comment_ids = [ObjectId(comment_id) for comment_id in project.get('comments', [])]
         comments = list(mongo.db.comments.find({"_id": {"$in": comment_ids}}))
         comments = [convert_objectid_to_str(comment) for comment in comments]
         project["comments"] = comments
+
+    # Convert ObjectId to string for JSON serialization
     projects = [convert_objectid_to_str(project) for project in projects]
 
-    return json_util.dumps(projects), 200 
+    # Get total count of projects for pagination info
+    total_projects = mongo.db.projects.count_documents({})
+    total_pages = (total_projects + per_page - 1) // per_page
+
+    # Prepare response
+    response = {
+        "projects": projects,
+        "page": page,
+        "per_page": per_page,
+        "total_projects": total_projects,
+        "total_pages": total_pages
+    }
+
+    return json_util.dumps(response), 200
 
 @feed_bp.route('/returnProjects', methods=['POST'])
 @jwt_required()
