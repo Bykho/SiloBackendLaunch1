@@ -6,13 +6,17 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from bson import json_util, ObjectId
 from .. import mongo
 from ..routes_schema_utility import get_user_details, get_user_context_details, get_user_feed_details, get_portfolio_details, get_project_feed_details, convert_objectid_to_str
+from .pinecone_utils import initialize_pinecone, get_embedding, upsert_vector, query_similar_vectors
+
 
 feed_bp = Blueprint('feed', __name__)
+pinecone_index = initialize_pinecone()
 
 @feed_bp.route('/returnFeed', methods=['GET'])
 @jwt_required()
 def returnFeed():
     username = get_jwt_identity()
+    print(username, "username!")
     projects = list(mongo.db.projects.find())
 
     for project in projects:
@@ -89,6 +93,19 @@ def project_filtered_search(value):
     except Exception as e:
         print(f"Error fetching directory info: {e}")
         return jsonify({"error": "Unable to fetch directory info"}), 500
-
+    
+'''
+@feed_bp.route('/updateUserEmbedding', methods=['POST'])
+@jwt_required()
+def update_user_embedding():
+    username = get_jwt_identity()
+    user = mongo.db.users.find_one({"username": username})
+    
+    user_profile = f"{user['biography']} {' '.join(user['skills'])} {' '.join(user['interests'])}"
+    user_embedding = get_embedding(user_profile)
+    upsert_vector(pinecone_index, username, user_embedding, metadata={"username": username})
+    
+    return jsonify({"message": "User embedding updated successfully"}), 200
+'''
 
 
