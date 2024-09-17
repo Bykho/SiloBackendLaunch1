@@ -14,6 +14,7 @@ from ..routes.mixpanel_utils import track_event, set_user_profile
 import datetime
 import random
 import string
+import json
 
 
 user_bp = Blueprint('user', __name__)
@@ -233,19 +234,37 @@ def edit_student_profile():
     jwt_claims = get_jwt()
     user_id = jwt_claims.get('_id')
     user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
-    print('username from get_jwt: ', user.get('username'))
-    username = user.get('username')
-
+    
     if not user:
         return jsonify({"error": "User not found"}), 404
-    
+
+    username = user.get('username')
+    print('username from get_jwt:', username)
+
     if request.method == 'POST':
-        data = request.get_json()
+        # Check if the request is FormData (Content-Type: multipart/form-data)
+        if request.content_type.startswith('multipart/form-data'):
+            data = request.form.to_dict()
+            # Convert JSON fields back from string if needed (e.g., interests, skills)
+            data['interests'] = json.loads(data['interests']) if 'interests' in data else []
+            data['skills'] = json.loads(data['skills']) if 'skills' in data else []
+            data['papers'] = json.loads(data['papers']) if 'papers' in data else []
+            data['links'] = json.loads(data['links']) if 'links' in data else []
+            # Handle the resume file if uploaded
+            if 'resume' in request.files:
+                file = request.files['resume']
+                # Process the file as needed (e.g., save to disk, process contents)
+                # Here you would handle saving or processing the resume file.
+        else:
+            # Handle JSON data (Content-Type: application/json)
+            data = request.get_json()
+        
         if not data:
             return jsonify({"error": "Invalid data"}), 422
-        
+
+        # Only update fields that are allowed
         update_data = {key: value for key, value in data.items() if key in {
-            'username', 'email', 'university', 'interests', 'skills', 'biography', 
+            'username', 'email', 'university', 'interests', 'skills', 'biography',
             'profile_photo', 'personal_website', 'resume', 
             'links', 'major', 'grad', 'github_link'
         }}
@@ -256,6 +275,8 @@ def edit_student_profile():
         # Update the user in the database
         mongo.db.users.update_one({"username": username}, {"$set": update_data})
         user.update(update_data)
+
+        # Generate a new access token if the username is updated
         if 'username' in update_data and update_data['username'] != username:
             user_details = get_user_context_details(user)
             user_details = {key: str(value) if isinstance(value, ObjectId) else value for key, value in user_details.items()}
@@ -268,6 +289,7 @@ def edit_student_profile():
             'access_token': access_token
         }), 200
     
+    # Handle GET request to fetch user details
     user_details = get_user_details(user)
     portfolio = user_details.get('portfolio', [])
     project_ids = [ObjectId(project_id) for project_id in portfolio]
