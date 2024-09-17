@@ -120,9 +120,19 @@ def get_personalized_feed():
     
     user_embedding = get_or_create_user_embedding(pinecone_index, user)
     
-    similar_projects = query_similar_vectors(pinecone_index, user_embedding, top_k=20)
+    similar_projects = query_similar_vectors_projects(pinecone_index, user_embedding, top_k=20)
+    print(similar_projects, "similar_projects!")
+    project_ids = []
+    for match in similar_projects:
+        metadata = match.get('metadata', {})
+        if metadata.get('type') == 'project':
+            project_id = metadata.get('project_id')
+            if project_id:
+                try:
+                    project_ids.append(ObjectId(project_id))
+                except:
+                    print(f"Invalid project_id: {project_id}")
     
-    project_ids = [ObjectId(match['metadata']['project_id']) for match in similar_projects]
     projects = list(mongo.db.projects.find({"_id": {"$in": project_ids}}))
     
     for project in projects:
@@ -131,8 +141,7 @@ def get_personalized_feed():
         comments = [convert_objectid_to_str(comment) for comment in comments]
         project["comments"] = comments
     
-    projects = [convert_objectid_to_str(project) for project in projects]
-    
+    projects = [convert_objectid_to_str(project) for project in projects]    
     return json_util.dumps(projects), 200
 
 
@@ -149,6 +158,33 @@ def update_user_embedding():
     get_or_create_user_embedding(pinecone_index, user)
     
     return jsonify({"message": "User embedding updated successfully"}), 200
+
+@feed_bp.route('/returnPersonalizedFeed', methods=['GET'])
+@jwt_required()
+def return_personalized_feed():
+    jwt_claims = get_jwt()
+    user_id = jwt_claims.get('_id')
+    user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
+    
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    
+    user_embedding = get_or_create_user_embedding(pinecone_index, user)
+    
+    similar_projects = query_similar_vectors(pinecone_index, user_embedding, top_k=20)
+    
+    project_ids = [ObjectId(match['metadata']['project_id']) for match in similar_projects]
+    projects = list(mongo.db.projects.find({"_id": {"$in": project_ids}}))
+    
+    for project in projects:
+        comment_ids = [ObjectId(comment_id) for comment_id in project.get('comments', [])]
+        comments = list(mongo.db.comments.find({"_id": {"$in": comment_ids}}))
+        comments = [convert_objectid_to_str(comment) for comment in comments]
+        project["comments"] = comments
+    
+    projects = [convert_objectid_to_str(project) for project in projects]
+    
+    return json_util.dumps(projects), 200
 
 
 

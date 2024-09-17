@@ -42,6 +42,24 @@ def query_similar_vectors(index, vector, top_k=5):
     results = index.query(vector=vector, top_k=top_k, include_metadata=True)
     return results['matches']
 
+def query_similar_vectors_projects(index, vector, top_k=20):
+    results = index.query(
+        vector=vector,
+        top_k=top_k,
+        include_metadata=True,
+        filter={"type": "project"}
+    )
+    return results['matches']
+
+def query_similar_vectors_jobs(index, vector, top_k=20):
+    results = index.query(
+        vector=vector,
+        top_k=top_k,
+        include_metadata=True,
+        filter={"type": "job"}
+    )
+    return results['matches']
+
 
 def get_or_create_user_embedding(index, user):
     user_id = str(user['_id'])
