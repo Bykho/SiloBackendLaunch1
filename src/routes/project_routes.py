@@ -7,8 +7,12 @@ from .. import mongo
 from ..routes_schema_utility import get_user_details, get_user_context_details, get_user_feed_details, get_portfolio_details, get_project_feed_details, convert_objectid_to_str
 import datetime
 from ..routes.mixpanel_utils import track_event
+from .pinecone_utils import initialize_pinecone, get_embedding, upsert_vector
+
 
 project_bp = Blueprint('project', __name__)
+pinecone_index = initialize_pinecone()
+
 
 @project_bp.route('/returnProjectsFromIds', methods=['POST'])
 @jwt_required()
@@ -112,7 +116,13 @@ def add_bloc_project():
             print('got passed the result.acknowleged')
             project_id = str(result.inserted_id)
             new_project["_id"] = project_id
-            new_project = convert_objectid_to_str(new_project) 
+            new_project = convert_objectid_to_str(new_project)
+
+            # On new project creation, add a new embedding to Pinecone 
+            project_content = f"{new_project['projectName']} {new_project['projectDescription']} {' '.join(new_project.get('tags', []))}"
+            project_embedding = get_embedding(project_content)
+            upsert_vector(pinecone_index, str(new_project['_id']), project_embedding, metadata={"type": "project", "project_id": str(new_project['_id'])}) 
+
             # Log the user document to debug the update issue
             if not user:
                 print('User not found in the database')
@@ -125,6 +135,11 @@ def add_bloc_project():
             print('update_result: ', update_result)
             if update_result.modified_count == 1:
                 track_event(str(user_id), "project added", {"project_id": str(project_id), "action": "create"})
+                """ Adding new project to Pinecone 
+                project_content = f"{project['projectName']} {project['projectDescription']} {' '.join(project.get('tags', []))}"
+                project_embedding = get_embedding(project_content)
+                upsert_vector(pinecone_index, str(project['_id']), project_embedding, metadata={"project_id": str(project['_id'])})
+                """
                 return jsonify(new_project), 201
             else:
                 print('couldnt process the update')
@@ -196,7 +211,8 @@ def delete_project():
     if user_update_result.modified_count != 1:
         return jsonify({"error": "Failed to update the user's portfolio"}), 500
     print('Project ID removed from user portfolio')
-
+    
+    pinecone_index.delete(ids=[str(project_id)])
     return jsonify({"message": "Project deleted successfully"}), 200
 
 
@@ -218,6 +234,10 @@ def update_project(project_name):
     for key in data:
         user['portfolio'][project_index][key] = data[key]
     mongo.db.users.update_one({"_id": ObjectId(user_id)}, {"$set": {"portfolio": user['portfolio']}})
+    # Update the Pinecone vector
+    project_content = f"{user['portfolio'][project_index]['projectName']} {user['portfolio'][project_index]['projectDescription']} {' '.join(user['portfolio'][project_index].get('tags', []))}"
+    project_embedding = get_embedding(project_content)
+    upsert_vector(pinecone_index, str(user['portfolio'][project_index]['_id']), project_embedding, metadata={"type": "project", "project_id": str(user['portfolio'][project_index]['_id'])})
     return jsonify({'message': 'Project updated successfully'}), 200
 
 
