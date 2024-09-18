@@ -18,33 +18,12 @@ load_dotenv()
 jobs_bp = Blueprint('jobs', __name__)
 pinecone_index = initialize_pinecone()
 
-@jobs_bp.route('/getPersonalizedJobRecommendations', methods=['GET'])
-@jwt_required()
-def get_personalized_job_recommendations():
-    jwt_claims = get_jwt()
-    user_id = jwt_claims.get('_id')
-    user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
-    
-    if not user:
-        return jsonify({"error": "User not found"}), 404
-    
-    user_embedding = get_or_create_user_embedding(pinecone_index, user)
-    
-    similar_jobs = query_similar_vectors_jobs(pinecone_index, user_embedding, top_k=20)
-    
-    job_ids = [match['metadata']['job_id'] for match in similar_jobs]
-    jobs = list(mongo.db.theirstack_daily_jobs.find({"id": {"$in": job_ids}}))
-    
-    jobs = [convert_objectid_to_str(job) for job in jobs]
-    
-    return json_util.dumps(jobs), 200
-
 
 @jobs_bp.route('/search_jobs', methods=['GET'])
+@jwt_required()
 def search_jobs():
     print('opened route')
     api_key = os.getenv("THEIRSTACK_KEY")
-
 
     #switch to Post request w/ sending data.
 
@@ -108,7 +87,7 @@ def search_jobs():
         "job_title_not": [],
         "job_title_pattern_and": [],
         "job_title_pattern_or": [],
-        "job_title_pattern_not": ["consultant","support","administrator", "administrative", "business", "finance", "barber", "stylist", "artist", "executive", "HR", "Chairman", "Recruiting", "Recruiter", "Resources", "Administrator", "Security", "Assistant", "Concierge", "Secretary", "Janitor", "Sanitation"],
+        "job_title_pattern_not": ["consultant","support","administrator", "administrative", "business", "finance", "barber", "stylist", "artist", "executive", "HR", "Chairman", "Recruiting", "Recruiter", "Resources", "Administrator", "Security", "Assistant", "Concierge", "Secretary", "Janitor", "Sanitation", "Host", "Hostess", "Service","Technician"],
         "job_country_code_or": ["US"],
         "job_country_code_not": [],
         "posted_at_max_age_days": None,
@@ -149,8 +128,8 @@ def search_jobs():
     try:
         last_fetch = mongo.db.theirstack_metadata.find_one({"_id": "last_fetch"})
         
-        #if last_fetch is None or datetime.utcnow() - last_fetch['timestamp'] > timedelta(hours=24):
-        if True:  #Always fetch new data for testing
+        if last_fetch is None or datetime.utcnow() - last_fetch['timestamp'] > timedelta(hours=24):
+        #if True: #for testing
             response = requests.post(url, json=payload, headers=headers)
             response.raise_for_status()
             
@@ -164,7 +143,6 @@ def search_jobs():
                 mongo.db.theirstack_daily_jobs.insert_many(jobs_data)
 
                 update_job_embeddings(jobs_data)
-
             
             # Update last fetch time
             mongo.db.theirstack_metadata.update_one(
@@ -175,30 +153,49 @@ def search_jobs():
             
             print(f"Updated jobs data. {len(jobs_data)} jobs fetched.")
         else:
-            print("Jobs data is up to date.")
+            print("Jobs data is up to date. Fetching from MongoDB.")
         
-        # Fetch jobs from MongoDB
-        jobs_cursor = mongo.db.theirstack_daily_jobs.find({}, {"id": 1, "company": 1, "location": 1, "job_title": 1, "description": 1, "final_url": 1})
+        # Get user embedding (you might want to pass user_id as a parameter)
+        jwt_claims = get_jwt()
+        user_id = jwt_claims.get('_id')
+        user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
+        if not user:
+            return jsonify({"error": "User not found"}), 404
         
-        jobs_list = list(jobs_cursor)
+        user_embedding = get_or_create_user_embedding(pinecone_index, user)
         
-        for job in jobs_list:
-            job['_id'] = str(job['_id'])
-
-            if 'location' in job:
-                job['location'] = job['location']
-            if job['location'] is None:
-                job['location'] = "Location Not Listed"
+        # Query Pinecone for similar job vectors
+        similar_jobs = query_similar_vectors_jobs(pinecone_index, user_embedding, top_k=500)
+        
+        # Get job IDs in order of similarity
+        job_ids = [match['id'] for match in similar_jobs]
+        
+        # Fetch jobs from MongoDB in the order of similarity
+        print(f"Type of jobs_data: {type(jobs_data)}")
+        print(f"First item in jobs_data: {jobs_data[0] if jobs_data else 'Empty'}")
+        
+        jobs_list = []
+        for job_id in job_ids:
+            job = mongo.db.theirstack_daily_jobs.find_one({"id": job_id})
+            if job:
+                job['_id'] = str(job['_id'])
+                if 'location' in job:
+                    job['location'] = job['location']
+                if job['location'] is None:
+                    job['location'] = "Location Not Listed"
+                jobs_list.append(job)
         
         return jsonify(jobs_list), 200
-    
+
     except Exception as e:
         print(f"Error in search_jobs: {str(e)}")
         return jsonify({"error": str(e)}), 500
     
 def update_job_embeddings(jobs_data):
     for job in jobs_data:
-        job_content = f"{job['job_title']} {job['description']} {job['company']['name']}"
+        print("type", type(job))
+        print("job", job)
+        job_content = f"{job['job_title']} {job['description']} {job['company']}"
         job_embedding = get_embedding(job_content)
         upsert_vector(pinecone_index, str(job['_id']), job_embedding, metadata={"type": "job", "job_id": str(job['_id'])})
     print(f"Updated embeddings for {len(jobs_data)} jobs")
