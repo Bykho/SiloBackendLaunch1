@@ -53,20 +53,105 @@ def returnFeed():
 
     return json_util.dumps(response), 200
 
+
+@feed_bp.route('/popularFeed', methods=['POST'])
+@jwt_required()
+def popularFeed():
+    username = get_jwt_identity()
+    data = request.get_json()
+
+    page = int(data.get('page', 1))
+    per_page = int(data.get('per_page', 10))
+    skip = (page - 1) * per_page
+
+    pipeline = [
+        {
+            "$facet": {
+                "totalCount": [
+                    {"$count": "count"}
+                ],
+                "paginatedResults": [
+                    {"$addFields": {"upvotesLength": {"$size": "$upvotes"}}},
+                    {"$sort": {"upvotesLength": -1}},
+                    {"$skip": skip},
+                    {"$limit": per_page},
+                    {"$project": {"upvotesLength": 0}}
+                ]
+            }
+        }
+    ]
+
+    result = list(mongo.db.projects.aggregate(pipeline))[0]
+    
+    total_projects = result['totalCount'][0]['count'] if result['totalCount'] else 0
+    projects = result['paginatedResults']
+
+    # Process comments for each project
+    for project in projects:
+        comment_ids = [ObjectId(comment_id) for comment_id in project.get('comments', [])]
+        comments = list(mongo.db.comments.find({"_id": {"$in": comment_ids}}))
+        comments = [convert_objectid_to_str(comment) for comment in comments]
+        project["comments"] = comments
+
+    projects = [convert_objectid_to_str(project) for project in projects]
+
+    total_pages = (total_projects + per_page - 1) // per_page
+
+    response = {
+        "projects": projects,
+        "page": page,
+        "per_page": per_page,
+        "total_projects": total_projects,
+        "total_pages": total_pages
+    }
+
+    return json_util.dumps(response), 200
+
+
 @feed_bp.route('/returnProjects', methods=['POST'])
 @jwt_required()
 def return_projects():
     username = get_jwt_identity()
     data = request.get_json()
-    projects = []
-    for upvote_id in data:
-        upvote_obj_id = ObjectId(upvote_id)
-        upvote = mongo.db.upvotes.find_one({"_id": upvote_obj_id})
-        project = mongo.db.projects.find_one({"_id": ObjectId(upvote["project_id"])})
-        if project:
-            projects.append(project)
-    projects = [convert_objectid_to_str(project) for project in projects]
-    return json_util.dumps(projects), 200
+    
+    if isinstance(data, dict) and 'page' in data:
+        # Handle paginated request
+        page = int(data.get('page', 1))
+        per_page = int(data.get('per_page', 10))
+        skip = (page - 1) * per_page
+        
+        upvotes = mongo.db.upvotes.find({"user_id": username}).skip(skip).limit(per_page)
+        project_ids = [ObjectId(upvote["project_id"]) for upvote in upvotes]
+        projects = list(mongo.db.projects.find({"_id": {"$in": project_ids}}))
+        
+        total_upvotes = mongo.db.upvotes.count_documents({"user_id": username})
+        total_pages = (total_upvotes + per_page - 1) // per_page
+        
+        response = {
+            "projects": [convert_objectid_to_str(project) for project in projects],
+            "page": page,
+            "per_page": per_page,
+            "total_projects": total_upvotes,
+            "total_pages": total_pages
+        }
+    else:
+        # Handle array of upvote IDs
+        projects = []
+        for upvote_id in data:
+            try:
+                upvote_obj_id = ObjectId(upvote_id)
+                upvote = mongo.db.upvotes.find_one({"_id": upvote_obj_id})
+                if upvote:
+                    project = mongo.db.projects.find_one({"_id": ObjectId(upvote["project_id"])})
+                    if project:
+                        projects.append(project)
+            except InvalidId:
+                print(f"Invalid upvote ID: {upvote_id}")
+                continue
+        
+        response = [convert_objectid_to_str(project) for project in projects]
+
+    return json_util.dumps(response), 200
 
 @feed_bp.route('/genDirectory', methods=['GET'])
 @jwt_required()
