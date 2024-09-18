@@ -158,25 +158,28 @@ def search_jobs():
         # Get user embedding (you might want to pass user_id as a parameter)
         jwt_claims = get_jwt()
         user_id = jwt_claims.get('_id')
+
         user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
+
         if not user:
             return jsonify({"error": "User not found"}), 404
         
         user_embedding = get_or_create_user_embedding(pinecone_index, user)
-        
+
         # Query Pinecone for similar job vectors
-        similar_jobs = query_similar_vectors_jobs(pinecone_index, user_embedding, top_k=500)
-        
+        similar_jobs = query_similar_vectors_jobs(pinecone_index, user_embedding, top_k=6)
+
         # Get job IDs in order of similarity
         job_ids = [match['id'] for match in similar_jobs]
         
         # Fetch jobs from MongoDB in the order of similarity
-        print(f"Type of jobs_data: {type(jobs_data)}")
-        print(f"First item in jobs_data: {jobs_data[0] if jobs_data else 'Empty'}")
+        #print(f"Type of jobs_data: {type(jobs_data)}")
+        #print(f"First item in jobs_data: {jobs_data[0] if jobs_data else 'Empty'}")
         
         jobs_list = []
+        print(type(job_ids[1]))
         for job_id in job_ids:
-            job = mongo.db.theirstack_daily_jobs.find_one({"id": job_id})
+            job = mongo.db.theirstack_daily_jobs.find_one({"_id": ObjectId(job_id)})
             if job:
                 job['_id'] = str(job['_id'])
                 if 'location' in job:
