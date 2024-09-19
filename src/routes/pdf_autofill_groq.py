@@ -23,9 +23,9 @@ client = Groq(
     api_key=os.environ.get("GROQCLOUD_API_KEY"),
 )
 
-groq_limit = 8000
-OpenAILimit = 50000
-chunkLimit = 80000
+groq_limit = 10000
+OpenAILimit = 80000
+chunkLimit = 1000000
 
 status_dict = {}
 
@@ -207,8 +207,12 @@ def validate_and_regenerate_json(file_text, request_id):
             summary_description = openai_summarize_text_description_title_tags(combined_code)
             status_dict[request_id] = 'Summarizing layers using OPENAI'
             summary_layers = openai_summarize_text_layers(combined_code)
+            summary_layers = remove_content_key(summary_layers)  # Add this line
             status_dict[request_id] = 'Processing complete'
-            print('under openAi limit: ', summary_layers, summary_description)
+            print('under openAi limit, summary_layers: ', summary_layers)
+            print()
+            print()
+            print('under openAi limit, summary_description: ', summary_description)
             return summary_description, summary_layers
         elif OpenAILimit < len(combined_code) < chunkLimit:
             print('under chunkLimit')
@@ -240,12 +244,23 @@ def validate_and_regenerate_json(file_text, request_id):
 
 def remove_content_key(summary_content):
     print('got to remove_content_key')
+    print('Input summary_content:', summary_content)
     updated_summary = []
-    for item in summary_content:
-        key = list(item.keys())[0]
-        content = item[key]['content']
-        updated_summary.append({key: content})
-    print('got to the end of remove content key with updated summary')
+    try:
+        for item in summary_content:
+            if isinstance(item, dict):
+                key = list(item.keys())[0]
+                if isinstance(item[key], dict) and 'content' in item[key]:
+                    content = item[key]['content']
+                    updated_summary.append({key: content})
+                else:
+                    updated_summary.append(item)  # Keep the item as is if it doesn't have the expected structure
+            else:
+                print(f"Unexpected item type in summary_content: {type(item)}")
+    except Exception as e:
+        print(f"Error in remove_content_key: {str(e)}")
+        raise
+    print('Updated summary:', updated_summary)
     return updated_summary
     
 # Route to handle the project file parser request
@@ -269,8 +284,12 @@ def projectFileParser():
         status_dict[request_id] = 'Failed to parse proj file'
         return jsonify({'error': str(e)}), 413  # 413 Payload Too Large
     except Exception as e:
-        status_dict[request_id] = 'Failed to parse proj file'
-        return jsonify({'error': 'Failed to parse proj file'}), 500
+        import traceback
+        error_trace = traceback.format_exc()
+        print(f"Error in projectFileParser: {str(e)}")
+        print(f"Traceback: {error_trace}")
+        status_dict[request_id] = f'Failed to parse proj file: {str(e)}'
+        return jsonify({'error': 'Failed to parse proj file', 'details': str(e), 'trace': error_trace}), 500
 
 
 @pdf_autofill_groq.route('/groqProjectStatus/<request_id>', methods=['GET'])

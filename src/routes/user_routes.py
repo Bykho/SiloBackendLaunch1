@@ -1,6 +1,6 @@
 
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_file
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt
 from werkzeug.security import generate_password_hash, check_password_hash
 from bson import ObjectId
@@ -15,6 +15,8 @@ import datetime
 import random
 import string
 import json
+import io
+import base64
 
 
 user_bp = Blueprint('user', __name__)
@@ -228,6 +230,11 @@ def login():
     set_user_profile(str(user['_id']), {'name': user['username'], 'email': user['email'], 'last_login': datetime.datetime.utcnow()})
     return jsonify(access_token=access_token), 200
 
+ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 @user_bp.route('/studentProfileEditor', methods=['GET', 'POST'])
 @jwt_required()
 def edit_student_profile():
@@ -253,10 +260,17 @@ def edit_student_profile():
             # Handle the resume file if uploaded
             if 'resume' in request.files:
                 file = request.files['resume']
-                # Process the file as needed (e.g., save to disk, process contents)
-                # Here you would handle saving or processing the resume file.
+                if file and allowed_file(file.filename):
+                    # Read the file and encode it as base64
+                    file_content = file.read()
+                    encoded_content = base64.b64encode(file_content).decode('utf-8')
+                    
+                    # Create the data URL
+                    mime_type = file.content_type or 'application/pdf'  # Default to PDF if mime type is not available
+                    data['resume'] = f"data:{mime_type};base64,{encoded_content}"
+                else:
+                    return jsonify({"error": "Invalid file type"}), 400
         else:
-            # Handle JSON data (Content-Type: application/json)
             data = request.get_json()
         
         if not data:
