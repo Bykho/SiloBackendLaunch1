@@ -215,8 +215,8 @@ def validate_json(json_str):
 def validate_and_regenerate_json(combined_code):
     code_length = len(combined_code)
 
-    groq_char_limit = groq_limit * 4
-    openai_char_limit = OpenAILimit * 4
+    groq_char_limit = OpenAILimit * 4
+    openai_char_limit = maxLimit * 4
 
     print(f"Code length: {code_length} characters")
     
