@@ -87,7 +87,7 @@ def search_jobs():
         "job_title_not": [],
         "job_title_pattern_and": [],
         "job_title_pattern_or": [],
-        "job_title_pattern_not": ["consultant","support","administrator", "administrative", "business", "finance", "barber", "stylist", "artist", "executive", "HR", "Chairman", "Recruiting", "Recruiter", "Resources", "Administrator", "Security", "Assistant", "Concierge", "Secretary", "Janitor", "Sanitation", "Host", "Hostess", "Service","Technician"],
+        "job_title_pattern_not": ["consultant","support","administrator", "administrative", "business", "finance", "barber", "stylist", "artist", "executive", "HR", "Chairman", "Recruiting", "Recruiter", "Resources", "Administrator", "Security", "Assistant", "Concierge", "Secretary", "Janitor", "Sanitation", "Host", "Hostess", "Service","Technician", "Tech", "Writer", "Grant", "Physician", "Nurse"],
         "job_country_code_or": ["US"],
         "job_country_code_not": [],
         "posted_at_max_age_days": None,
@@ -167,7 +167,7 @@ def search_jobs():
         user_embedding = get_or_create_user_embedding(pinecone_index, user)
 
         # Query Pinecone for similar job vectors
-        similar_jobs = query_similar_vectors_jobs(pinecone_index, user_embedding, top_k=6)
+        similar_jobs = query_similar_vectors_jobs(pinecone_index, user_embedding, top_k=100)
 
         # Get job IDs in order of similarity
         job_ids = [match['id'] for match in similar_jobs]
