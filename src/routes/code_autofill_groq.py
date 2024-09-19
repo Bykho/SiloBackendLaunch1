@@ -2,15 +2,19 @@ from flask import Blueprint, request, jsonify
 from flask_cors import cross_origin
 import json
 from groq import Groq
+import openai
 import os
 from dotenv import load_dotenv
 from flask import current_app as app
 import re
 import requests
-import base64 
+import base64
+import sys
+
 
 groq_code_autofill_bp = Blueprint('groq_code_autofill_bp', __name__)
 GITHUB_API_TOKEN = os.environ.get("GITHUB_API_TOKEN")
+openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 # Load environment variables from .env file
 load_dotenv()
@@ -23,9 +27,9 @@ groq_limit = 4000
 
 OpenAILimit = 10000
 
-chunkLimit = 30000
+maxLimit = 30000
 
-def summarize_code_description_title_tags(text):
+def groq_summarize_code_description_title_tags(text):
     try:
         print('Got to summarize_code_description_title_tags')
         response = client.chat.completions.create(
@@ -48,7 +52,7 @@ def summarize_code_description_title_tags(text):
         print(f"Error summarizing code description: {e}")
         return {}
 
-def summarize_code_layers(text):
+def groq_summarize_code_layers(text):
     try:
         print('Got to summarize_code_layers')
         response = client.chat.completions.create(
@@ -105,6 +109,90 @@ def summarize_code_layers(text):
         "Tags": []
     }
 
+
+
+def openai_summarize_code_description_title_tags(text):
+    try:
+        print('Got to summarize_code_description_title_tags')
+        response = openai.ChatCompletion.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a helpful assistant. Please do not include headers like 'Summary:' when summarizing content. Write from the first person and all responses should be JSON format."
+                },
+                {
+                    "role": "user",
+                    "content": f"For the following code files, please write a concise (less than 900 words) description for this project. Also, provide a list for suggested tags concerning general topics the code is about (tags like: machine learning, computer vision, NLP, robotics, genomics, etc). Lastly please provide a string name for this project. Please always format your response as a json with keys: projectName, tags, and projectDescription. This is very important: the entirety of your response should constitute a valid JSON. There should be no json tags in the front or any leading/trailing text. Only give the json. Make it somewhat detailed. Here is the text:\n\n{text}"
+                }
+            ],
+            model="gpt-4o-mini",
+            max_tokens=600,
+            temperature=0.2
+        )
+        return json.loads(response.choices[0].message.content.strip())
+    except Exception as e:
+        print(f"Error summarizing code description: {e}")
+        return {}
+
+def openai_summarize_code_layers(text):
+    try:
+        print('Got to summarize_code_layers')
+        response = openai.ChatCompletion.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a helpful assistant. Please do not include headers like 'Summary:' when summarizing content. Return everything in a valid JSON format and write from the first person. Write with detail and make each section long."
+                },
+                {
+                    "role": "user",
+                    "content": f"I need to create a project page by summarizing the following code into multiple self-contained sections. Each section should be long and detailed. Please provide the following sections: Description, Methodology, Purpose, Extensions, and another section that is relevant to the code context. Format the response as a JSON object where each key represents the section title and the value contains the content. Each section should be long and detailed. Ensure there are no JSON tags or extraneous text. Only provide the JSON object. Here is the code:\n\n{text}"}
+            ],
+            model="gpt-4o-mini",
+            max_tokens=5000,
+            temperature=0.2
+        )
+        content = response.choices[0].message.content.strip()
+        
+        # Remove newlines and carriage returns
+        content = content.replace('\n', '').replace('\r', '')
+        
+        # Remove trailing commas before closing braces
+        content = re.sub(r',\s*}', '}', content)
+        
+        # Check for and add missing closing brace
+        if content.count('{') > content.count('}'):
+            content += '}'
+        
+        # Use a more lenient JSON parsing method
+        parsed_content = json.loads(content, strict=False)
+        
+        return parsed_content
+
+    except json.JSONDecodeError as e:
+        print(f"JSON Decode Error: {e}")
+        print(f"Problematic content: {content}")
+        # Attempt to extract valid JSON
+        try:
+            match = re.search(r'\{.*\}', content, re.DOTALL)
+            if match:
+                extracted_json = match.group(0)
+                return json.loads(extracted_json, strict=False)
+        except:
+            pass
+    except Exception as e:
+        print(f"Error summarizing code layers: {e}")
+    
+    # Return default structure if all parsing attempts fail
+    return {
+        "Description": "Error occurred during summarization",
+        "Methodology": "Error occurred during summarization",
+        "Purpose": "Error occurred during summarization",
+        "Extensions": "Error occurred during summarization",
+        "Tags": []
+    }
+
+
+
 def validate_and_correct_json(json_str):
     try:
         json_obj = json.loads(json_str)
@@ -125,8 +213,24 @@ def validate_json(json_str):
         return False
 
 def validate_and_regenerate_json(combined_code):
-    surrounding_summary = summarize_code_description_title_tags(combined_code)
-    summary_content = summarize_code_layers(combined_code)
+    code_length = len(combined_code)
+
+    groq_char_limit = OpenAILimit * 4
+    openai_char_limit = maxLimit * 4
+
+    print(f"Code length: {code_length} characters")
+    
+    if code_length < groq_char_limit:
+        print("Using Groq for summarization")
+        surrounding_summary = groq_summarize_code_description_title_tags(combined_code)
+        summary_content = groq_summarize_code_layers(combined_code)
+    elif code_length < openai_char_limit:
+        print("Using OpenAI for summarization")
+        surrounding_summary = openai_summarize_code_description_title_tags(combined_code)
+        summary_content = openai_summarize_code_layers(combined_code)
+    else:
+        print("Code length exceeds maximum limit")
+        return {"error": "Code length exceeds maximum limit for summarization"}, {"error": "Code length exceeds maximum limit for summarization"}
     return surrounding_summary, summary_content
 
 @groq_code_autofill_bp.route('/groqAutofillCodeProject', methods=['POST'])
