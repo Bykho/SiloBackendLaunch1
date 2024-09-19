@@ -87,7 +87,7 @@ def search_jobs():
         "job_title_not": [],
         "job_title_pattern_and": [],
         "job_title_pattern_or": [],
-        "job_title_pattern_not": ["consultant","support","administrator", "administrative", "business", "finance", "barber", "stylist", "artist", "executive", "HR", "Chairman", "Recruiting", "Recruiter", "Resources", "Administrator", "Security", "Assistant", "Concierge", "Secretary", "Janitor", "Sanitation", "Host", "Hostess", "Service","Technician", "Tech", "Writer", "Grant", "Physician", "Nurse", "Senior", "Sr."],
+        "job_title_pattern_not": ["consultant","support","administrator", "administrative", "business", "finance", "barber", "stylist", "artist", "executive", "HR", "Chairman", "Recruiting", "Recruiter", "Resources", "Administrator", "Security", "Assistant", "Concierge", "Secretary", "Janitor", "Sanitation", "Host", "Hostess", "Service","Technician", "Tech", "Writer", "Grant", "Physician", "Nurse", "Senior", "Sr.", "Director", "Principal", "Co-op", "Contract"],
         "job_country_code_or": ["US"],
         "job_country_code_not": [],
         "posted_at_max_age_days": None,
