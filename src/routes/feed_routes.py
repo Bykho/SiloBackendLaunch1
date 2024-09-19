@@ -224,6 +224,7 @@ def update_project_embeddings():
 @feed_bp.route('/getPersonalizedFeed', methods=['GET'])
 @jwt_required()
 def get_personalized_feed():
+    print('got to personalized feed')
     jwt_claims = get_jwt()
     user_id = jwt_claims.get('_id')
     user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
@@ -233,7 +234,7 @@ def get_personalized_feed():
     
     user_embedding = get_or_create_user_embedding(pinecone_index, user)
     
-    similar_projects = query_similar_vectors_projects(pinecone_index, user_embedding, top_k=20)
+    similar_projects = query_similar_vectors_projects(pinecone_index, user_embedding, top_k=15)
     print(similar_projects, "similar_projects!")
     project_ids = []
     for match in similar_projects:
