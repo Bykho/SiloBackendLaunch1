@@ -48,7 +48,7 @@ def search_jobs():
         "company_description_pattern_accent_insensitive": False,
         "min_revenue_usd": None,
         "max_revenue_usd": None,
-        "min_employee_count": None,
+        "min_employee_count": 5,
         "max_employee_count": None,
         "min_employee_count_or_null": None,
         "max_employee_count_or_null": None,
@@ -57,7 +57,7 @@ def search_jobs():
         "funding_stage_or": [],
         "industry_or": [], 
         "industry_not": [],
-        "industry_id_or": [3100, 3099, 3101, 3130,5, 3131, 109, 4, 3127, 1285, 113,3252, 3128, 3134, 2458, 6, 119, 1649, 1644, 8, 94, 87, 95, 3242, 3248, 118, 3102, 1855, 12, 114, 7, 147, 3247],
+        "industry_id_or": [1,4,53, 3127, 1285, 113, 2458, 383, 119, 1649, 1644, 8, 94, 87, 95, 3242, 3248, 118, 3102, 12, 114, 7, 147, 3247, 3251, 3, 52 ],
         "industry_id_not": [],
         "company_tags_or": [],
         "company_type": "all",
@@ -79,7 +79,7 @@ def search_jobs():
         "company_id_or": [],
         "company_domain_or": [],
         "company_domain_not": [],
-        "company_name_not": [],
+        "company_name_not": ["Davidayo"],
         "company_name_partial_match_or": [],
         "company_name_partial_match_not": [],
         "company_linkedin_url_or": [],
@@ -93,11 +93,11 @@ def search_jobs():
         "posted_at_max_age_days": None,
         "posted_at_gte": None,
         "posted_at_lte": None,
-        "discovered_at_max_age_days": None,
+        "discovered_at_max_age_days": 31,
         "discovered_at_min_age_days": None,
         "discovered_at_gte": None,
         "discovered_at_lte": None,
-        "job_description_pattern_or": [],
+        "job_description_pattern_or": ["engineer", "engineering", "STEM", "scientist", "research", "mechanical", "robotics", "aerospace"],
         "job_description_pattern_not": ["marketing","sales", "finance","accounting","HR" ,"copywriter", "legal", "lawyer","attorney","administrative","business","teacher", "instructor", "nurse", "doctor", "physician", "chef","consulting", "consulting"],
         "job_description_pattern_is_case_insensitive": True,
         "remote": None,
@@ -167,7 +167,7 @@ def search_jobs():
         user_embedding = get_or_create_user_embedding(pinecone_index, user)
 
         # Query Pinecone for similar job vectors
-        similar_jobs = query_similar_vectors_jobs(pinecone_index, user_embedding, top_k=100)
+        similar_jobs = query_similar_vectors_jobs(pinecone_index, user_embedding, top_k=500)
 
         # Get job IDs in order of similarity
         job_ids = [match['id'] for match in similar_jobs]
