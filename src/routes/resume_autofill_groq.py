@@ -7,6 +7,14 @@ import os
 from dotenv import load_dotenv
 import re
 import json
+import os
+import io
+import PyPDF4
+from pdfminer.high_level import extract_text as pdfminer_extract
+import pytesseract
+from pdf2image import convert_from_bytes
+from docx import Document
+from werkzeug.datastructures import FileStorage
 
 resume_autifll_groq = Blueprint('resume_autifll_groq', __name__)
 
@@ -64,7 +72,6 @@ def remove_trailing_commas(json_str):
         json_str += '}'
     return json_str
 
-
 def validate_json(json_str):
     try:
         json.loads(json_str)
@@ -87,8 +94,6 @@ def validate_and_regenerate_json(file_text):
         summary = summarize_resume_text(file_text)
 
     return summary
-
-
 
 @resume_autifll_groq.route('/groqResumeParser', methods=['POST', 'OPTIONS'])
 @cross_origin()
@@ -115,17 +120,6 @@ def resume_parser():
         print(f"Error parsing resume: {e}")
         return jsonify({'error': str(e)}), 500
     
-
-
-
-import os
-import io
-import PyPDF4
-from pdfminer.high_level import extract_text as pdfminer_extract
-import pytesseract
-from pdf2image import convert_from_bytes
-from docx import Document
-from werkzeug.datastructures import FileStorage
 
 def extract_text_from_file(file):
     """
@@ -163,8 +157,8 @@ def extract_text_from_pdf(pdf_file):
         reader = PyPDF4.PdfFileReader(pdf_file)
         for page in range(reader.numPages):
             text += reader.getPage(page).extractText() or ""
-        
-        if text.strip():
+            print('extract_text_from_pdf, ', text)
+        if text.strip() and is_text_valid(text):
             return text.strip()
     except Exception as e:
         print(f"PyPDF4 extraction failed: {e}")
@@ -174,22 +168,25 @@ def extract_text_from_pdf(pdf_file):
         pdf_file.seek(0)
         text = pdfminer_extract(io.BytesIO(pdf_file.read()))
         
-        if text.strip():
+        if text.strip() and is_text_valid(text):
             return text.strip()
     except Exception as e:
         print(f"pdfminer extraction failed: {e}")
     
     # Method 3: OCR with Tesseract (for scanned PDFs or images)
-    try:
-        pdf_file.seek(0)
-        images = convert_from_bytes(pdf_file.read())
-        for image in images:
-            text += pytesseract.image_to_string(image)
-        
-        if text.strip():
-            return text.strip()
-    except Exception as e:
-        print(f"OCR extraction failed: {e}")
+    print("Here is is_text_valid(text): ",is_text_valid(text))
+
+    if is_text_valid(text):
+        try:
+            pdf_file.seek(0)
+            images = convert_from_bytes(pdf_file.read())
+            for image in images:
+                text += pytesseract.image_to_string(image)
+            
+            if text.strip():
+                return text.strip()
+        except Exception as e:
+            print(f"OCR extraction failed: {e}")
     
     raise ValueError("Text extraction failed for all PDF methods.")
 
@@ -204,3 +201,32 @@ def extract_text_from_docx(docx_file):
         print(f"DOCX extraction failed: {e}")
         raise ValueError("Text extraction failed for DOCX file.")
 
+
+def is_text_garbled(extracted_text):
+    non_alnum_count = sum(1 for char in extracted_text if not char.isalnum())
+    total_char_count = len(extracted_text)
+    
+    if total_char_count == 0:
+        return True  # Empty text is considered garbled
+    
+    non_alnum_ratio = non_alnum_count / total_char_count
+    
+    # If more than 40% of the text is non-alphanumeric, consider it garbled
+    return non_alnum_ratio > 0.4
+
+def has_reasonable_word_length(extracted_text, min_average_length=3):
+    words = extracted_text.split()
+    if not words:
+        return False  # No words, likely garbled
+    
+    average_word_length = sum(len(word) for word in words) / len(words)
+    
+    # If the average word length is below 3 characters, consider it garbled
+    return average_word_length >= min_average_length
+
+def is_text_valid(extracted_text):
+    # Use all checks combined
+    return (
+        not is_text_garbled(extracted_text) and
+        has_reasonable_word_length(extracted_text)
+    )
