@@ -156,6 +156,42 @@ def return_projects():
 
     return json_util.dumps(response), 200
 
+
+@feed_bp.route('/searchProjects', methods=['POST'])
+@jwt_required()
+def search_projects():
+    try:
+        # Get the search query from the request
+        data = request.get_json()
+        search_text = data.get('query', '')
+
+        # Use the $search operator to query the Atlas Search index
+        search_query = {
+            "$search": {
+                "index": "projectSearch",  # Name of the search index you created
+                "text": {
+                    "query": search_text,
+                    "path": ["projectName", "projectDescription", "tags", "createdBy", "layers.value"]
+                }
+            }
+        }
+
+        # Perform the search query
+        projects = list(mongo.db.projects.aggregate([search_query]))
+
+        # Process the results (e.g., convert ObjectIds to strings)
+        projects = [convert_objectid_to_str(project) for project in projects]
+
+        # Return the results as JSON
+        return jsonify({"projects": projects}), 200
+
+    except Exception as e:
+        print(f"Error searching projects: {e}")
+        return jsonify({"error": "Unable to perform search"}), 500
+
+
+
+
 @feed_bp.route('/genDirectory', methods=['GET'])
 @jwt_required()
 def get_directory_info():
