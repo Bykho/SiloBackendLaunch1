@@ -66,3 +66,4 @@ Werkzeug==3.0.3
 yarl==1.9.4
 zope.interface==6.4.post2
 openai[datalib]
+numpy 
