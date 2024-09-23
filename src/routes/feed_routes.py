@@ -321,7 +321,7 @@ def return_personalized_feed():
     
     user_embedding = get_or_create_user_embedding(pinecone_index, user)
     
-    similar_projects = query_similar_vectors(pinecone_index, user_embedding, top_k=20)
+    similar_projects = query_similar_vectors_projects(pinecone_index, user_embedding, top_k=20)
     
     project_ids = [ObjectId(match['metadata']['project_id']) for match in similar_projects]
     projects = list(mongo.db.projects.find({"_id": {"$in": project_ids}}))

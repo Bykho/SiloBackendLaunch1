@@ -195,25 +195,36 @@ def delete_project():
         project_object_id = ObjectId(project_id)
         user_object_id = ObjectId(user_id)
     except Exception as e:
-        return jsonify({"error": str(e)}), 400
+        return jsonify({"error": f"Invalid ObjectId: {str(e)}"}), 400
 
-    # Delete the project from the projects collection
-    project_delete_result = mongo.db.projects.delete_one({"_id": project_object_id})
-    if project_delete_result.deleted_count != 1:
-        return jsonify({"error": "Failed to delete the project from the projects collection"}), 500
-    print('Project deleted from projects collection')
+    try:
+        # Delete the project from the projects collection
+        project_delete_result = mongo.db.projects.delete_one({"_id": project_object_id})
+        if project_delete_result.deleted_count != 1:
+            return jsonify({"error": "Failed to delete the project from the projects collection"}), 500
+        print('Project deleted from projects collection')
 
-    # Remove the project ID from the user's portfolio directly in MongoDB
-    user_update_result = mongo.db.users.update_one(
-        {"_id": user_object_id},
-        {"$pull": {"portfolio": str(project_id)}}
-    )
-    if user_update_result.modified_count != 1:
-        return jsonify({"error": "Failed to update the user's portfolio"}), 500
-    print('Project ID removed from user portfolio')
-    
-    pinecone_index.delete(ids=[str(project_id)])
-    return jsonify({"message": "Project deleted successfully"}), 200
+        # Remove the project ID from the user's portfolio
+        user_update_result = mongo.db.users.update_one(
+            {"_id": user_object_id},
+            {"$pull": {"portfolio": str(project_id)}}
+        )
+        if user_update_result.modified_count != 1:
+            print(f"User update result: {user_update_result.raw_result}")
+            return jsonify({"error": "Failed to update the user's portfolio"}), 500
+        print('Project ID removed from user portfolio')
+        
+        # Delete from Pinecone index
+        try:
+            pinecone_index.delete(ids=[str(project_id)])
+        except Exception as e:
+            print(f"Error deleting from Pinecone: {str(e)}")
+            # Don't return here, as the main operation was successful
+
+        return jsonify({"message": "Project deleted successfully"}), 200
+    except Exception as e:
+        print(f"Error in delete_project: {str(e)}")
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
 
 
 @project_bp.route('/updateProject', methods=['POST'])
