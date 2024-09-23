@@ -176,7 +176,7 @@ def extract_text_from_pdf(pdf_file):
     # Method 3: OCR with Tesseract (for scanned PDFs or images)
     print("Here is is_text_valid(text): ",is_text_valid(text))
 
-    if is_text_valid(text):
+    if not is_text_valid(text):
         try:
             pdf_file.seek(0)
             images = convert_from_bytes(pdf_file.read())
@@ -184,6 +184,7 @@ def extract_text_from_pdf(pdf_file):
                 text += pytesseract.image_to_string(image)
             
             if text.strip():
+                print('here is text: ', text)
                 return text.strip()
         except Exception as e:
             print(f"OCR extraction failed: {e}")
