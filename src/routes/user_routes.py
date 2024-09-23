@@ -11,6 +11,7 @@ from flask_cors import cross_origin
 import logging
 from flask_mail import Message
 from ..routes.mixpanel_utils import track_event, set_user_profile
+from .pinecone_utils import initialize_pinecone, get_embedding, upsert_vector
 import datetime
 import random
 import string
@@ -20,6 +21,8 @@ import base64
 
 
 user_bp = Blueprint('user', __name__)
+pinecone_index = initialize_pinecone()
+
 
 @user_bp.route('/getUsersByIds', methods=['POST'])
 @jwt_required()
@@ -388,6 +391,16 @@ def massProjectPublish():
         proj_insert_result = mongo.db.projects.insert_one(new_project)
         project_id = proj_insert_result.inserted_id
         project_ids.append(project_id)
+
+        # Add embeddings for each project
+        project_id_str = str(project_id)
+        new_project["_id"] = project_id_str
+        new_project = convert_objectid_to_str(new_project)
+
+        # Create embedding for the project
+        project_content = f"{new_project['projectName']} {new_project['projectDescription']} {' '.join(new_project.get('tags', []))}"
+        project_embedding = get_embedding(project_content)
+        upsert_vector(pinecone_index, project_id_str, project_embedding, metadata={"type": "project", "project_id": project_id_str})
 
     user_update_result = mongo.db.users.update_one(
         {"_id": user['_id']},
