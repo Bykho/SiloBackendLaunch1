@@ -22,7 +22,7 @@ pinecone_index = initialize_pinecone()
 @jobs_bp.route('/search_jobs', methods=['GET'])
 @jwt_required()
 def search_jobs():
-    print('opened route')
+    print('opened jobs route')
     api_key = os.getenv("THEIRSTACK_KEY")
 
     #switch to Post request w/ sending data.
@@ -42,13 +42,13 @@ def search_jobs():
             }
         ],
         "page": 0,
-        "limit": 5000,
+        "limit": 500,
         "company_description_pattern_or": [],
         "company_description_pattern_not": [],
         "company_description_pattern_accent_insensitive": False,
         "min_revenue_usd": 5000000,
         "max_revenue_usd": None,
-        "min_employee_count": 10,
+        "min_employee_count": 5,
         "max_employee_count": None,
         "min_employee_count_or_null": None,
         "max_employee_count_or_null": None,
@@ -57,7 +57,7 @@ def search_jobs():
         "funding_stage_or": [],
         "industry_or": [], 
         "industry_not": [],
-        "industry_id_or": [1,4,53, 3127, 1285, 113, 2458, 383, 119, 1649, 1644, 8, 94, 87, 95, 3242, 3248, 118, 3102, 12, 114, 7, 147, 3247, 3251, 3, 52 ],
+        "industry_id_or": [1,4,53, 3127, 1285, 113, 2458, 383, 119, 1649, 1644, 8, 94, 87, 95, 3242, 3248, 118, 3102, 12, 114, 7, 147, 3247, 3251, 3, 52],
         "industry_id_not": [],
         "company_tags_or": [],
         "company_type": "all",
@@ -87,10 +87,10 @@ def search_jobs():
         "job_title_not": [],
         "job_title_pattern_and": [],
         "job_title_pattern_or": [],
-        "job_title_pattern_not": ["consultant","support","administrator", "administrative", "business", "finance", "barber", "stylist", "artist", "executive", "HR", "Chairman", "Recruiting", "Recruiter", "Resources", "Administrator", "Security", "Assistant", "Concierge", "Secretary", "Janitor", "Sanitation", "Host", "Hostess", "Service","Technician", "Tech", "Writer", "Grant", "Physician", "Nurse", "Senior", "Sr.", "Director", "Principal", "Co-op", "Contract"],
+        "job_title_pattern_not": ["consultant","support","administrator", "administrative", "business", "finance", "barber", "stylist", "artist", "executive", "HR", "Chairman", "Recruiting", "Recruiter", "Resources", "Administrator", "Security", "Assistant", "Concierge", "Secretary", "Janitor", "Sanitation", "Host", "Hostess", "Service","Technician", "Tech", "Writer", "Grant", "Physician", "Nurse", "Senior", "Sr", "Director", "Principal", "Co-op", "Contract"],
         "job_country_code_or": ["US"],
         "job_country_code_not": [],
-        "posted_at_max_age_days": None,
+        "posted_at_max_age_days": 31,
         "posted_at_gte": None,
         "posted_at_lte": None,
         "discovered_at_max_age_days": 31,
@@ -130,8 +130,10 @@ def search_jobs():
         
         if last_fetch is None or datetime.utcnow() - last_fetch['timestamp'] > timedelta(hours=24):
         #if True: #for testing
+            print("Fetching new data from Theirstack API...")
             response = requests.post(url, json=payload, headers=headers)
             response.raise_for_status()
+            print(response.json())
             
             jobs_data = response.json().get('data', [])
             
