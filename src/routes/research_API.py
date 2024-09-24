@@ -107,6 +107,32 @@ def save_paper():
     else:
         return jsonify({'status': 'error', 'message': 'Failed to save paper'}), 500
 
+
+@research_bp.route('/unsave_paper', methods=['POST'])
+@jwt_required()
+def unsave_paper():
+    jwt_claims = get_jwt()
+    user_id = jwt_claims.get('_id')
+
+    paper_data = request.json
+    title = paper_data.get('title')
+    url = paper_data.get('url')
+
+    if not title or not url:
+        return jsonify({'status': 'error', 'message': 'Missing title or URL'}), 400
+
+    result = mongo.db.users.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$pull": {"papers": {"title": title, "url": url}}}
+    )
+
+    if result.modified_count > 0:
+        return jsonify({'status': 'success', 'message': 'Paper unsaved successfully'}), 200
+    else:
+        return jsonify({'status': 'error', 'message': 'Paper not found or failed to unsave'}), 200
+
+
+
 @research_bp.route('/get_saved_papers', methods=['GET'])
 @jwt_required()
 def get_saved_papers():
