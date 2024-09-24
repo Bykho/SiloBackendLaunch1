@@ -7,6 +7,9 @@ from bson import json_util, ObjectId
 from .. import mongo
 from ..routes_schema_utility import get_user_details, get_user_context_details, get_user_feed_details, get_portfolio_details, get_project_feed_details, convert_objectid_to_str
 from .pinecone_utils import * 
+from ..routes.mixpanel_utils import track_event, set_user_profile
+import datetime
+
 
 
 feed_bp = Blueprint('feed', __name__)
@@ -15,8 +18,12 @@ pinecone_index = initialize_pinecone()
 @feed_bp.route('/returnFeed', methods=['POST'])
 @jwt_required()
 def returnFeed():
-    username = get_jwt_identity()
     data = request.get_json()
+
+    jwt_claims = get_jwt()
+    user_id = jwt_claims.get('_id')
+    
+    track_event(str(user_id), 'visted feed', {'time': datetime.datetime.utcnow()})
 
     # Get pagination parameters from the request
     page = int(data.get('page', 1))
@@ -60,8 +67,12 @@ def returnFeed():
 @feed_bp.route('/popularFeed', methods=['POST'])
 @jwt_required()
 def popularFeed():
-    username = get_jwt_identity()
     data = request.get_json()
+
+    jwt_claims = get_jwt()
+    user_id = jwt_claims.get('_id')
+    
+    track_event(str(user_id), 'visted popular feed', {'time': datetime.datetime.utcnow()})
 
     page = int(data.get('page', 1))
     per_page = int(data.get('per_page', 10))
@@ -164,6 +175,10 @@ def search_projects():
         # Get the search query from the request
         data = request.get_json()
         search_text = data.get('query', '')
+        jwt_claims = get_jwt()
+        user_id = jwt_claims.get('_id')
+    
+        track_event(str(user_id), 'searched feed', {'time': datetime.datetime.utcnow()})
 
         # Use the $search operator to query the Atlas Search index
         search_query = {

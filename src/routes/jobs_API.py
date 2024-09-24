@@ -12,6 +12,8 @@ from datetime import datetime, timedelta
 from bson import json_util, ObjectId
 from ..routes_schema_utility import get_user_details, get_user_context_details, get_user_feed_details, get_portfolio_details, get_project_feed_details, convert_objectid_to_str
 from .pinecone_utils import *
+from ..routes.mixpanel_utils import track_event, set_user_profile
+import datetime
 
 load_dotenv()
 
@@ -126,6 +128,12 @@ def search_jobs():
     }
 
     try:
+
+        jwt_claims = get_jwt()
+        user_id = jwt_claims.get('_id')
+    
+        track_event(str(user_id), 'checked jobs', {'time': datetime.datetime.utcnow()})
+
         last_fetch = mongo.db.theirstack_metadata.find_one({"_id": "last_fetch"})
         
         if last_fetch is None or datetime.utcnow() - last_fetch['timestamp'] > timedelta(hours=24):

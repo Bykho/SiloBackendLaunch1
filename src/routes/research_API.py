@@ -6,6 +6,9 @@ from bson import ObjectId
 from flask_pymongo import PyMongo
 from .. import mongo
 from flask import current_app as app
+from ..routes.mixpanel_utils import track_event, set_user_profile
+import datetime
+
 
 
 research_bp = Blueprint('research', __name__)
@@ -33,7 +36,6 @@ def query_arxiv():
     search_terms = skills + interests
     
     user_profile = construct_arxiv_query(search_terms)
-    print(user_profile, "userprofile")
 
     params = {
         'search_query': f'all:{user_profile}',
@@ -69,6 +71,8 @@ def query_arxiv():
 
             print(results)
         
+            track_event(str(user_id), 'visted research', {'time': datetime.datetime.utcnow()})
+
         return jsonify({
             'status': 'success',
             'data': results,
@@ -101,6 +105,8 @@ def save_paper():
         {"_id": ObjectId(user_id)},
         {"$addToSet": {"papers": {"title": title, "url": url}}}
     )
+
+    track_event(str(user_id), 'saved paper', {'time': datetime.datetime.utcnow()})
 
     if result.modified_count > 0:
         return jsonify({'status': 'success', 'message': 'Paper saved successfully'}), 200
