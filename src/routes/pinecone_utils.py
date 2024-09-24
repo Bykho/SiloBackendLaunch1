@@ -25,6 +25,37 @@ def initialize_pinecone():
         )
     return pc.Index(INDEX_NAME)
 
+def clear_job_vectors(index):
+    try:
+        batch_size = 1000  # Maximum number of IDs we can delete at once
+        total_deleted = 0
+
+        while True:
+            # Fetch a batch of job vectors
+            fetch_response = index.query(
+                vector=[0] * DIMENSION,  # dummy vector
+                filter={"type": "job"},
+                top_k=batch_size,
+                include_metadata=True
+            )
+            
+            job_ids = [match['id'] for match in fetch_response['matches']]
+            
+            if not job_ids:
+                break  # No more job vectors to delete
+            
+            # Delete the batch of job vectors
+            index.delete(ids=job_ids)
+            total_deleted += len(job_ids)
+            
+            print(f"Deleted batch of {len(job_ids)} job vectors")
+            
+            if len(job_ids) < batch_size:
+                break  # We've deleted all job vectors
+
+        print(f"Total job vectors cleared from Pinecone index: {total_deleted}")
+    except Exception as e:
+        print(f"Error clearing job vectors from Pinecone: {str(e)}")
 
 def get_embedding(text):
     response = openai.Embedding.create(
