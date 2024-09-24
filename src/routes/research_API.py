@@ -14,10 +14,7 @@ def construct_arxiv_query(terms):
     """
     Construct a properly formatted query string for the arXiv API.
     """
-    # Remove any empty terms and wrap multi-word terms in quotes
     formatted_terms = [f'"{term}"' if ' ' in term else term for term in terms if term.strip()]
-    
-    # Join terms with OR, surrounded by parentheses
     return f"({' OR '.join(formatted_terms)})"
 
 @research_bp.route('/query_arxiv', methods=['GET'])
@@ -31,36 +28,28 @@ def query_arxiv():
     if not user:
         return jsonify({'status': 'error', 'message': 'User not found'}), 404
 
-    # Combine skills and interests
     skills = user.get('skills', [])
     interests = user.get('interests', [])
     search_terms = skills + interests
     
-    # Construct the arXiv query
     user_profile = construct_arxiv_query(search_terms)
     print(user_profile, "userprofile")
 
-    # Search parameters
     params = {
-        'search_query': f'all:{user_profile}',  # Search in all fields
+        'search_query': f'all:{user_profile}',
         'start': request.args.get('start', '0'),
         'max_results': request.args.get('max', '20'),
         'sortBy': request.args.get('sort', 'relevance'),
         'sortOrder': request.args.get('order', 'descending')
     }
-
-    # Construct the API URL
     base_url = 'http://export.arxiv.org/api/query'
     
     try:
-        # Make the request to arXiv API
         response = requests.get(base_url, params=params, timeout=10)
-        response.raise_for_status()  # Raises an HTTPError for bad responses
+        response.raise_for_status()
         
-        # Parse the XML response
         root = ET.fromstring(response.content)
         
-        # Extract and format the results
         results = []
         for entry in root.findall('{http://www.w3.org/2005/Atom}entry'):
             title = entry.find('{http://www.w3.org/2005/Atom}title').text
@@ -93,3 +82,40 @@ def query_arxiv():
         return jsonify({'status': 'error', 'message': 'Failed to parse XML response from arXiv API'}), 500
     except Exception as e:
         return jsonify({'status': 'error', 'message': f'An unexpected error occurred: {str(e)}'}), 500
+
+
+@research_bp.route('/save_paper', methods=['POST'])
+@jwt_required()
+def save_paper():
+    jwt_claims = get_jwt()
+    user_id = jwt_claims.get('_id')
+
+    paper_data = request.json
+    title = paper_data.get('title')
+    url = paper_data.get('url')
+
+    if not title or not url:
+        return jsonify({'status': 'error', 'message': 'Missing title or URL'}), 400
+
+    result = mongo.db.users.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$addToSet": {"papers": {"title": title, "url": url}}}
+    )
+
+    if result.modified_count > 0:
+        return jsonify({'status': 'success', 'message': 'Paper saved successfully'}), 200
+    else:
+        return jsonify({'status': 'error', 'message': 'Failed to save paper'}), 500
+
+@research_bp.route('/get_saved_papers', methods=['GET'])
+@jwt_required()
+def get_saved_papers():
+    jwt_claims = get_jwt()
+    user_id = jwt_claims.get('_id')
+
+    user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
+    if not user:
+        return jsonify({'status': 'error', 'message': 'User not found'}), 404
+
+    saved_papers = user.get('papers', [])
+    return jsonify({'status': 'success', 'data': saved_papers}), 200
