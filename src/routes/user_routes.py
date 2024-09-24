@@ -131,32 +131,6 @@ def register():
             )
             updated_user = mongo.db.users.find_one({"_id": ObjectId(user['_id'])})
             print(f"Group {group['_id']} added to user {user['_id']}. Updated user: {updated_user}")
-        else:
-            # Create a new group with the user's major as the group name
-            new_group = {
-                'groupName': major,
-                'groupDescription': f'Group for {major} majors',
-                'createdBy': username,
-                'users': [ObjectId(user['_id'])],
-                'project_content': {},
-                'comment_json': {'General Discussion': []},  # Initialize as an array
-                'projects': [],
-                'created_at': datetime.datetime.utcnow(),
-            }
-            group_insert_result = mongo.db.groups.insert_one(new_group)
-            group_id = group_insert_result.inserted_id
-
-            # Debugging: Print the new group ID
-            print(f"New group created with ID: {group_id}")
-
-            # Add the new group to the user's groups field
-            print(f"Before updating user's groups field: {user}")
-            mongo.db.users.update_one(
-                {"_id": ObjectId(result.inserted_id)},
-                {"$push": {"groups": ObjectId(group_id)}}
-            )
-            updated_user = mongo.db.users.find_one({"_id": ObjectId(user['_id'])})
-            print(f"Group {group_id} added to user {user['_id']}. Updated user: {updated_user}")
 
         response = jsonify({
             "message": "User registered successfully",

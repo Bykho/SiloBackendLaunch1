@@ -38,7 +38,7 @@ def query_arxiv():
     params = {
         'search_query': f'all:{user_profile}',
         'start': request.args.get('start', '0'),
-        'max_results': request.args.get('max', '20'),
+        'max_results': request.args.get('max', '40'),
         'sortBy': request.args.get('sort', 'relevance'),
         'sortOrder': request.args.get('order', 'descending')
     }
