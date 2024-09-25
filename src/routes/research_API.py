@@ -71,7 +71,7 @@ def query_arxiv():
 
             print(results)
         
-            track_event(str(user_id), 'visted research', {'time': datetime.datetime.utcnow()})
+        track_event(str(user_id), 'visted research', {'time': datetime.datetime.utcnow()})
 
         return jsonify({
             'status': 'success',
