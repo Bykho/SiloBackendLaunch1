@@ -252,6 +252,9 @@ def autofill_code_project():
     if not all([owner, repo, branch, file_names]):
         return jsonify({'error': 'Incomplete data provided'}), 400
 
+    repo_url = f"https://github.com/{owner}/{repo}"
+
+
     try:
         combined_code = ""
         fetched_files = 0
@@ -269,12 +272,13 @@ def autofill_code_project():
             return jsonify({'error': 'Failed to fetch content for any files'}), 500
 
         print(f"Successfully fetched {fetched_files} out of {len(file_names)} files")
-
+        print(f"and here is the repoLink: {repo_url}")
         surrounding_summary, summary_content = validate_and_regenerate_json(combined_code)
         summary_content_array = [[key, value] for key, value in summary_content.items()] if summary_content else []
         return jsonify({
             'surrounding_summary': surrounding_summary, 
-            'summary_content': summary_content_array
+            'summary_content': summary_content_array,
+            'repo_url': repo_url
         }), 200
 
     except Exception as e:
