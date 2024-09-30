@@ -107,11 +107,11 @@ def groupCreate():
         return jsonify({"error": "Invalid data"}), 422
 
     new_group = {
-        'groupName': data['groupName'],
-        'groupDescription': data['groupDescription'],
+        'groupName': data.get['groupName'],
+        'groupDescription': data.get['groupDescription', ''],
         'createdBy': user_id,
-        'users': [],
-        'project_content': data['groupProject_Content'],
+        'users': [user_id],
+        'project_content': data.get['groupProject_Content', []],
         'projects': [],
         'comment_json': {'General Discussion': []},  # Initialize as an array
         'created_at': datetime.datetime.utcnow(),
@@ -121,7 +121,22 @@ def groupCreate():
     group_insert_result = mongo.db.groups.insert_one(new_group)
     group_id = group_insert_result.inserted_id
 
-    return jsonify({"message": "Group created successfully", "group_id": str(group_id)}), 200
+    mongo.db.users.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$push": {"groups": group_id}}
+    )
+
+    # Return more information about the created group
+    return jsonify({
+        "message": "Group created successfully",
+        "group": {
+            "id": str(group_id),
+            "name": new_group['groupName'],
+            "description": new_group['groupDescription'],
+            "users": [str(user_id)],
+            "projects": []
+        }
+    }), 200
 
 
 
@@ -218,6 +233,35 @@ def save_project_to_group():
     )
 
     return jsonify({"message": "Successfully added projects to group"}), 200
+
+@group_bp.route('/removeProjectFromGroup', methods=['POST'])
+@jwt_required()
+def remove_project_from_group():
+    data = request.get_json()
+    group_id = data.get('groupId')
+    project_id = data.get('projectId')
+
+    if not group_id or not project_id:
+        return jsonify({"error": "Group ID and Project ID are required"}), 400
+
+    try:
+        group_id = ObjectId(group_id)
+        project_id = ObjectId(project_id)
+    except InvalidId:
+        return jsonify({"error": "Invalid Group ID or Project ID"}), 400
+
+    result = mongo.db.groups.update_one(
+        {"_id": group_id},
+        {"$pull": {"projects": project_id}}
+    )
+
+    if result.modified_count == 0:
+        return jsonify({"error": "Project not found in group or group not found"}), 404
+
+    return jsonify({"message": "Project successfully removed from group"}), 200
+
+
+
 
 @group_bp.route('/updateCommentJson', methods=['POST'])
 @jwt_required()
