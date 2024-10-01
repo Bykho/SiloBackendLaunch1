@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+    <!-- Head content remains the same -->
+</head>
+<body class="body pc-font-alt" style="width: 100% !important; min-height: 100% !important; margin: 0 !important; padding: 0 !important; line-height: 1.5; color: #2D3A41; mso-line-height-rule: exactly; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; font-variant-ligatures: normal; text-rendering: optimizeLegibility; -moz-osx-font-smoothing: grayscale; background-color: #28282a;" bgcolor="#28282a">
+    <table class="pc-project-body" style="table-layout: fixed; min-width: 600px; background-color: #28282a;" bgcolor="#28282a" width="100%" border="0" cellspacing="0" cellpadding="0" role="presentation">
+        <!-- Table content remains the same -->
+        <tr>
+            <td align="center" valign="top">
+                <table class="pc-project-container" align="center" width="600" style="width: 600px; max-width: 600px;" border="0" cellpadding="0" cellspacing="0" role="presentation">
+                    <!-- First row with logo and edition number -->
+                    <!-- ... -->
+                    
+                    <!-- Summary section -->
+                    <tr>
+                        <td align="left" valign="top" style="padding: 0px 0px 43px 0px;">
+                            <table border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%" style="border-collapse: separate; border-spacing: 0; margin-right: auto; margin-left: auto;">
+                                <tr>
+                                    <td valign="top" align="left" style="padding: 0px 0px 0px 0px;">
+                                        <div class="pc-font-alt" style="line-height: 150%; letter-spacing: 0px; font-family: 'Space Grotesk', Arial, Helvetica, sans-serif; font-size: 18px; font-weight: normal; font-variant-ligatures: normal; color: #ffffff; text-align: left; text-align-last: left;">
+                                            <div><span style="font-size: 24px;font-weight: 700;font-style: normal;line-height: 250%;">Summary</span></div>
+                                            <div><span style="font-weight: 400;font-style: normal;">{{ summary }}</span></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- Articles section -->
+                    {% for article in articles %}
+                    <tr>
+                        <td valign="top">
+                            <table width="100%" border="0" cellspacing="0" cellpadding="0" role="presentation">
+                                <tr>
+                                    <td style="padding: 0px 0px 0px 0px;">
+                                        <table width="100%" border="0" cellspacing="0" cellpadding="0" role="presentation">
+                                            <tr>
+                                                <td valign="top" class="pc-w520-padding-30-30-30-30 pc-w620-padding-35-35-35-35" style="padding: 0px 40px 40px 40px; border-radius: 0px; background-color: #28282a;" bgcolor="#28282a">
+                                                    <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
+                                                        <tr>
+                                                            <td align="left" valign="top" style="padding: 0px 0px 13px 0px;">
+                                                                <table border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%" style="border-collapse: separate; border-spacing: 0; margin-right: auto; margin-left: auto;">
+                                                                    <tr>
+                                                                        <td valign="top" align="left">
+                                                                            <div class="pc-font-alt" style="line-height: 17px; letter-spacing: -0.2px; font-family: 'Space Grotesk', Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 500; font-variant-ligatures: normal; color: #00c3ff; text-align: left; text-align-last: left;">
+                                                                                <div><span style="color: #00c3ff;">{{ article.date }}</span></div>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                    <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
+                                                        <tr>
+                                                            <td align="left" valign="top" style="padding: 0px 0px 10px 0px;">
+                                                                <table border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%" style="border-collapse: separate; border-spacing: 0; margin-right: auto; margin-left: auto;">
+                                                                    <tr>
+                                                                        <td valign="top" align="left">
+                                                                            <a class="pc-font-alt" href="{{ article.link }}" target="_blank" style="text-decoration: none; line-height: 34px; letter-spacing: -0.4px; font-family: 'Space Grotesk', Arial, Helvetica, sans-serif; font-size: 24px; font-weight: bold; font-variant-ligatures: normal; color: #ffffff; text-align: left; text-align-last: left;">
+                                                                                <span style="color: rgb(255, 255, 255);">{{ article.title }}</span> 
+                                                                            </a>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                    <table border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%" style="border-collapse: separate; border-spacing: 0; margin-right: auto; margin-left: auto;">
+                                                        <tr>
+                                                            <td valign="top" align="left">
+                                                                <a class="pc-font-alt" href="{{ article.link }}" target="_blank" style="text-decoration: none; line-height: 28px; letter-spacing: -0.2px; font-family: 'Space Grotesk', Arial, Helvetica, sans-serif; font-size: 18px; font-weight: normal; font-variant-ligatures: normal; color: #9b9b9b; text-align: left; text-align-last: left;">
+                                                                    <span>{{ article.description }}</span> 
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    
+                    <!-- Footer section -->
+                    <!-- ... -->
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

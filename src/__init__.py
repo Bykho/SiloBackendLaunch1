@@ -79,6 +79,7 @@ def create_app():
     from .routes.jobs_API import jobs_bp
     from .routes.pdf_autofill_VS import VS_pdf_autofill_bp
     from .routes.research_API import research_bp
+    from .routes.resend_utils import resend_bp
 
     app.register_blueprint(comment_bp)
     app.register_blueprint(feed_bp)
@@ -97,6 +98,7 @@ def create_app():
     app.register_blueprint(jobs_bp)
     app.register_blueprint(VS_pdf_autofill_bp)
     app.register_blueprint(research_bp)
+    app.register_blueprint(resend_bp)
 
     return app
 
