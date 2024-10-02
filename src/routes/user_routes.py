@@ -1,6 +1,6 @@
 
 
-from flask import Blueprint, request, jsonify, send_file
+from flask import Blueprint, request, jsonify, send_file, render_template
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt
 from werkzeug.security import generate_password_hash, check_password_hash
 from bson import ObjectId
@@ -18,6 +18,9 @@ import string
 import json
 import io
 import base64
+from .resend_utils import resend_bp, send_email
+import resend
+
 
 
 user_bp = Blueprint('user', __name__)
@@ -140,11 +143,27 @@ def register():
         response.headers.add('Access-Control-Allow-Origin', '*')
         track_event(str(user['_id']), 'signup', {'email': email, 'time': datetime.datetime.utcnow()})
         set_user_profile(str(user['_id']), {'name': str(user['username']), 'email': str(user['email']), 'signup time': datetime.datetime.utcnow()})
+        send_welcome_email(email, username)
         return response, 201
     else:
         response = jsonify({'message': 'Email already exists'})
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response, 409
+
+def send_welcome_email(to_email, username):
+    email_data = {
+        'username': username,
+    }
+    html_content = render_template('welcome_email.html', **email_data)
+    
+    r = resend.Emails.send({
+        "from": 'Dan Ringness <dan@silorepo.com>',
+        "to": to_email,
+        "subject": "Welcome to Silo!",
+        "html": html_content
+    })
+
+    return "Welcome email sent successfully!"
 
 @user_bp.route('/toggleShareProfile', methods=['POST'])
 @jwt_required()

@@ -67,3 +67,4 @@ zope.interface==6.4.post2
 pinecone-client==5.0.1
 openai[datalib]
 resend
+typing

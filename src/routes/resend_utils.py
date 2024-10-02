@@ -6,6 +6,8 @@ import requests
 from dotenv import load_dotenv
 import os
 import resend
+from typing import List
+
 
 load_dotenv()
 resend.api_key = os.getenv("RESEND_KEY")
@@ -83,6 +85,64 @@ def remove_contact():
     try:
         resend.Contacts.remove(email)
         return jsonify({"message": "Contact removed successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@resend_bp.route('/send_batch_email', methods=['POST'])
+def send_batch_email():
+    # Example list of emails
+    example_emails = ["foo@gmail.com", "bar@outlook.com", "baz@example.com"]
+
+    # Example data - in a real application, you'd get this from your database or user input
+    email_data = {
+        'edition': '1',
+        'summary': 'This week in tech...',
+        'articles': [
+            {
+                'date': 'October 1, 2024',
+                'title': 'Article 1',
+                'description': 'Description 1',
+                'link': 'https://example.com/article1'
+            },
+            {
+                'date': 'October 2, 2024',
+                'title': 'Article 2',
+                'description': 'Description 2',
+                'link': 'https://example.com/article2'
+            },
+            {
+                'date': 'October 3, 2024',
+                'title': 'Article 3',
+                'description': 'Description 3',
+                'link': 'https://example.com/article3'
+            },
+            {
+                'date': 'October 4, 2024',
+                'title': 'Article 4',
+                'description': 'Description 4',
+                'link': 'https://example.com/article4'
+            }
+        ]
+    }
+
+    # Render the HTML template with the data
+    html_content = render_template('email_template.html', **email_data)
+
+    # Prepare batch email parameters
+    params: List[resend.Emails.SendParams] = [
+        {
+            "from": "dan@silorepo.com",
+            "to": [email],
+            "subject": f"Your Week in Tech - Edition #{email_data['edition']}",
+            "html": html_content
+        }
+        for email in example_emails
+    ]
+
+    try:
+        # Send batch emails
+        response = resend.Batch.send(params)
+        return jsonify({"message": "Batch emails sent successfully", "response": response}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     

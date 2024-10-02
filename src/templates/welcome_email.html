@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Silo</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #0099ff, #1e3a8a);
+            text-align: center;
+            padding: 20px;
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: left;
+        }
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin-right: 10px;
+            margin-left: 0px; 
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+        .header-text {
+            text-align: left;
+            color: #ffffff;
+        }
+        .content {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #ffffff;
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        h2 {
+            color: #1e3a8a;
+            font-weight: 700;
+            font-size: 1.8em;
+            margin-top: 0; /* Reduced top margin */
+        }
+        .subtitle {
+            color: #e0f2fe;
+            font-weight: 300;
+            margin-top: 0;
+            font-size: 1.2em;
+        }
+        .button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0099ff, #1e3a8a);
+            color: #ffffff !important;
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            margin-top: 20px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: calc(50% - 10px);
+            box-sizing: border-box;
+            text-align: center;
+            height: 60px; /* Fixed height for both buttons */
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #64748b;
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        li {
+            margin-bottom: 15px;
+            padding-left: 30px;
+            position: relative;
+        }
+        li:before {
+            content: "\2022";
+            color: #0099ff;
+            font-size: 1.2em;
+            position: absolute;
+            left: 10px;
+        }
+        .youtube-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #ff8c00, #ff4500);
+            color: #ffffff !important;
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            margin-top: 20px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: calc(50% - 10px);
+            box-sizing: border-box;
+            text-align: center;
+            height: 60px; /* Fixed height for both buttons */
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .unsubscribe {
+            color: #808080;
+            font-size: 0.8em;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://www.silorepo.com/silo_logo.png" alt="Silo Logo" class="logo">
+            <div class="header-text">
+                <h1>Welcome to Silo</h1>
+                <p class="subtitle">Your STEM journey begins now</p>
+            </div>
+        </div>
+        <div class="content">
+            <h2>Hey {{ username }},</h2>
+            <p>Welcome to the future of STEM collaboration! We're excited to have you on board our new community.</p>
+            <p>Ready to dive in? Here's your launch sequence:</p>
+            <ul>
+                <li>Customize your digital portfolio</li>
+                <li>Discover novel projects from innovators like you</li>
+                <li>Network with brilliant minds in your field</li>
+            </ul>
+            <p>Feel free to reply with any questions or bugs you might find! </p>
+            <p>Cheers!</p>
+            <p>Dan Ringness, co-founder @ Silo</p>
+            <div class="button-container">
+                <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" class="youtube-button">Watch Our Tutorial!</a>
+                <a href="#" class="button">Launch Your Silo! </a>
+            </div>
+        </div>
+        <div class="footer">
+            <p>&copy; 2024 Silo. Advancing STEM, one innovation at a time.</p>
+            <a href="https://www.silorepo.com/unsubscribe" class="unsubscribe">unsubscribe</a>
+        </div>
+    </div>
+</body>
+</html>
