@@ -152,18 +152,11 @@ def openai_summarize_code_layers(text):
             temperature=0.2
         )
         content = response.choices[0].message.content.strip()
-        
-        # Remove newlines and carriage returns
         content = content.replace('\n', '').replace('\r', '')
-        
-        # Remove trailing commas before closing braces
         content = re.sub(r',\s*}', '}', content)
-        
-        # Check for and add missing closing brace
         if content.count('{') > content.count('}'):
             content += '}'
         
-        # Use a more lenient JSON parsing method
         parsed_content = json.loads(content, strict=False)
         
         return parsed_content
@@ -171,7 +164,6 @@ def openai_summarize_code_layers(text):
     except json.JSONDecodeError as e:
         print(f"JSON Decode Error: {e}")
         print(f"Problematic content: {content}")
-        # Attempt to extract valid JSON
         try:
             match = re.search(r'\{.*\}', content, re.DOTALL)
             if match:
@@ -182,7 +174,6 @@ def openai_summarize_code_layers(text):
     except Exception as e:
         print(f"Error summarizing code layers: {e}")
     
-    # Return default structure if all parsing attempts fail
     return {
         "Description": "Error occurred during summarization",
         "Methodology": "Error occurred during summarization",
@@ -258,6 +249,7 @@ def autofill_code_project():
     try:
         combined_code = ""
         fetched_files = 0
+        file_contents = []
         for file_name in file_names:
             print(f"Attempting to fetch file: {file_name}")
             content = get_file_content_from_github(owner, repo, branch, file_name)
@@ -265,6 +257,11 @@ def autofill_code_project():
                 combined_code += f"\n\n# {file_name}\n\n{content}\n\n\n"
                 fetched_files += 1
                 print(f"Successfully fetched content for {file_name}")
+                # Add file content and name to the list
+                file_contents.append({
+                    "name": file_name,
+                    "content": content
+                })
             else:
                 print(f"Warning: Failed to fetch content for {file_name}")
 
@@ -278,7 +275,8 @@ def autofill_code_project():
         return jsonify({
             'surrounding_summary': surrounding_summary, 
             'summary_content': summary_content_array,
-            'repo_url': repo_url
+            'repo_url': repo_url,
+            'file_contents': file_contents
         }), 200
 
     except Exception as e:
