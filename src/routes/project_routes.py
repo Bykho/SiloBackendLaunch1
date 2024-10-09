@@ -7,7 +7,7 @@ from .. import mongo
 from ..routes_schema_utility import get_user_details, get_user_context_details, get_user_feed_details, get_portfolio_details, get_project_feed_details, convert_objectid_to_str
 import datetime
 from ..routes.mixpanel_utils import track_event
-from .pinecone_utils import initialize_pinecone, get_embedding, upsert_vector
+from .pinecone_utils import *
 
 
 project_bp = Blueprint('project', __name__)
@@ -178,6 +178,34 @@ def return_user_projects():
         return jsonify(project_list), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+@project_bp.route('/getSimilarProjectsBatch', methods=['POST'])
+@jwt_required()
+def get_similar_projects_batch():
+    data = request.get_json()
+    project_ids = data.get('projectIds')
+    
+    if not project_ids:
+        return jsonify({"error": "Project IDs are required"}), 400
+    
+    similar_projects_map = {}
+    for project_id in project_ids:
+        # Fetch the embedding for the project
+        result = pinecone_index.fetch([project_id])
+        if project_id in result['vectors']:
+            embedding = result['vectors'][project_id]['values']
+            # Query similar projects
+            similar_projects = query_similar_vectors_projects(pinecone_index, embedding, top_k=5)
+            # Exclude the original project and format the results
+            similar_project_ids = [
+                match['id'] for match in similar_projects if match['id'] != project_id
+            ]
+            similar_projects_map[project_id] = similar_project_ids
+        else:
+            similar_projects_map[project_id] = []
+    
+    return jsonify(similar_projects_map), 200
+
 
 @project_bp.route('/deleteProject', methods=['DELETE'])
 @jwt_required()

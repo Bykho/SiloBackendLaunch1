@@ -31,13 +31,17 @@ def get_users_by_ids():
     user_ids = data.get('userIds')
     print('/getUsersByIds here is the data: ', data)
 
-    if not user_ids:
+    if user_ids is None:
         return jsonify({"error": "User IDs are required"}), 400
-
+    
+    if not user_ids:
+        # Return an empty list instead of an error
+        return jsonify([]), 200
+    
     try:
         user_ids = [ObjectId(user_id) for user_id in user_ids]
     except Exception as e:
-        return jsonify({"error": str(e)}), 400
+        return jsonify({"error": f"Invalid user ID format: {str(e)}"}), 400
 
     try:
         users = mongo.db.users.find({"_id": {"$in": user_ids}})
@@ -49,12 +53,14 @@ def get_users_by_ids():
                 "email": user.get("email", ""),
                 "user_type": user.get("user_type", ""),
                 "interests": user.get("interests", []),
-                "orgs": user.get("orgs", []),
+                "skills": user.get("skills", []),
+                # Include any other fields you need
             })
         return jsonify(user_list), 200
     except Exception as e:
         print(f"Error fetching users: {e}")
         return jsonify({"error": "Failed to fetch users"}), 500
+
 
 @user_bp.route('/profile/<id>', methods=['GET'])
 @jwt_required()
