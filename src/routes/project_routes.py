@@ -118,8 +118,17 @@ def add_bloc_project():
             new_project["_id"] = project_id
             new_project = convert_objectid_to_str(new_project)
 
+            print(f"\n \n Here is the new project \n \n {new_project} \n \n \n")
+
+            layer_texts = []
+            for layer in project_data.get('layers', []):
+                for item in layer:
+                    if item.get('type') == "text":  # Check if the type is 'text'
+                        layer_texts.append(item.get('value', ''))  # Append the value if it's of type 'text'
+
+
             # On new project creation, add a new embedding to Pinecone 
-            project_content = f"{new_project['projectName']} {new_project['projectDescription']} {' '.join(new_project.get('tags', []))}"
+            project_content = f"{new_project['projectName']} {new_project['projectDescription']} {' '.join(new_project.get('tags', []))} {' '.join(layer_texts)}"
             project_embedding = get_embedding(project_content)
             upsert_vector(pinecone_index, str(new_project['_id']), project_embedding, metadata={"type": "project", "project_id": str(new_project['_id'])}) 
 
