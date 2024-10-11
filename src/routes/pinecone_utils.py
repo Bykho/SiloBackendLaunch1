@@ -31,7 +31,7 @@ def query_similar_vectors_research(pinecone_index, embedding, top_k=4):
         top_k=top_k,
         filter={"type": "research"},  # Filter based on metadata type
         include_values=False,
-        include_metadata=False
+        include_metadata=True
     )
     return query_response['matches']
 

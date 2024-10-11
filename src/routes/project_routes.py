@@ -8,6 +8,12 @@ from ..routes_schema_utility import get_user_details, get_user_context_details, 
 import datetime
 from ..routes.mixpanel_utils import track_event
 from .pinecone_utils import *
+from pymongo import MongoClient
+
+MONGO_Research_URI = os.environ.get('MONGO_URI')
+research_client = MongoClient(MONGO_Research_URI)
+research_db = research_client['arxiv_database']
+research_collection = research_db['arxiv_collection']
 
 
 project_bp = Blueprint('project', __name__)
@@ -288,9 +294,6 @@ def update_project(project_name):
     upsert_vector(pinecone_index, str(user['portfolio'][project_index]['_id']), project_embedding, metadata={"type": "project", "project_id": str(user['portfolio'][project_index]['_id'])})
     return jsonify({'message': 'Project updated successfully'}), 200
 
-
-@project_bp.route('/getSimilarResearchPapersBatch', methods=['POST'])
-@jwt_required()
 def get_similar_research_papers_batch():
     data = request.get_json()
     project_ids = data.get('projectIds')
@@ -301,13 +304,17 @@ def get_similar_research_papers_batch():
     similar_papers_map = {}
     for project_id in project_ids:
         # Fetch the embedding for the project
-        result = pinecone_index.fetch([project_id])
-        if project_id in result['vectors']:
+        result = pinecone_index.fetch(ids=[project_id])
+        if 'vectors' in result and project_id in result['vectors']:
             embedding = result['vectors'][project_id]['values']
             # Query similar research papers
             similar_papers = query_similar_vectors_research(pinecone_index, embedding, top_k=4)
-            # Format the results
-            similar_paper_ids = [match['id'] for match in similar_papers]
+            # Extract mongo_id from metadata
+            similar_paper_ids = [
+                match['metadata']['mongo_id']
+                for match in similar_papers
+                if 'metadata' in match and 'mongo_id' in match['metadata']
+            ]
             similar_papers_map[project_id] = similar_paper_ids
         else:
             similar_papers_map[project_id] = []
@@ -323,11 +330,14 @@ def return_research_papers_from_ids():
     if not research_paper_ids:
         return jsonify({"error": "Research Paper IDs are required"}), 400
     
-    # Fetch research papers from the database
-    research_papers = list(db.research_papers.find({'mongo_id': {'$in': research_paper_ids}}))
-    for paper in research_papers:
-        paper['_id'] = str(paper['_id'])
-    
-    return jsonify(research_papers), 200
+    try:
+        # Fetch research papers from the research database
+        research_papers = list(research_collection.find({'mongo_id': {'$in': research_paper_ids}}))
+        for paper in research_papers:
+            paper['_id'] = str(paper['_id'])
+        
+        return jsonify(research_papers), 200
+    except Exception as e:
+        return jsonify({"error": "Internal Server Error"}), 500
 
 
