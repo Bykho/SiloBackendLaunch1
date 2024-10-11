@@ -8,7 +8,7 @@ load_dotenv()
 pc = Pinecone(api_key=os.getenv("PINECONE_KEY"))
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-INDEX_NAME = "silo-production"
+INDEX_NAME = "user-feed-index"
 DIMENSION = 1536  # Dimension for text-embedding-ada-002
 
 
