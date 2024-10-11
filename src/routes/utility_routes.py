@@ -56,6 +56,7 @@ def populate_layers():
     )
     return jsonify({"message": "Layers field updated in all projects successfully"}), 200
 
+
 @utility_bp.route('/upvoteProject', methods=['POST'])
 @jwt_required()
 def upvote_project():
@@ -107,6 +108,48 @@ def upvote_project():
     app.logger.info(f"Upvote successful: {new_upvote}")
     track_event(str(user_id), "project upvoted", {"project_id": str(project_id)})
     return jsonify(new_upvote), 200
+
+
+@utility_bp.route('/removeUpvote', methods=['POST'])
+@jwt_required()
+def remove_upvote():
+    data = request.get_json()
+    user_id = ObjectId(data.get('user_id'))
+    project_id = ObjectId(data.get('project_id'))
+    upvote_id = ObjectId(data.get('upvote_id'))
+    app.logger.info(f"Received remove upvote request: user_id={user_id}, project_id={project_id}, upvote_id={upvote_id}")
+
+    if not user_id or not project_id or not upvote_id:
+        return jsonify({"error": "User_id, project_id, and upvote_id are required"}), 400
+
+    # Remove upvote from upvotes collection
+    result = mongo.db.upvotes.delete_one({"_id": upvote_id})
+    if result.deleted_count == 0:
+        app.logger.error("Failed to remove upvote")
+        return jsonify({"error": "Failed to remove upvote"}), 404
+
+    # Remove upvote from project
+    update_project = mongo.db.projects.update_one(
+        {'_id': project_id},
+        {"$pull": {"upvotes": upvote_id}}
+    )
+
+    if update_project.modified_count == 0:
+        return jsonify({"error": "Project not updated"}), 404
+
+    # Remove upvote from user
+    updated = mongo.db.users.update_one(
+        {"_id": user_id},
+        {"$pull": {"upvotes": upvote_id}}
+    )
+
+    if updated.modified_count == 0:
+        return jsonify({"error": "User not updated"}), 404
+
+    app.logger.info(f"Upvote removed successfully: {upvote_id}")
+    track_event(str(user_id), "project upvote removed", {"project_id": str(project_id)})
+    return jsonify({"message": "Upvote removed successfully"}), 200
+
 
 
 @utility_bp.route('/createAccessKey', methods=['POST'])
