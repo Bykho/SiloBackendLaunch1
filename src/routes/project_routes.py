@@ -8,7 +8,15 @@ from ..routes_schema_utility import get_user_details, get_user_context_details, 
 import datetime
 from ..routes.mixpanel_utils import track_event
 from .pinecone_utils import *
-
+from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
+from werkzeug.utils import secure_filename
+import os
+import io
+import PyPDF4
+from pdfminer.high_level import extract_text as pdfminer_extract
+import pytesseract
+from pdf2image import convert_from_bytes
 
 project_bp = Blueprint('project', __name__)
 pinecone_index = initialize_pinecone()
@@ -187,33 +195,177 @@ def return_user_projects():
         return jsonify(project_list), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@project_bp.route('/candidateSearch', methods=['POST'])
+@jwt_required()
+def candidateSearch():
+    if 'jobDescription' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
     
+    file = request.files['jobDescription']
+    
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+    
+    if not file.filename.lower().endswith('.pdf'):
+        return jsonify({'error': 'Only PDF files are allowed'}), 400
+    
+    try:
+        # Extract text from PDF
+        text = extract_text_from_pdf(file)
+        
+        if not text:
+            return jsonify({'error': 'Failed to extract text from the file or file is empty'}), 400
+
+        # Get embedding for the extracted text
+        job_embedding = get_embedding(text)
+
+        # Query similar vectors without inserting the job vector
+        similar_vectors = query_similar_vectors(pinecone_index, job_embedding, top_k=10)
+
+        # Process results
+        results = []
+        for match in similar_vectors:
+            results.append({
+                "id": match['id'],
+                "score": match['score'],
+                "metadata": match['metadata']
+            })
+
+        return jsonify({'results': results}), 200
+    
+    except Exception as e:
+        print(f"Error processing file: {e}")
+        return jsonify({'error': str(e)}), 500
+
+def extract_text_from_pdf(pdf_file):
+    """
+    Extract text from a PDF file using multiple methods.
+    """
+    text = ""
+    
+    # Method 1: PyPDF4 (for PDFs with embedded text)
+    try:
+        pdf_file.seek(0)
+        reader = PyPDF4.PdfFileReader(pdf_file)
+        for page in range(reader.numPages):
+            text += reader.getPage(page).extractText() or ""
+        if text.strip() and is_text_valid(text):
+            return text.strip()
+    except Exception as e:
+        print(f"PyPDF4 extraction failed: {e}")
+    
+    # Method 2: pdfminer (for more complex PDFs with embedded text)
+    try:
+        pdf_file.seek(0)
+        text = pdfminer_extract(io.BytesIO(pdf_file.read()))
+        
+        if text.strip() and is_text_valid(text):
+            return text.strip()
+    except Exception as e:
+        print(f"pdfminer extraction failed: {e}")
+    
+    # Method 3: OCR with Tesseract (for scanned PDFs or images)
+    if not is_text_valid(text):
+        try:
+            pdf_file.seek(0)
+            images = convert_from_bytes(pdf_file.read())
+            for image in images:
+                text += pytesseract.image_to_string(image)
+            
+            if text.strip():
+                return text.strip()
+        except Exception as e:
+            print(f"OCR extraction failed: {e}")
+
+
+    
+    raise ValueError("Text extraction failed for all PDF methods.")
+
+def is_text_valid(extracted_text):
+    return (
+        not is_text_garbled(extracted_text) and
+        has_reasonable_word_length(extracted_text)
+    )
+
+def is_text_garbled(extracted_text):
+    non_alnum_count = sum(1 for char in extracted_text if not char.isalnum())
+    total_char_count = len(extracted_text)
+    
+    if total_char_count == 0:
+        return True  # Empty text is considered garbled
+    
+    non_alnum_ratio = non_alnum_count / total_char_count
+    
+    # If more than 40% of the text is non-alphanumeric, consider it garbled
+    return non_alnum_ratio > 0.4
+
+def has_reasonable_word_length(extracted_text, min_average_length=3):
+    words = extracted_text.split()
+    if not words:
+        return False  # No words, likely garbled
+    
+    average_word_length = sum(len(word) for word in words) / len(words)
+    
+    # If the average word length is below 3 characters, consider it garbled
+    return average_word_length >= min_average_length
+
+
+
+
 @project_bp.route('/getSimilarProjectsBatch', methods=['POST'])
 @jwt_required()
 def get_similar_projects_batch():
-    data = request.get_json()
-    project_ids = data.get('projectIds')
+    print('opened getSimilarProjectsBatch route')
     
-    if not project_ids:
-        return jsonify({"error": "Project IDs are required"}), 400
-    
-    similar_projects_map = {}
-    for project_id in project_ids:
-        # Fetch the embedding for the project
-        result = pinecone_index.fetch([project_id])
-        if project_id in result['vectors']:
-            embedding = result['vectors'][project_id]['values']
-            # Query similar projects
-            similar_projects = query_similar_vectors_projects(pinecone_index, embedding, top_k=5)
-            # Exclude the original project and format the results
-            similar_project_ids = [
-                match['id'] for match in similar_projects if match['id'] != project_id
-            ]
-            similar_projects_map[project_id] = similar_project_ids
-        else:
-            similar_projects_map[project_id] = []
-    
-    return jsonify(similar_projects_map), 200
+    try:
+        data = request.get_json()
+        print(f'Received data: {data}')  # Log the received data
+        
+        # Get projectIds, default to an empty list if missing
+        project_ids = data.get('projectIds', [])
+        
+        similar_projects_map = {}
+        print(f'Starting to process project IDs: {project_ids}')  # Log the project IDs
+        
+        # If project_ids is empty, skip processing and return the empty map
+        if len(project_ids) == 0:
+            print('No project IDs provided, returning empty similar_projects_map')
+            return jsonify(similar_projects_map), 200
+        
+        for project_id in project_ids:
+            print(f'Processing project ID: {project_id}')  # Log each project being processed
+            
+            # Fetch the embedding for the project
+            result = pinecone_index.fetch([project_id])
+            print(f'Pinecone fetch result for {project_id}: {result}')  # Log Pinecone fetch result
+            
+            if project_id in result.get('vectors', {}):
+                embedding = result['vectors'][project_id]['values']
+                print(f'Embedding for {project_id}: {embedding}')  # Log the embedding
+
+                # Query similar projects
+                similar_projects = query_similar_vectors_projects(pinecone_index, embedding, top_k=5)
+                print(f'Similar projects for {project_id}: {similar_projects}')  # Log similar projects
+
+                # Exclude the original project and format the results
+                similar_project_ids = [
+                    match['id'] for match in similar_projects if match['id'] != project_id
+                ]
+                print(f'Filtered similar project IDs for {project_id}: {similar_project_ids}')  # Log filtered project IDs
+                
+                similar_projects_map[project_id] = similar_project_ids
+            else:
+                print(f'No vectors found for project ID: {project_id}')  # Log if no vector is found
+                similar_projects_map[project_id] = []
+        
+        print(f'Final similar projects map: {similar_projects_map}')  # Log the final result
+        
+        return jsonify(similar_projects_map), 200
+
+    except Exception as e:
+        print(f'Error occurred: {e}')  # Log any exceptions
+        return jsonify({"error": "An error occurred while processing the request"}), 500
 
 
 @project_bp.route('/deleteProject', methods=['DELETE'])

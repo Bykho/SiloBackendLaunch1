@@ -108,6 +108,7 @@ def register():
     username = data.get('username')
     major = data.get('major')  # Get the user's major from the request data
 
+    print('here is the data: ', data)
     if not mongo.db.users.find_one({"email": email}):
         hashed_password = generate_password_hash(password)
         data['password'] = str(hashed_password)
@@ -119,7 +120,7 @@ def register():
         user_details['_id'] = str(user['_id'])
         user['_id'] = str(user['_id'])
         access_token = create_access_token(identity=username, additional_claims=user_details)
-
+        print('here is the access token: ', access_token)
         # Check if a group with the user's major exists
         group = mongo.db.groups.find_one({"groupName": major})
         if group:
@@ -143,9 +144,12 @@ def register():
             "access_token": access_token,
             "new_user": user
         })
+        print('got to end of group logic')
         response.headers.add('Access-Control-Allow-Origin', '*')
         track_event(str(user['_id']), 'signup', {'email': email, 'time': datetime.datetime.utcnow()})
         set_user_profile(str(user['_id']), {'name': str(user['username']), 'email': str(user['email']), 'signup time': datetime.datetime.utcnow()})
+        print("Here is the response: ", response)
+        print("here is the access token: ", access_token)
         return response, 201
     else:
         response = jsonify({'message': 'Email already exists'})
