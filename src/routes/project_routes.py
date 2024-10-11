@@ -289,3 +289,45 @@ def update_project(project_name):
     return jsonify({'message': 'Project updated successfully'}), 200
 
 
+@project_bp.route('/getSimilarResearchPapersBatch', methods=['POST'])
+@jwt_required()
+def get_similar_research_papers_batch():
+    data = request.get_json()
+    project_ids = data.get('projectIds')
+    
+    if not project_ids:
+        return jsonify({"error": "Project IDs are required"}), 400
+    
+    similar_papers_map = {}
+    for project_id in project_ids:
+        # Fetch the embedding for the project
+        result = pinecone_index.fetch([project_id])
+        if project_id in result['vectors']:
+            embedding = result['vectors'][project_id]['values']
+            # Query similar research papers
+            similar_papers = query_similar_vectors_research(pinecone_index, embedding, top_k=4)
+            # Format the results
+            similar_paper_ids = [match['id'] for match in similar_papers]
+            similar_papers_map[project_id] = similar_paper_ids
+        else:
+            similar_papers_map[project_id] = []
+    
+    return jsonify(similar_papers_map), 200
+
+@project_bp.route('/returnResearchPapersFromIds', methods=['POST'])
+@jwt_required()
+def return_research_papers_from_ids():
+    data = request.get_json()
+    research_paper_ids = data.get('researchPaperIds')
+    
+    if not research_paper_ids:
+        return jsonify({"error": "Research Paper IDs are required"}), 400
+    
+    # Fetch research papers from the database
+    research_papers = list(db.research_papers.find({'mongo_id': {'$in': research_paper_ids}}))
+    for paper in research_papers:
+        paper['_id'] = str(paper['_id'])
+    
+    return jsonify(research_papers), 200
+
+
