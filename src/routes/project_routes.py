@@ -294,6 +294,8 @@ def update_project(project_name):
     upsert_vector(pinecone_index, str(user['portfolio'][project_index]['_id']), project_embedding, metadata={"type": "project", "project_id": str(user['portfolio'][project_index]['_id'])})
     return jsonify({'message': 'Project updated successfully'}), 200
 
+@project_bp.route('/getSimilarResearchPapersBatch', methods=['POST'])
+@jwt_required()
 def get_similar_research_papers_batch():
     data = request.get_json()
     project_ids = data.get('projectIds')
