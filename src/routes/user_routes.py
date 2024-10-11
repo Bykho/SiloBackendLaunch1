@@ -506,7 +506,6 @@ def reset_password():
 @jwt_required()
 @cross_origin()
 def get_notifications():
-    print('notifications is getting run')
     jwt_claims = get_jwt()
     user_id = jwt_claims.get('_id')
     user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
@@ -519,7 +518,6 @@ def get_notifications():
     ).sort("created_at", -1).limit(10)
     
     notifications = list(notifications_cursor)  # Convert cursor to a list
-    print('NOTIFICATIONS notifications:', notifications)
 
     return jsonify([
         {

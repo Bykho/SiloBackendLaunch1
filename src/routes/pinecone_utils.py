@@ -25,6 +25,16 @@ def initialize_pinecone():
         )
     return pc.Index(INDEX_NAME)
 
+def query_similar_vectors_research(pinecone_index, embedding, top_k=4):
+    query_response = pinecone_index.query(
+        vector=embedding,
+        top_k=top_k,
+        filter={"type": "research"},  # Filter based on metadata type
+        include_values=False,
+        include_metadata=True
+    )
+    return query_response['matches']
+
 
 def get_embedding(text):
     response = openai.Embedding.create(
