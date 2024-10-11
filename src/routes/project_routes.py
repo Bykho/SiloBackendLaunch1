@@ -333,8 +333,13 @@ def return_research_papers_from_ids():
         return jsonify({"error": "Research Paper IDs are required"}), 400
     
     try:
-        # Fetch research papers from the research database
-        research_papers = list(research_collection.find({'mongo_id': {'$in': research_paper_ids}}))
+        # Convert string research paper IDs to ObjectId instances
+        object_ids = [ObjectId(paper_id) for paper_id in research_paper_ids]
+        
+        # Fetch research papers from the research database using ObjectId
+        research_papers = list(research_collection.find({'_id': {'$in': object_ids}}))
+        
+        # Convert ObjectId to string for the response
         for paper in research_papers:
             paper['_id'] = str(paper['_id'])
         
