@@ -323,18 +323,21 @@ def get_similar_research_papers_batch():
     
     return jsonify(similar_papers_map), 200
 
-@project_bp.route('/returnResearchPapersFromArxivIds', methods=['POST'])
+@project_bp.route('/returnResearchPapersFromIds', methods=['POST'])
 @jwt_required()
-def return_research_papers_from_arxiv_ids():
+def return_research_papers_from_ids():
     data = request.get_json()
-    research_paper_arxiv_ids = data.get('researchPaperArxivIds')
+    research_paper_ids = data.get('researchPaperIds')
     
-    if not research_paper_arxiv_ids:
-        return jsonify({"error": "Research Paper arXiv IDs are required"}), 400
+    if not research_paper_ids:
+        return jsonify({"error": "Research Paper IDs are required"}), 400
     
     try:
-        # Fetch research papers from the research database using arxiv_id
-        research_papers = list(research_collection.find({'arxiv_id': {'$in': research_paper_arxiv_ids}}))
+        # Convert string research paper IDs to ObjectId instances
+        object_ids = [ObjectId(paper_id) for paper_id in research_paper_ids]
+        
+        # Fetch research papers from the research database using ObjectId
+        research_papers = list(research_collection.find({'_id': {'$in': object_ids}}))
         
         # Convert ObjectId to string for the response
         for paper in research_papers:
@@ -343,6 +346,5 @@ def return_research_papers_from_arxiv_ids():
         return jsonify(research_papers), 200
     except Exception as e:
         return jsonify({"error": "Internal Server Error"}), 500
-
 
 
