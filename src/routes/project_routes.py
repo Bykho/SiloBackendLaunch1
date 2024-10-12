@@ -210,7 +210,7 @@ def get_similar_projects_batch():
         if project_id in result['vectors']:
             embedding = result['vectors'][project_id]['values']
             # Query similar projects
-            similar_projects = query_similar_vectors_projects(pinecone_index, embedding, top_k=2)
+            similar_projects = query_similar_vectors_projects(pinecone_index, embedding, top_k=5)
             # Exclude the original project and format the results
             similar_project_ids = [
                 match['id'] for match in similar_projects if match['id'] != project_id
