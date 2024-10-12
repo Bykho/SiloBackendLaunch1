@@ -211,15 +211,20 @@ def get_similar_projects_batch():
             embedding = result['vectors'][project_id]['values']
             # Query similar projects
             similar_projects = query_similar_vectors_projects(pinecone_index, embedding, top_k=5)
-            # Exclude the original project and format the results
-            similar_project_ids = [
-                match['id'] for match in similar_projects if match['id'] != project_id
+            # Exclude the original project and format the results with similarity scores
+            similar_project_entries = [
+                {
+                    'id': match['id'],
+                    'score': match['score']
+                } 
+                for match in similar_projects if match['id'] != project_id
             ]
-            similar_projects_map[project_id] = similar_project_ids
+            similar_projects_map[project_id] = similar_project_entries
         else:
             similar_projects_map[project_id] = []
     
     return jsonify(similar_projects_map), 200
+
 
 
 @project_bp.route('/deleteProject', methods=['DELETE'])
@@ -311,17 +316,21 @@ def get_similar_research_papers_batch():
             embedding = result['vectors'][project_id]['values']
             # Query similar research papers
             similar_papers = query_similar_vectors_research(pinecone_index, embedding, top_k=4)
-            # Extract mongo_id from metadata
-            similar_paper_ids = [
-                match['metadata']['mongo_id']
+            # Extract mongo_id and score from metadata
+            similar_paper_entries = [
+                {
+                    'id': match['metadata']['mongo_id'],
+                    'score': match['score']
+                }
                 for match in similar_papers
                 if 'metadata' in match and 'mongo_id' in match['metadata']
             ]
-            similar_papers_map[project_id] = similar_paper_ids
+            similar_papers_map[project_id] = similar_paper_entries
         else:
             similar_papers_map[project_id] = []
     
     return jsonify(similar_papers_map), 200
+
 
 @project_bp.route('/returnResearchPapersFromIds', methods=['POST'])
 @jwt_required()
