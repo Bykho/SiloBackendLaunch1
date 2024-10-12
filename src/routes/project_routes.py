@@ -210,7 +210,7 @@ def get_similar_projects_batch():
         if project_id in result['vectors']:
             embedding = result['vectors'][project_id]['values']
             # Query similar projects
-            similar_projects = query_similar_vectors_projects(pinecone_index, embedding, top_k=5)
+            similar_projects = query_similar_vectors_projects(pinecone_index, embedding, top_k=2)
             # Exclude the original project and format the results
             similar_project_ids = [
                 match['id'] for match in similar_projects if match['id'] != project_id
@@ -310,7 +310,7 @@ def get_similar_research_papers_batch():
         if 'vectors' in result and project_id in result['vectors']:
             embedding = result['vectors'][project_id]['values']
             # Query similar research papers
-            similar_papers = query_similar_vectors_research(pinecone_index, embedding, top_k=4)
+            similar_papers = query_similar_vectors_research(pinecone_index, embedding, top_k=3)
             # Extract mongo_id from metadata
             similar_paper_ids = [
                 match['metadata']['mongo_id']
