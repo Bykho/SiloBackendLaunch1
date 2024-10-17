@@ -62,19 +62,23 @@ def query_similar_vectors_projects(index, vector, top_k=20):
     return results['matches']
 
 def query_similar_vectors_users(index, user_id, top_k=5):
-
     result = index.fetch([user_id])
+
+    # Check if the user_id exists in the fetched vectors
+    if 'vectors' not in result or user_id not in result['vectors']:
+        return []  # Return an empty list or handle as per your requirement
 
     # Extract the vector from the result
     user_vector = result['vectors'][user_id]['values']
 
     results = index.query(
-        vector = user_vector,
+        vector=user_vector,
         top_k=top_k,
         include_metadata=True,
         filter={"type": "user"}
     )
     return results['matches']
+
 
 def query_similar_vectors_jobs(index, vector, top_k=20):
     results = index.query(
