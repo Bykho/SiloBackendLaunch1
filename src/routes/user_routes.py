@@ -11,7 +11,7 @@ from flask_cors import cross_origin
 import logging
 from flask_mail import Message
 from ..routes.mixpanel_utils import track_event, set_user_profile
-from .pinecone_utils import initialize_pinecone, get_embedding, upsert_vector
+from .pinecone_utils import *
 import datetime
 import random
 import string
@@ -637,5 +637,18 @@ def update_work_experience():
         }), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+@user_bp.route('/getSimilarUsers', methods=['POST'])
+@jwt_required()
+def get_similar_projects_batch():
+    data = request.get_json()
+    user_id = data.get('user_id')   
+
+    if not user_id:
+        return jsonify({"error": "Project IDs are required"}), 400
+    
+    user_embedding = pinecone_index.fetch([user_id])
+    similar_users = query_similar_vectors_users(pinecone_index, user_embedding, top_k=5)
+    return jsonify(similar_users), 200
 
 
