@@ -63,7 +63,7 @@ def query_similar_vectors_projects(index, vector, top_k=20):
 
 def query_similar_vectors_users(index, user_id, top_k=5):
     result = index.fetch([user_id])
-
+    print("result", result)
     # Check if the user_id exists in the fetched vectors
     if 'vectors' not in result or user_id not in result['vectors']:
         return []  # Return an empty list or handle as per your requirement
