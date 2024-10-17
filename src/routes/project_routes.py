@@ -361,8 +361,8 @@ def get_similar_users():
     similar_users = query_similar_vectors_users(pinecone_index, str(user_id), top_k=3)
     similar_user_ids = [ match['id'] for match in similar_users if match['id'] != user_id]
     similar_users_map[user_id] = similar_user_ids
-    
-    return jsonify(similar_users_map), 200
+    print("ids: ", similar_user_ids)
+    return jsonify(similar_user_ids), 200
 
 
 

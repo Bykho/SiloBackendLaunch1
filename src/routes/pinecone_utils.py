@@ -77,8 +77,6 @@ def query_similar_vectors_users(index, user_id, top_k=5):
         include_values=False,
         filter={"type": "user"}
     )
-    print("results", results)
-    print("results matches", results['matches'])
     return results['matches']
 
 
