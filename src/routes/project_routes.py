@@ -352,13 +352,11 @@ def return_research_papers_from_ids():
 def get_similar_users():
     data = request.get_json()
     user_id = data.get('user_id')   
-    print('1: User ID from JWT:', user_id)
 
     if not user_id:
         return jsonify({"error": "User ID is required"}), 400
     
     similar_users = query_similar_vectors_users(pinecone_index, str(user_id), top_k=2)
-    print('4: Similar users:', similar_users)
     return jsonify(similar_users), 200
 
 
