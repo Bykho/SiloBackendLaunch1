@@ -1,6 +1,7 @@
 
 
 from flask import Blueprint, request, jsonify
+import json
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from bson import ObjectId
 from .. import mongo
@@ -358,7 +359,7 @@ def get_similar_users():
     
     similar_users = query_similar_vectors_users(pinecone_index, str(user_id), top_k=2)
 
-    print("jsoned", jsonify(similar_users))
+    print("jsoned", json.dumps(similar_users))
     return jsonify(similar_users), 200
 
 
