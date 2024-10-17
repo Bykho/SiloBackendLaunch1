@@ -353,14 +353,17 @@ def return_research_papers_from_ids():
 def get_similar_users():
     data = request.get_json()
     user_id = data.get('user_id')   
+    similar_users_map = {}
 
     if not user_id:
         return jsonify({"error": "User ID is required"}), 400
     
-    similar_users = query_similar_vectors_users(pinecone_index, str(user_id), top_k=2)
-
+    similar_users = query_similar_vectors_users(pinecone_index, str(user_id), top_k=3)
+    similar_user_ids = [ match['id'] for match in similar_users if match['id'] != user_id]
+    similar_users_map[user_id] = similar_user_ids
+    
     print("jsoned", json.dumps(similar_users))
-    return jsonify(similar_users), 200
+    return jsonify(similar_users_map), 200
 
 
 
