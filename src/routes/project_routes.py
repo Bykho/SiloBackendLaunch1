@@ -57,6 +57,7 @@ def return_projects_from_ids():
             })
         #print('proejcts from ids project list: ', project_list)
         project_list = convert_objectid_to_str(project_list)
+        print('project list: ', project_list)
         return jsonify(project_list), 200
     except Exception as e:
         print(f"Error fetching projects: {e}")
