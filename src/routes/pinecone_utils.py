@@ -62,8 +62,15 @@ def query_similar_vectors_projects(index, vector, top_k=20):
     return results['matches']
 
 def query_similar_vectors_users(index, user_id, top_k=5):
+
+    # Fetch the vector based on the user ID
+    fetch_result = index.fetch(ids=[user_id])
+
+    # Extract the vector from the result
+    user_vector = fetch_result['vectors'][user_id]['values']
+
     results = index.query(
-        id=user_id,
+        vector = user_vector,
         top_k=top_k,
         include_metadata=True,
         filter={"type": "user"}
