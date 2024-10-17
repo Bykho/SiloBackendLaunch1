@@ -346,5 +346,19 @@ def return_research_papers_from_ids():
         return jsonify(research_papers), 200
     except Exception as e:
         return jsonify({"error": "Internal Server Error"}), 500
+    
+@project_bp.route('/getSimilarUsers', methods=['POST'])
+@jwt_required()
+def get_similar_users():
+    data = request.get_json()
+    user_id = data.get('user_id')   
+
+    if not user_id:
+        return jsonify({"error": "Project IDs are required"}), 400
+    
+    similar_users = query_similar_vectors_users(pinecone_index, str(user_id), top_k=2)
+
+
+    return jsonify(similar_users), 200
 
 

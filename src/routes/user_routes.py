@@ -638,21 +638,6 @@ def update_work_experience():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-@user_bp.route('/getSimilarUsers', methods=['POST'])
-@jwt_required()
-def get_similar_users():
-    data = request.get_json()
-    user_id = data.get('user_id')   
 
-    if not user_id:
-        return jsonify({"error": "Project IDs are required"}), 400
-    
-    if user_id :
-        # Embedding exists, return it
-        similar_users = query_similar_vectors_users(pinecone_index, user_id, top_k=5)
-    else: 
-        similar_users = []
-
-    return jsonify(similar_users), 200
 
 
