@@ -640,14 +640,21 @@ def update_work_experience():
     
 @user_bp.route('/getSimilarUsers', methods=['POST'])
 @jwt_required()
-def get_similar_projects_batch():
+def get_similar_users():
     data = request.get_json()
     user_id = data.get('user_id')   
 
     if not user_id:
         return jsonify({"error": "Project IDs are required"}), 400
     
-    similar_users = query_similar_vectors_users(pinecone_index, user_id, top_k=5)
+    result = pinecone_index.fetch([user_id])
+    if user_id in result['vectors']:
+        # Embedding exists, return it
+        embedding = result['vectors'][user_id]['values']
+        similar_users = query_similar_vectors_users(pinecone_index, embedding, top_k=5)
+    else: 
+        similar_users = []
+        
     return jsonify(similar_users), 200
 
 
