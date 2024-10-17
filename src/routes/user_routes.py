@@ -647,14 +647,12 @@ def get_similar_users():
     if not user_id:
         return jsonify({"error": "Project IDs are required"}), 400
     
-    result = pinecone_index.fetch([user_id])
-    if user_id in result['vectors']:
+    if user_id :
         # Embedding exists, return it
-        embedding = result['vectors'][user_id]['values']
-        similar_users = query_similar_vectors_users(pinecone_index, embedding, top_k=5)
+        similar_users = query_similar_vectors_users(pinecone_index, user_id, top_k=5)
     else: 
         similar_users = []
-        
+
     return jsonify(similar_users), 200
 
 

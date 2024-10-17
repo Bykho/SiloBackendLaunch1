@@ -61,9 +61,9 @@ def query_similar_vectors_projects(index, vector, top_k=20):
     )
     return results['matches']
 
-def query_similar_vectors_users(index, vector, top_k=5):
+def query_similar_vectors_users(index, user_id, top_k=5):
     results = index.query(
-        vector=vector,
+        id=user_id,
         top_k=top_k,
         include_metadata=True,
         filter={"type": "user"}
@@ -98,3 +98,4 @@ def get_or_create_user_embedding(index, user):
         upsert_vector(index, user_id, user_embedding, metadata={"type": "user", "username": user['username']})
         
         return user_embedding
+
