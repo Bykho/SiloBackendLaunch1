@@ -357,6 +357,8 @@ def get_similar_users():
         return jsonify({"error": "User ID is required"}), 400
     
     similar_users = query_similar_vectors_users(pinecone_index, str(user_id), top_k=2)
+
+    print("jsoned", jsonify(similar_users))
     return jsonify(similar_users), 200
 
 
