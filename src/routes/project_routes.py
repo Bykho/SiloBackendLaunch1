@@ -362,7 +362,6 @@ def get_similar_users():
     similar_user_ids = [ match['id'] for match in similar_users if match['id'] != user_id]
     similar_users_map[user_id] = similar_user_ids
     
-    print("jsoned", json.dumps(similar_users))
     return jsonify(similar_users_map), 200
 
 

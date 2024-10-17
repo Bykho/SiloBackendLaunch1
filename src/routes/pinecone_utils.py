@@ -74,6 +74,7 @@ def query_similar_vectors_users(index, user_id, top_k=5):
         vector=user_vector,
         top_k=top_k,
         include_metadata=True,
+        include_values=False,
         filter={"type": "user"}
     )
     print("results", results)
