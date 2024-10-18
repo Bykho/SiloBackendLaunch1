@@ -136,13 +136,13 @@ def search_jobs():
 
         last_fetch = mongo.db.theirstack_metadata.find_one({"_id": "last_fetch"})
         
-        if last_fetch is None or datetime.utcnow() - last_fetch['timestamp'] > timedelta(hours=24):
+        if last_fetch is None or datetime.utcnow() - last_fetch['timestamp'] > timedelta(hours=336):
         #if True: #for testing
             print("Fetching new data from Theirstack API...")
             response = requests.post(url, json=payload, headers=headers)
             response.raise_for_status()
             print(response.json())
-            
+        
             jobs_data = response.json().get('data', [])
             
             if jobs_data:
