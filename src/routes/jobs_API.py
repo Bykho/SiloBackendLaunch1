@@ -28,7 +28,8 @@ def search_jobs():
     api_key = os.getenv("THEIRSTACK_KEY")
 
     #switch to Post request w/ sending data.
-
+    #Industry IDs:
+    # [1,4,53, 3127, 1285, 113, 2458, 383, 119, 1649, 1644, 8, 94, 87, 95, 3242, 3248, 118, 3102, 12, 114, 7, 147, 3247, 3251, 3, 52]
     url = "https://api.theirstack.com/v1/jobs/search"
 
     
@@ -48,9 +49,9 @@ def search_jobs():
         "company_description_pattern_or": [],
         "company_description_pattern_not": [],
         "company_description_pattern_accent_insensitive": False,
-        "min_revenue_usd": 5000000,
+        "min_revenue_usd": None,
         "max_revenue_usd": None,
-        "min_employee_count": 5,
+        "min_employee_count": None,
         "max_employee_count": None,
         "min_employee_count_or_null": None,
         "max_employee_count_or_null": None,
@@ -59,7 +60,7 @@ def search_jobs():
         "funding_stage_or": [],
         "industry_or": [], 
         "industry_not": [],
-        "industry_id_or": [1,4,53, 3127, 1285, 113, 2458, 383, 119, 1649, 1644, 8, 94, 87, 95, 3242, 3248, 118, 3102, 12, 114, 7, 147, 3247, 3251, 3, 52],
+        "industry_id_or": [],
         "industry_id_not": [],
         "company_tags_or": [],
         "company_type": "all",
@@ -68,7 +69,7 @@ def search_jobs():
         "company_technology_slug_or": [],
         "company_technology_slug_and": [],
         "company_technology_slug_not": [],
-        "only_yc_companies": False,
+        "only_yc_companies": True,
         "company_location_pattern_or": [],
         "company_country_code_or": ["US"],
         "company_country_code_not": [],
@@ -81,11 +82,11 @@ def search_jobs():
         "company_id_or": [],
         "company_domain_or": [],
         "company_domain_not": [],
-        "company_name_not": ["Davidayo"],
+        "company_name_not": [],
         "company_name_partial_match_or": [],
         "company_name_partial_match_not": [],
         "company_linkedin_url_or": [],
-        "job_title_or": [],
+        "job_title_or": ["engineer", "engineering", "STEM", "scientist", "research", "mechanical", "robotics", "aerospace"],
         "job_title_not": [],
         "job_title_pattern_and": [],
         "job_title_pattern_or": [],
@@ -99,7 +100,7 @@ def search_jobs():
         "discovered_at_min_age_days": None,
         "discovered_at_gte": None,
         "discovered_at_lte": None,
-        "job_description_pattern_or": ["engineer", "engineering", "STEM", "scientist", "research", "mechanical", "robotics", "aerospace"],
+        "job_description_pattern_or": [],
         "job_description_pattern_not": ["marketing","sales", "finance","accounting","HR" ,"copywriter", "legal", "lawyer","attorney","administrative","business","teacher", "instructor", "nurse", "doctor", "physician", "chef","consulting", "consulting"],
         "job_description_pattern_is_case_insensitive": True,
         "remote": None,
