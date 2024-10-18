@@ -53,11 +53,11 @@ def return_projects_from_ids():
                 "links": project.get("links", []),
                 "created_at": project.get("created_at", ""),
                 "comments": project.get("comments", []),
-                "visibility": project.get("visibility", True)
+                "visibility": project.get("visibility", True), 
+                "createdById": project.get("user_id", "")
             })
         #print('proejcts from ids project list: ', project_list)
         project_list = convert_objectid_to_str(project_list)
-        print('project list: ', project_list)
         return jsonify(project_list), 200
     except Exception as e:
         print(f"Error fetching projects: {e}")
