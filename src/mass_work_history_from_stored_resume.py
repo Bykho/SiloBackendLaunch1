@@ -23,6 +23,7 @@ def process_user_resumes():
     total_users = 0
     processed_users = 0
     skipped_users = 0
+    successfully_updated_users = []
     
     for user in users:
         total_users += 1
@@ -30,14 +31,23 @@ def process_user_resumes():
             resume_data = user['resume']
             
             try:
+                # Check if resume_data is a dictionary
+                if isinstance(resume_data, dict):
+                    resume_data = resume_data.get('data', '')
+                    
                 # Check if resume_data is in the correct format
-                if not resume_data.startswith('data:application/pdf;base64,'):
+                if not isinstance(resume_data, str) or not resume_data.startswith('data:application/pdf;base64,'):
                     logging.warning(f"Invalid resume data format for user {user['_id']}")
                     skipped_users += 1
                     continue
 
                 # Extract the base64 encoded content
-                _, encoded_content = resume_data.split('base64,', 1)
+                try:
+                    _, encoded_content = resume_data.split('base64,', 1)
+                except ValueError:
+                    logging.error(f"Unable to split base64 content for user {user['_id']}")
+                    skipped_users += 1
+                    continue
 
                 # Decode the content
                 try:
@@ -64,13 +74,17 @@ def process_user_resumes():
                 work_history = summary.get('workhistory', [])
                 
                 # Update the user's work history in the database
-                db.users.update_one(
+                result = db.users.update_one(
                     {'_id': user['_id']},
                     {'$set': {'workhistory': work_history}}
                 )
                 
-                processed_users += 1
-                logging.info(f"Updated work history for user: {user['_id']}")
+                if result.modified_count > 0:
+                    processed_users += 1
+                    successfully_updated_users.append(str(user['_id']))
+                    logging.info(f"Updated work history for user: {user['_id']}")
+                else:
+                    logging.warning(f"Failed to update work history for user: {user['_id']}")
             
             except Exception as e:
                 logging.error(f"Error processing resume for user {user['_id']}: {str(e)}")
@@ -81,6 +95,7 @@ def process_user_resumes():
     logging.info(f"Total users: {total_users}")
     logging.info(f"Processed users: {processed_users}")
     logging.info(f"Skipped users: {skipped_users}")
+    logging.info(f"Successfully updated users: {', '.join(successfully_updated_users)}")
 
 if __name__ == '__main__':
     process_user_resumes()
