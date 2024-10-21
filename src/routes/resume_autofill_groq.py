@@ -54,18 +54,20 @@ def summarize_resume_text(text):
         print(f"SUMMARIZE_RESUME_TEXT message_content {message_content}")
         print()
         print()
-        #print(f"SUMMARIZE_RESUME_TEXT message_content.workhistory {message_content.workhistory}")
-        #print()
-        #print()
-        # Validate and parse JSON format
         try:
             json_content = json.loads(message_content)
             print('here is json content: ', json_content)
+            
+            # Now we can safely access the 'workhistory' key
+            if 'workhistory' in json_content:
+                print(f"\nSUMMARIZE_RESUME_TEXT workhistory: {json_content['workhistory']}")
+            else:
+                print("\nNo workhistory found in the parsed JSON.")
+            
+            return json_content
         except json.JSONDecodeError as e:
             print(f"JSONDecodeError: {e}")
             return {}  # Return an empty dict if there's an error
-        
-        return json_content
     except Exception as e:
         print(f"Error summarizing text: {e}")
         return {}

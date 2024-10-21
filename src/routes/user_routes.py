@@ -102,11 +102,13 @@ def register():
         }
         return ('', 204, headers)
 
+
     data = request.get_json()
+    print(f"\n \n signup data coming in: {data.get('workhistory')}")
     password = data.get('password')
     email = data.get('email')
     username = data.get('username')
-    major = data.get('major')  # Get the user's major from the request data
+    major = data.get('major')
 
     if not mongo.db.users.find_one({"email": email}):
         hashed_password = generate_password_hash(password)
