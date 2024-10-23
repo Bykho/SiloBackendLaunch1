@@ -35,7 +35,29 @@ def summarize_resume_text(text):
                 },
                 {
                     "role": "user",
-                    "content": f"For the following resume, please write a concise (less than 200 words) bio for this person in the first person, also provide lists for suggested interests, suggested skills, a string for their latest university, a string for major, and a string for graduation year. If there is a section discussing the work history on the resume, please include the name of the company they worked for, a description (make the description be as long as possible) of what they did. Please always format your response as a json with keys: bio, skills, interests, latestUniversity, major, grad_yr, workhistory (with sub dictionaries for each company and all companies should have a very short description and the persons role at that company). workHistory should be a dictionary with each company as a key, sub keys for company (with the value being the company name), the role (value is the users title at that company), and description (value is a short description of what they did there). This is very important: the entirety of your response should constitute a valid JSON. There should be no json tags in the front or any leading/trailing text. Only give the json. Here is the text:\n\n{text}"
+                    "content": f"""For the following resume, extract the person's first name, last name, and email address, then write a concise (less than 200 words) bio in the first person. Also provide lists for suggested interests, suggested skills, a string for their latest university, a string for major, a string for their personal website (if they have one), and a string for graduation year. If there is a section discussing work history, include the name of the company they worked for and a description of what they did.
+
+                        Please format your response as a JSON with these keys:
+                        - firstName (string): The person's first name
+                        - lastName (string): The person's last name
+                        - email (string): The person's email address
+                        - bio (string): First-person bio, less than 200 words
+                        - skills (array): List of skills
+                        - interests (array): List of interests
+                        - latestUniversity (string): Most recent university attended
+                        - major (string): Field of study
+                        - personalWebsite (string): a personal website
+                        - grad_yr (string): Graduation year
+                        - workhistory (object): Dictionary with each company as a key, containing:
+                        - company (string): Company name
+                        - role (string): Person's title
+                        - description (string): Brief description of their work
+
+                        The response must be valid JSON with no additional text. 
+                        This is very important: the entirety of your response should constitute a valid JSON. There should be no json tags in the front or any leading/trailing text. Only give the json. 
+                        Here is the resume text:
+
+                        {text}"""
                 }
             ],
             model="llama3-70b-8192",
