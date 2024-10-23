@@ -1,6 +1,6 @@
 
 
-from flask import Blueprint, request, jsonify, send_file
+from flask import Blueprint, request, jsonify, send_file, request
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt
 from werkzeug.security import generate_password_hash, check_password_hash
 from bson import ObjectId
@@ -18,6 +18,7 @@ import string
 import json
 import io
 import base64
+import requests
 
 
 user_bp = Blueprint('user', __name__)
@@ -92,6 +93,16 @@ def other_student_profile(id):
     user_details = convert_objectid_to_str(user_details)
     return jsonify(user_details), 200
 
+
+
+
+
+
+
+
+
+
+
 @user_bp.route('/SignUp', methods=['POST', 'OPTIONS'])
 def register():
     if request.method == 'OPTIONS':
@@ -153,6 +164,319 @@ def register():
         response = jsonify({'message': 'Email already exists'})
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response, 409
+    
+
+
+@user_bp.route('/linkedin-auth', methods=['POST'])
+def linkedin_auth():
+    print("Received LinkedIn auth request")
+    print(f"Request JSON: {request.json}")
+    
+    # Print out the data sent from the frontend
+    print("Data received from frontend:")
+    for key, value in request.json.items():
+        print(f"{key}: {value}")
+    print("\n \n")
+
+    redirect_uri = request.json.get('redirect_uri')
+    if not redirect_uri:
+        redirect_uri = f"{request.host_url}callback"
+    
+    print(f"Redirect URI: {redirect_uri}")
+
+    if not redirect_uri.startswith(('http://', 'https://')):
+        print("Invalid redirect URI")
+        return jsonify({"error": "Invalid redirect URI"}), 400
+
+    try:
+        code = request.json.get('code')
+        if not code:
+            print("Authorization code is missing")
+            return jsonify({"error": "Authorization code is required"}), 400
+
+        print(f"Authorization code: {code}")
+
+        # Exchange code for access token
+        token_data = {
+            'grant_type': 'authorization_code',
+            'code': code,
+            'client_id': '78etgv4pahvfr5',
+            'client_secret': 'WPL_AP1.xgKM89Vl9bgjTbgl.l7oNww==',
+            'redirect_uri': redirect_uri
+        }
+        print(f"Token request data: {token_data}")
+
+        token_response = requests.post(
+            'https://www.linkedin.com/oauth/v2/accessToken',
+            data=token_data,
+            headers={'Content-Type': 'application/x-www-form-urlencoded'}
+        )
+
+        print(f"\n \n Token response: {token_response} \n \n")
+        print(f"Token response status: {token_response.status_code}")
+        print(f"Token response content: {token_response.text}")
+
+        if token_response.status_code != 200:
+            error_message = token_response.json().get('error_description', 'Unknown error')
+            print(f"Error exchanging code for token: {error_message}")
+            return jsonify({"error": f"Failed to exchange code for token: {error_message}"}), token_response.status_code
+
+        # If successful, proceed with the token response
+        token_data = token_response.json()
+        access_token = token_data.get('access_token')
+        if not access_token:
+            print("Access token not found in response")
+            return jsonify({"error": "Access token not found in response"}), 400
+
+        print(f"Successfully obtained access token: {access_token}")
+
+        # Get user profile from LinkedIn
+        headers = {
+            'Authorization': f'Bearer {access_token}',
+            'X-Restli-Protocol-Version': '2.0.0'
+        }
+        print(f"Profile request headers: {headers}")
+
+        # Get basic profile
+        profile_response = requests.get(
+            'https://api.linkedin.com/v2/userinfo',
+            headers=headers
+        )
+
+        print(f"Profile response status: {profile_response.status_code}")
+        print(f"Profile response content: {profile_response.text}")
+
+        if not profile_response.ok:
+            print("Failed to fetch LinkedIn profile")
+            return jsonify({"error": "Failed to fetch LinkedIn profile"}), 400
+
+        profile = profile_response.json()
+        print(f"LinkedIn profile: {profile}")
+
+        # Get email address
+        email_response = requests.get(
+            'https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))',
+            headers=headers
+        )
+
+        print(f"Email response status: {email_response.status_code}")
+        print(f"Email response content: {email_response.text}")
+
+        if not email_response.ok:
+            print("Failed to fetch LinkedIn email")
+            return jsonify({"error": "Failed to fetch LinkedIn email"}), 400
+
+        email = email_response.json().get('elements', [{}])[0].get('handle~', {}).get('emailAddress')
+        print(f"LinkedIn email: {email}")
+
+        # Check if user exists
+        existing_user = mongo.db.users.find_one({"email": email})
+        
+        if existing_user:
+            print(f"Existing user found: {existing_user}")
+            user_details = get_user_context_details(existing_user)
+            access_token = create_access_token(
+                identity=existing_user['username'],
+                additional_claims=user_details
+            )
+            response_data = {
+                "message": "Login successful",
+                "access_token": access_token,
+                "new_user": convert_objectid_to_str(existing_user)
+            }
+            print(f"Response for existing user: {response_data}")
+            return jsonify(response_data), 200
+
+        # Create new user
+        new_user = {
+            "username": f"{profile.get('localizedFirstName', '')} {profile.get('localizedLastName', '')}",
+            "email": email,
+            "linkedinId": profile.get('id'),
+            "interests": [],
+            "skills": [],
+            "biography": "",
+            "university": "",
+            "grad": "",
+            "major": "",
+            "user_type": "Student",
+            "personal_website": "",
+            "shared": False,
+            "scores": [],
+            "portfolio": []
+        }
+        print(f"New user data: {new_user}")
+
+        result = mongo.db.users.insert_one(new_user)
+        created_user = mongo.db.users.find_one({"_id": result.inserted_id})
+        print(f"Created user: {created_user}")
+        
+        user_details = get_user_context_details(created_user)
+        access_token = create_access_token(
+            identity=created_user['username'],
+            additional_claims=user_details
+        )
+
+        # Track signup event
+        track_event(
+            str(created_user['_id']),
+            'signup',
+            {'email': email, 'source': 'linkedin', 'time': datetime.datetime.utcnow()}
+        )
+        
+        set_user_profile(
+            str(created_user['_id']),
+            {
+                'name': created_user['username'],
+                'email': created_user['email'],
+                'signup_time': datetime.datetime.utcnow(),
+                'signup_method': 'linkedin'
+            }
+        )
+
+        response_data = {
+            "message": "User registered successfully",
+            "access_token": access_token,
+            "new_user": convert_objectid_to_str(created_user)
+        }
+        print(f"Response for new user: {response_data}")
+        return jsonify(response_data), 201
+
+    except Exception as e:
+        print(f"LinkedIn auth error: {str(e)}")
+        return jsonify({"error": "Authentication failed"}), 500
+
+
+@user_bp.route('/trialLinkedIn', methods=['POST', 'OPTIONS'])
+def trial_linkedin():
+    if request.method == 'OPTIONS':
+        response = jsonify({'status': 'OK'})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+        response.headers.add('Access-Control-Allow-Methods', 'POST,OPTIONS')
+        return response, 200
+    
+    print("Received LinkedIn trial request")
+    print(f"Request JSON: {request.json}")
+
+    code = request.json.get('code')
+    redirect_uri = request.json.get('redirect_uri')
+    
+    print(f"Code: {code}")
+    print(f"Redirect URI: {redirect_uri}")
+
+    # Step 1: Exchange authorization code for token (unchanged)
+    token_data = {
+        'grant_type': 'authorization_code',
+        'code': code,
+        'client_id': '78etgv4pahvfr5',
+        'client_secret': 'WPL_AP1.xgKM89Vl9bgjTbgl.l7oNww==',
+        'redirect_uri': redirect_uri
+    }
+
+    token_response = requests.post(
+        'https://www.linkedin.com/oauth/v2/accessToken',
+        data=token_data,
+        headers={'Content-Type': 'application/x-www-form-urlencoded'}
+    )
+
+    print(f"Token response status: {token_response.status_code}")
+    print(f"Token response content: {token_response.text}")
+
+    if token_response.status_code != 200:
+        return jsonify({"error": "Failed to exchange token"}), token_response.status_code
+
+    token_data = token_response.json()
+    access_token = token_data.get('access_token')
+    print(f"Access token received: {access_token}")
+
+    if not access_token:
+        return jsonify({"error": "Access token is missing"}), 400
+
+    # Step 2: Get basic profile info from LinkedIn
+    headers = {
+        'Authorization': f'Bearer {access_token}'
+    }
+
+    profile_response = requests.get(
+        'https://api.linkedin.com/v2/userinfo',
+        headers=headers
+    )
+
+    print(f"Profile response status: {profile_response.status_code}")
+    print(f"Profile response con,tent: {profile_response.text}")
+
+    if profile_response.status_code != 200:
+        return jsonify({"error": "Failed to fetch LinkedIn profile"}), profile_response.status_code
+
+    profile = profile_response.json()
+    email = profile.get('email')
+    
+    # Prepare basic profile info
+    response_data = {
+        "name": profile.get('name', ''),
+        "email": email,
+        "given_name": profile.get('given_name', ''),
+        "family_name": profile.get('family_name', ''),
+        "picture": profile.get('picture', ''),
+        "locale": profile.get('locale', {}),
+    }
+
+    # Step 3: Get detailed profile using Proxycurl email lookup
+    if email:
+        try:
+            PROXYCURL_API_KEY = 'nesltgFnwlmFRxDyR3-o6w'
+            
+            api_endpoint = 'https://nubela.co/proxycurl/api/linkedin/profile/resolve/email'
+            headers = {'Authorization': f'Bearer {PROXYCURL_API_KEY}'}
+            
+            params = {
+                'work_email': email,
+                'enrich_profile': 'enrich'  # This will return full profile data
+            }
+            
+            print(f"Attempting Proxycurl lookup for email: {email}")
+            proxycurl_response = requests.get(api_endpoint, params=params, headers=headers)
+            print(f"Proxycurl API response status: {proxycurl_response.status_code}")
+            print(f"Proxycurl API response: {proxycurl_response.text}")
+            
+            if proxycurl_response.status_code == 200:
+                lookup_result = proxycurl_response.json()
+                if lookup_result.get('profile'):
+                    detailed_profile = lookup_result['profile']
+                    response_data["detailed_profile"] = {
+                        "linkedin_profile_url": lookup_result.get('linkedin_profile_url'),
+                        "experiences": detailed_profile.get('experiences', []),
+                        "education": detailed_profile.get('education', []),
+                        "skills": detailed_profile.get('skills', []),
+                        "languages": detailed_profile.get('languages_and_proficiencies', []),
+                        "interests": detailed_profile.get('interests', []),
+                        "accomplishments": {
+                            "projects": detailed_profile.get('accomplishment_projects', []),
+                            "publications": detailed_profile.get('accomplishment_publications', []),
+                            "honors": detailed_profile.get('accomplishment_honors_awards', []),
+                            "patents": detailed_profile.get('accomplishment_patents', []),
+                            "courses": detailed_profile.get('accomplishment_courses', []),
+                        },
+                        "volunteer_work": detailed_profile.get('volunteer_work', []),
+                        "certifications": detailed_profile.get('certifications', []),
+                        "summary": detailed_profile.get('summary', ''),
+                        "headline": detailed_profile.get('headline', ''),
+                        "occupation": detailed_profile.get('occupation', ''),
+                        "current_company": {
+                            "name": detailed_profile.get('experiences', [{}])[0].get('company'),
+                            "title": detailed_profile.get('experiences', [{}])[0].get('title'),
+                        } if detailed_profile.get('experiences') else None,
+                    }
+            else:
+                print(f"Proxycurl lookup failed with status {proxycurl_response.status_code}")
+                
+        except Exception as e:
+            print(f"Error with Proxycurl API: {str(e)}")
+            # Continue without detailed profile data
+
+    return jsonify(response_data), 200
+
+
 
 @user_bp.route('/toggleShareProfile', methods=['POST'])
 @jwt_required()
