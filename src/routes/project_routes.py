@@ -227,11 +227,12 @@ def get_similar_projects_batch():
 @project_bp.route('/deleteProject', methods=['DELETE'])
 @jwt_required()
 def delete_project():
-    print('deleting project')
+    print('\n=== Starting Project Deletion ===')
     data = request.get_json()
     project_id = data.get('projectId')
     user_id = data.get('userId')
-    print(f"projectID: {project_id}, userID: {user_id}, data: {data}")
+    print(f"Project ID: {project_id}")
+    print(f"User ID: {user_id}")
     
     if not project_id or not user_id:
         return jsonify({"error": "Project ID and User ID are required"}), 400
@@ -247,7 +248,7 @@ def delete_project():
         project_delete_result = mongo.db.projects.delete_one({"_id": project_object_id})
         if project_delete_result.deleted_count != 1:
             return jsonify({"error": "Failed to delete the project from the projects collection"}), 500
-        print('Project deleted from projects collection')
+        print('MongoDB: Project deleted from projects collection')
 
         # Remove the project ID from the user's portfolio
         user_update_result = mongo.db.users.update_one(
@@ -255,20 +256,60 @@ def delete_project():
             {"$pull": {"portfolio": str(project_id)}}
         )
         if user_update_result.modified_count != 1:
-            print(f"User update result: {user_update_result.raw_result}")
+            print(f"MongoDB: User update result: {user_update_result.raw_result}")
             return jsonify({"error": "Failed to update the user's portfolio"}), 500
-        print('Project ID removed from user portfolio')
+        print('MongoDB: Project ID removed from user portfolio')
         
         # Delete from Pinecone index
         try:
-            pinecone_index.delete(ids=[str(project_id)])
+            print('\n=== Pinecone Deletion Process ===')
+            
+            # First check
+            initial_check = pinecone_index.fetch(ids=[str(project_id)])
+            print(f"\nInitial Pinecone state:")
+            print(f"Vector exists: {str(project_id) in initial_check.get('vectors', {})}")
+            if str(project_id) in initial_check.get('vectors', {}):
+                print(f"Vector metadata: {initial_check['vectors'][str(project_id)].get('metadata', {})}")
+            
+            # Try both deletion methods
+            print("\nAttempting deletion with both methods...")
+            try:
+                delete_vector(pinecone_index, str(project_id))
+                print("delete_vector() executed")
+            except Exception as e:
+                print(f"delete_vector() error: {str(e)}")
+            
+            try:
+                pinecone_index.delete(ids=[str(project_id)])
+                print("direct delete executed")
+            except Exception as e:
+                print(f"direct delete error: {str(e)}")
+            
+            # Wait a moment for deletion to process
+            import time
+            time.sleep(1)
+            
+            # Final check
+            final_check = pinecone_index.fetch(ids=[str(project_id)])
+            print(f"\nFinal Pinecone state:")
+            print(f"Vector exists: {str(project_id) in final_check.get('vectors', {})}")
+            if str(project_id) in final_check.get('vectors', {}):
+                print(f"Vector metadata: {final_check['vectors'][str(project_id)].get('metadata', {})}")
+            
+            if str(project_id) not in final_check.get('vectors', {}):
+                print("\nPinecone: Vector successfully deleted or not present")
+            else:
+                print("\nPinecone: Warning - Vector still appears to exist")
+                
         except Exception as e:
-            print(f"Error deleting from Pinecone: {str(e)}")
-            # Don't return here, as the main operation was successful
+            print(f"\nPinecone: Error during deletion process")
+            print(f"Error type: {type(e).__name__}")
+            print(f"Error message: {str(e)}")
 
+        print('\n=== Project Deletion Complete ===')
         return jsonify({"message": "Project deleted successfully"}), 200
     except Exception as e:
-        print(f"Error in delete_project: {str(e)}")
+        print(f"\nError in delete_project main process: {str(e)}")
         return jsonify({"error": f"An error occurred: {str(e)}"}), 500
 
 

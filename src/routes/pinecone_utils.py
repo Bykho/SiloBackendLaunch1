@@ -109,3 +109,6 @@ def get_or_create_user_embedding(index, user):
         
         return user_embedding
 
+def delete_vector(index, id):
+    index.delete(ids=[id])
+
