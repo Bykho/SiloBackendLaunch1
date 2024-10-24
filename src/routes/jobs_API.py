@@ -99,6 +99,7 @@ def search_jobs():
         # Query Pinecone for similar job vectors
         similar_jobs = query_similar_vectors_jobs(pinecone_index, user_embedding, top_k=500)
 
+
         # Get job IDs in order of similarity
         job_ids = [match['id'] for match in similar_jobs]
         
