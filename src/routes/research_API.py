@@ -152,4 +152,32 @@ def get_saved_papers():
     saved_papers = user.get('papers', [])
     return jsonify({'status': 'success', 'data': saved_papers}), 200
 
+@research_bp.route('/getPapersByAuthor', methods=['POST'])
+@jwt_required()
+def get_papers_by_author():
+    data = request.get_json()
+    author_name = data.get('authorName')
+
+    if not author_name:
+        return jsonify({'status': 'error', 'message': 'Author name is required'}), 400
+
+    try:
+        # Assuming your collection is named 'arxiv_papers'
+        papers_cursor = mongo.db.arxiv_papers.find({'authors': author_name})
+        papers_list = []
+        for paper in papers_cursor:
+            papers_list.append({
+                '_id': str(paper['_id']),
+                'title': paper.get('title'),
+                'abstract': paper.get('abstract'),
+                'authors': paper.get('authors'),
+                'arxiv_id': paper.get('arxiv_id'),
+                # Add other fields as needed
+            })
+
+        return jsonify(papers_list), 200
+
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'An unexpected error occurred: {str(e)}'}), 500
+
 
