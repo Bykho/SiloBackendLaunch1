@@ -1,5 +1,3 @@
-
-
 import os
 from dotenv import load_dotenv
 from flask import Flask
@@ -12,43 +10,35 @@ import certifi
 import ssl
 from flask_mail import Mail
 
+# Specify the path to the .env file located in the project root
+env_file_path = os.path.join(os.path.dirname(os.getcwd()), '.env')
+load_dotenv(dotenv_path=env_file_path)
 
-#print("MONGO_URI before load_dotenv:", os.getenv('MONGO_URI'))
-load_dotenv()
-#print("MONGO_URI after load_dotenv:", os.getenv('MONGO_URI'))
-
-print("Current working directory:", os.getcwd())
-
+# Load the Mongo URI
 mongo_uri = os.getenv('MONGO_URI')
+#print("MONGO_URI after loading from .env:", mongo_uri)  # Print the mongo_uri after loading
 
 if mongo_uri is None:
     print("MONGO_URI is not set correctly. Falling back to default.")
     mongo_uri = 'default_value_if_missing'
 
-#print("MONGO_URI set to:", mongo_uri)
-
+# Initialize Flask extensions
 mongo = PyMongo()
 jwt = JWTManager()
 sess = Session()
 mail = Mail()
 
-#seeing if commit works
-
 def create_app():
     app = Flask(__name__)
-    #CORS(app, supports_credentials=True, resources={r"/*": {"origins": "https://silomvp-040bbdc854fa.herokuapp.com"}})
-    #CORS(app)
     CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True, expose_headers=["Authorization"])
 
-
+    # Set app configurations
     app.config['SECRET_KEY'] = 'your_secret_key'
     app.config["JWT_SECRET_KEY"] = 'your_jwt_secret_key'
     app.config['JWT_TOKEN_LOCATION'] = ['headers']
     app.config['MONGO_URI'] = mongo_uri
-    #print("Connecting to MongoDB URI:", app.config['MONGO_URI'])
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=1)
     app.config['SESSION_TYPE'] = 'filesystem'
-
 
     app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
     app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
@@ -57,11 +47,13 @@ def create_app():
     app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
     app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_USERNAME')
 
+    # Initialize app extensions
     mail.init_app(app)
     mongo.init_app(app)
     jwt.init_app(app)
     sess.init_app(app)
 
+    # Register Blueprints (routes)
     from .routes.comment_routes import comment_bp
     from .routes.feed_routes import feed_bp
     from .routes.group_routes import group_bp
@@ -80,6 +72,8 @@ def create_app():
     from .routes.pdf_autofill_VS import VS_pdf_autofill_bp
     from .routes.research_API import research_bp
     from .routes.resend_utils import resend_bp
+    from .routes.candidate_search import candidate_search_bp
+    from .routes.candidate_search_uninspired import candidate_search_uninspired_bp
 
     app.register_blueprint(comment_bp)
     app.register_blueprint(feed_bp)
@@ -99,6 +93,7 @@ def create_app():
     app.register_blueprint(VS_pdf_autofill_bp)
     app.register_blueprint(research_bp)
     app.register_blueprint(resend_bp)
+    app.register_blueprint(candidate_search_bp)
+    app.register_blueprint(candidate_search_uninspired_bp)
 
     return app
-

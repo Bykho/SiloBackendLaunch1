@@ -1,0 +1,1105 @@
+Search Query:
+================================================================================
+Experience with cloud native technologies such as containers (e.g., Docker), container
+orchestration (e.g., Kubernetes), and service mesh (e.g., Istio).
+
+
+Result 1:
+--------------------------------------------------------------------------------
+File: install/README.md
+Function: N/A
+Repository: Bykho/SiloV2
+Match Score: 0.738
+
+Code:
+----------------------------------------
+No code content available.
+
+================================================================================
+
+Result 2:
+--------------------------------------------------------------------------------
+File: README.md
+Function: N/A
+Repository: Bykho/SiloFrontend
+Match Score: 0.729
+
+Code:
+----------------------------------------
+# Getting Started with Create React App
+
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
+## Available Scripts
+
+In the project directory, you can run:
+
+### `npm start`
+
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+
+The page will reload when you make changes.\
+You may also see any lint errors in the console.
+
+### `npm test`
+
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+
+### `npm run build`
+
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
+
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
+
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+
+### `npm run eject`
+
+**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+
+If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+
+You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+
+## Learn More
+
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+
+To learn React, check out the [React documentation](https://reactjs.org/).
+
+### Code Splitting
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+
+### Analyzing the Bundle Size
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+
+### Making a Progressive Web App
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+
+### Advanced Configuration
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+
+### Deployment
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+
+### `npm run build` fails to minify
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+
+================================================================================
+
+Result 3:
+--------------------------------------------------------------------------------
+File: README.md
+Function: N/A
+Repository: Bykho/SiloV2
+Match Score: 0.728
+
+Code:
+----------------------------------------
+# Silo V2. 
+## OS build w/ Daemon
+
+In terms of Zero To One, this repo represents step 0.1.
+
+### This MVP demonstrate three crucial components of the system:
+- Automatic File Classification
+- Automatic File Interception
+- Wider range of classifiable documents.
+
+### What is the SILO project?
+The SILO project is a initiative designed to transform the interaction between an individual's data and autonomous agents. It introduces an innovative solution to address a challenge in human-AI interfacing: how to identify and provide contextual data from users. Think of it like RAG but for an individual.
+
+The product itself is two part 1) an innovative GUI for the Desktop reacts to new data streams and 2) seamless interaction with autonomous agents via API. We envision future iterations of SILO as the connective layer between your file system and autonomous agents. Suppose, your AI-lawyer/accountant/financial advisor needs a new set of your files, just enable that connection through our selective API. Connections are verifiably secure, selectivley anonymized, and pre-emptively authorized.
+
+### Key Features:
+Efficient Data Aggregation: SILO's powerful backend system employs OCR tech to preprocess new data and then a suite of lightweight classification algorithsm sort them. An ensemble of Support Vector Machine (SVM) models classifies and categorizes each document on the backend ensuring that your data is organized and standardized, enabling a reactive Desktop.
+
+Seamless Integration: Our vision for SILO extends beyond just managing financial data. We're actively working towards enabling secure API access, allowing services companies (primarily fintech) to connect with your organized documents. This opens doors to enhanced loan underwriting, fraud detection, account management, and seamless integration with accounting software.
+
+### Expanding Beyond Financial Data:
+
+While Silo's current primary focus is currently on financial data, our long-term vision is to make it a versatile platform for organizing and managing any type of document. Imagine a future where SILO effortlessly organizes your entire document ecosystem and allows for hired AI help to selectively engage with your data.
+
+
+================================================================================
+
+Result 4:
+--------------------------------------------------------------------------------
+File: README.md
+Function: N/A
+Repository: Bykho/SiloBackendLaunch1
+Match Score: 0.723
+
+Code:
+----------------------------------------
+# SiloBacken
+
+================================================================================
+
+Result 5:
+--------------------------------------------------------------------------------
+File: README.md
+Function: N/A
+Repository: Bykho/FileTransferral
+Match Score: 0.720
+
+Code:
+----------------------------------------
+# This repository is the precourser design to the SILO project. #
+
+In terms of Zero To One, this repo represents step 0.01. 
+
+### This MVP demonstrate three crucial components of the system: ###
+1) Automatic File Classification
+2) Adjustable GUI based on data inflow
+3) Inter-system file sharing
+
+### The next version currently in development will have the following additions: ###
+1) Local hosting of SILO port
+2) System-level file interception
+3) Wider range of classifiable documents.
+
+## What is the SILO project? ##
+
+The SILO project is a initiative designed to transform the interaction between an individual's data and autonomous agents. It introduces an innovative solution to address a challenge in human-AI interfacing: how to identify and provide contextual data from users. Think of it like RAG but for an individual. 
+
+The product itself is two part 1) an innovative GUI for the Desktop reacts to new data streams and 2) seamless interaction with autonomous agents via API. We envision future iterations of SILO as the connective layer between your file system and autonomous agents. Suppose, your AI-lawyer/accountant/financial advisor needs a new set of your files, just enable that connection through our selective API. Connections are verifiably secure, selectivley anonymized, and pre-emptively authorized.
+
+### Key Features: ###
+
+Augmented Desktop Experience: SILO reimagines the traditional desktop environment by providing a modern, user-centric graphical user interface (GUI) that proactively responds to new inflows of data. The folder-file setup of a modern desktop is a path-dependent structure where old patterns of organization affect the categorization of new data. With the Silo project the desktop will become reactive to new data streams.
+
+Efficient Data Aggregation: SILO's powerful backend system employs SOTA Optical Character Recognition (OCR) technology to preprocess new data and then a suite of lightweight classification algorithsm sort them. An ensemble of Support Vector Machine (SVM) models classifies and categorizes each document on the backend ensuring that your data is organized and standardized, enabling a reactive Desktop.
+
+Seamless Integration: Our vision for SILO extends beyond just managing financial data. We're actively working towards enabling secure API access, allowing services companies (primarily fintech) to connect with your organized documents. This opens doors to enhanced loan underwriting, fraud detection, account management, and seamless integration with accounting software.
+
+Expanding Beyond Financial Data:
+
+While Silo's current primary focus is currently on financial data, our long-term vision is to make it a versatile platform for organizing and managing any type of document. Imagine a future where SILO effortlessly organizes your entire document ecosystem and allows for hired AI help to selectively engage with your data.
+
+Current Design:
+
+... Diagram to be added
+
+Future Design:
+
+<img width="617" alt="PNG image" src="https://github.com/Bykho/FileTransferral/assets/30449756/9510808d-8615-4e81-9d21-d6f93e30a8e0">
+
+
+
+================================================================================
+
+Result 6:
+--------------------------------------------------------------------------------
+File: README.md
+Function: N/A
+Repository: Bykho/SiloV3
+Match Score: 0.714
+
+Code:
+----------------------------------------
+Build plan:
+
+    Align display with standardized hierarchy.
+    Enable doc action via NLI.
+    
+
+================================================================================
+
+Result 7:
+--------------------------------------------------------------------------------
+File: src/frontend/pages/SiloDescriptionPage/siloDescription.js
+Function: SiloDescription
+Repository: Bykho/SiloFrontend
+Match Score: 0.706
+
+Context:
+----------------------------------------
+import React, { useEffect, useState} from 'react';
+import { useNavigate } from 'react-router-dom';
+import styles from './siloDescription.module.css';
+import GameOfLife from './GameOfLife';
+import UserSpiderPlot from '../../components/UserSpiderPlot';
+import config from '../../config';
+import { FaWindowClose } from 'react-icons/fa';
+
+Code:
+----------------------------------------
+function SiloDescription() {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [userData, setUserData] = useState(null);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+
+  useEffect(() => {
+    setIsLoaded(true);
+
+    // Fetch the user data when the component mounts
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${config.apiBaseUrl}/studentProfile`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch user data');
+        }
+
+        const data = await response.json();
+        setUserData(data);  // Set the fetched user data to state
+      } catch (err) {
+        console.error('Error fetching user data:', err);
+        setError('Error fetching user data');
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
+  };
+
+  const goToStudentProfile = () => {
+    navigate('/studentProfile');
+  };
+
+  const handleCreateProjectClick = () => {
+    toggleModal(); // Open the modal instead of navigating
+  };
+
+  return (
+    <div className={styles.container}>
+      <div className={styles.backgroundAnimation}>
+       <spline-viewer url="https://prod.spline.design/2R4lYlPvgoU3Dyzv/scene.splinecode" background="rgba(0,0,0,0.3)"></spline-viewer>      </div>
+            {/*
+            <div className={styles.leftContent}>  
+            <div className={styles.testTitle}>
+              <h1 className={`${styles.aboutHeader} ${isLoaded ? styles.headerLoaded : ''}`}>
+                <div className={styles.helloLine}>
+                  <span className={styles.letters}>H</span><span className={styles.letters}>e</span><span className={styles.letters}>l</span><span className={styles.letters}>l</span><span className={styles.letters}>o</span>
+                </div>
+                <div className={styles.worldLine}>
+                  <span className={styles.letters}>W</span><span className={styles.letters}>o</span><span className={styles.letters}>r</span><span className={styles.letters}>l</span><span className={styles.letters}>d</span>
+                </div>
+              </h1>
+            </div>
+          </div>
+          */}
+          <div className={styles.rightContent}>
+            <div className={`${styles.ctaContainer} ${isLoaded ? styles.ctaLoaded : ''}`}>
+              <p className={styles.cta}>LinkedIn wasn't built for engineers.</p>
+              <p className={styles.cta}>Silo was.</p>
+            </div>
+            <button 
+              onClick={goToStudentProfile}
+              className={`${styles.createButton} ${isLoaded ? styles.buttonLoaded : ''}`}     
+            >
+              Build My Portfolio
+            </button>
+          </div>
+      {isModalOpen && (
+        <div className={styles.modal}>
+          <div className={styles.modalContent}>
+            <button className={styles.closeButton} onClick={toggleModal}><FaWindowClose /></button>
+            {/* 
+            {userData ? (
+              <UserSpiderPlot playerData={userData.scores[userData.scores.length - 1]} userData={{}} />
+            ) : (
+              <p>Loading...</p>
+            )}
+            */}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+================================================================================
+
+Result 8:
+--------------------------------------------------------------------------------
+File: src/frontend/pages/JobsPage/JobsPage.js
+Function: handleFilterChange
+Repository: Bykho/SiloFrontend
+Match Score: 0.703
+
+Context:
+----------------------------------------
+import React, { useState, useEffect, useMemo } from 'react';
+import { Container, Typography, Grid, TextField, Button, CircularProgress, Paper, Box } from '@mui/material';
+import JobCard from './JobCard';
+import styles from './jobsPage.module.css';
+import config from '../../config';
+import FilterToolbar from './FilterToolbar';
+import { FaSearch } from "react-icons/fa";
+import { MdOutlineConstruction } from "react-icons/md";
+const JobsPage = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [jobs, setJobs] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [filters, setFilters] = useState({ location: '', jobType: '' });
+  const [viewMode, setViewMode] = useState('suggested');
+  const [userData, setUserData] = useState(null);
+  const [userInterests, setUserInterests] = useState([]);
+  const [preventFetching, setPreventFetching] = useState(false)
+    const fetchJobs = async () => {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${config.apiBaseUrl}/search_jobs`, {
+        const data = await response.json();
+        const stringifiedJobs = data.map(job => ({
+    const fetchUserData = async () => {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${config.apiBaseUrl}/studentProfile`, {
+        const data = await response.json();
+  const filterJobs = (jobList) => {
+      const jobText = `${job.job_title} ${job.description}`.toLowerCase();
+      const matchesSearch = jobText.includes(searchTerm.toLowerCase());
+      const matchesLocation = !filters.location || job.location.toLowerCase().includes(filters.location.toLowerCase());
+      let matchesJobType = true;
+  const suggestedJobs = useMemo(() => {
+      const jobText = `${job.job_title} ${job.description}`.toLowerCase();
+  const displayedJobs = useMemo(() => {
+    const jobsToFilter = viewMode === 'suggested' ? suggestedJobs : jobs;
+      <h2 className={styles.subheader}>We pull jobs from select US startups. Build out your portfolio projects for smarter suggestions.</h2>
+
+Code:
+----------------------------------------
+  const handleFilterChange = (newFilters) => {
+    setFilters(newFilters);
+  };
+
+
+================================================================================
+
+Result 9:
+--------------------------------------------------------------------------------
+File: src/frontend/pages/FirstPage/Welcome.js
+Function: Welcome
+Repository: Bykho/SiloFrontend
+Match Score: 0.702
+
+Context:
+----------------------------------------
+import React, { useEffect, useRef, useState } from 'react';
+import styles from './welcome.module.css';
+import { useNavigate } from 'react-router-dom';
+import GameOfLife from './GameOfLife';
+import AnimatedSection from './AnimatedSection';
+import PlayerRatingSpiderweb from '../../components/UserSpiderPlot';
+
+Code:
+----------------------------------------
+function Welcome() {
+    const navigate = useNavigate();
+    const sectionsRef = useRef({});
+    const contentRef = useRef(null);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const playerRef = useRef(null);
+
+    const handleGetStarted = () => {
+      navigate('/login');
+    };
+
+    const scrollToSection = (sectionId) => {
+      const section = sectionsRef.current[sectionId];
+      if (section && contentRef.current) {
+        const headerHeight = document.querySelector(`.${styles.header}`).offsetHeight;
+        const sectionTop = section.offsetTop - headerHeight;
+        contentRef.current.scrollTo({ top: sectionTop, behavior: 'smooth' });
+      }
+    };
+
+    const handlePlayClick = () => {
+      if (playerRef.current) {
+          playerRef.current.play().then(() => {
+              setIsPlaying(true);
+          }).catch((error) => {
+              console.error("Error playing the video:", error);
+          });
+      }
+  };
+
+    useEffect(() => {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add(styles.visible);
+          } else {
+            entry.target.classList.remove(styles.visible);
+          }
+        });
+      }, { threshold: 0.1, root: contentRef.current });
+
+      Object.values(sectionsRef.current).forEach((section) => {
+        if (section) {
+          observer.observe(section);
+        }
+      });
+
+      return () => observer.disconnect();
+    }, []);
+
+
+    useEffect(() => {
+      // Load the Vimeo Player API script
+      const script = document.createElement('script');
+      script.src = "https://player.vimeo.com/api/player.js";
+      script.async = true;
+      document.body.appendChild(script);
+
+      script.onload = () => {
+          // Initialize the Vimeo player when the script is loaded
+          const iframe = document.querySelector('iframe');
+          playerRef.current = new window.Vimeo.Player(iframe, {
+              id: 996474292,
+              background: true,
+              autopause: false,
+              autoplay: false,
+              muted: true
+          });
+
+          // Ensure the video is paused and muted initially
+          playerRef.current.ready().then(() => {
+              playerRef.current.setVolume(0);
+              playerRef.current.pause();
+          });
+      };
+
+      return () => {
+          if (script.parentNode) {
+              script.parentNode.removeChild(script);
+          }
+      };
+  }, []);
+
+
+    // Mock data for the spider plot
+    const mockPlayerData = {
+      Theory: 90,
+      Practicum: 45,
+      Innovation: 80,
+      Leadership: 30,
+      TechnicalDepth: 89,
+      };
+
+    const mockUserData = JSON.stringify({
+      skills: ['React', 'JavaScript', 'Node.js'],
+      interests: ['Web Development', 'Machine Learning'],
+      portfolio: [{ name: 'Project 1', description: 'A web app' }],
+      major: 'Computer Science',
+    });
+
+    return (
+      <div className={styles.container}>
+        <GameOfLife />
+        <div className={styles.blurOverlay}>
+          <header className={styles.header}>
+            <div className={styles.logo}>
+              <img src="/silo_logo.png" alt="Silo Logo" className={styles.logoImage} />
+              <span className={styles.siloName}>Silo</span>
+            </div>
+
+            <nav className={styles.nav}>
+              <div className={styles.navItem}>
+                <button className={styles.navButton} onClick={() => scrollToSection('whatIsSilo')}>What is Silo</button>
+                <button className={styles.navButton} onClick={() => scrollToSection('howItWorks')}>How it works</button>
+                <button className={styles.navButton} onClick={() => scrollToSection('contactUs')}>Contact Us</button>
+              </div>
+            </nav>
+            <div className={styles.ctaWrapper}>
+              <button className={styles.ctaButton} onClick={handleGetStarted}>Get Started</button>
+            </div>
+          </header>
+          <div className={styles.contentWrapper} ref={contentRef}>
+            <div className={styles.content}>
+              <h1 className={styles.title}>
+                <span className={styles.yourTrusted}>The Network</span>
+                <span className={styles.engineeringPlatform}>For Engineers</span>
+              </h1>
+              <p className={styles.description}>
+                Generate your portfolio, share your work, and explore the cutting edge. We're building the best STEM community. 
+              </p>
+            </div>
+            <AnimatedSection 
+                        ref={(el) => (sectionsRef.current.whatIsSilo = el)}
+                        title="What is Silo"
+                        content="Silo allows STEM individuals to easily build beautiful portfolios to display their work in social, interactive environment. We connect engineers and scientists from all disciplines, fostering collaboration and innovation. It's your go-to space for networking, knowledge sharing, and career growth in the engineering world."
+                    >
+                        <div className={styles.videoWrapper}>
+                            <div className={styles.videoContainer}>
+                                <iframe
+                                    src="https://player.vimeo.com/video/996474292?background=1&autopause=0&autoplay=0&muted=1" 
+                                    frameBorder="0"
+                                    allow="fullscreen; picture-in-picture"
+                                    allowFullScreen
+                                    title="What is Silo"
+                                ></iframe>
+                                {!isPlaying && (
+                                    <button className={styles.playButton} onClick={handlePlayClick}>
+                                        ▶
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+             </AnimatedSection>
+             <AnimatedSection 
+              ref={(el) => (sectionsRef.current.howItWorks = el)}
+              title="In Depth Analysis"
+              content="Easily create your portfolio, and get detailed feedback on your status as an engineer."
+            >
+              <div className={styles.spiderPlotWrapper}>
+                <PlayerRatingSpiderweb playerData={mockPlayerData} userData={mockUserData} />
+              </div>
+            </AnimatedSection>
+            <AnimatedSection 
+              ref={(el) => (sectionsRef.current.contactUs = el)}
+              title="Contact Us"
+              content="We're here to help! Reach out with any questions, feedback, or assistance you need. Hit one of our cofounders up at dan@silorepo.com"
+            />
+          </div>
+        </div>
+      </div>
+    );
+}
+
+
+================================================================================
+
+Result 10:
+--------------------------------------------------------------------------------
+File: src/frontend/pages/JobsPage/JobsPage.js
+Function: if
+Repository: Bykho/SiloFrontend
+Match Score: 0.702
+
+Context:
+----------------------------------------
+import React, { useState, useEffect, useMemo } from 'react';
+import { Container, Typography, Grid, TextField, Button, CircularProgress, Paper, Box } from '@mui/material';
+import JobCard from './JobCard';
+import styles from './jobsPage.module.css';
+import config from '../../config';
+import FilterToolbar from './FilterToolbar';
+import { FaSearch } from "react-icons/fa";
+import { MdOutlineConstruction } from "react-icons/md";
+const JobsPage = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [jobs, setJobs] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [filters, setFilters] = useState({ location: '', jobType: '' });
+  const [viewMode, setViewMode] = useState('suggested');
+  const [userData, setUserData] = useState(null);
+  const [userInterests, setUserInterests] = useState([]);
+  const [preventFetching, setPreventFetching] = useState(false)
+    const fetchJobs = async () => {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${config.apiBaseUrl}/search_jobs`, {
+        const data = await response.json();
+        const stringifiedJobs = data.map(job => ({
+    const fetchUserData = async () => {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${config.apiBaseUrl}/studentProfile`, {
+        const data = await response.json();
+  const handleFilterChange = (newFilters) => {
+  const filterJobs = (jobList) => {
+      const jobText = `${job.job_title} ${job.description}`.toLowerCase();
+      const matchesSearch = jobText.includes(searchTerm.toLowerCase());
+      const matchesLocation = !filters.location || job.location.toLowerCase().includes(filters.location.toLowerCase());
+      let matchesJobType = true;
+  const suggestedJobs = useMemo(() => {
+      const jobText = `${job.job_title} ${job.description}`.toLowerCase();
+  const displayedJobs = useMemo(() => {
+    const jobsToFilter = viewMode === 'suggested' ? suggestedJobs : jobs;
+      <h2 className={styles.subheader}>We pull jobs from select US startups. Build out your portfolio projects for smarter suggestions.</h2>
+
+Code:
+----------------------------------------
+No code content available.
+
+================================================================================
+
+Result 11:
+--------------------------------------------------------------------------------
+File: src/frontend/pages/JobsPage/JobsPage.js
+Function: JobsPage
+Repository: Bykho/SiloFrontend
+Match Score: 0.701
+
+Context:
+----------------------------------------
+import React, { useState, useEffect, useMemo } from 'react';
+import { Container, Typography, Grid, TextField, Button, CircularProgress, Paper, Box } from '@mui/material';
+import JobCard from './JobCard';
+import styles from './jobsPage.module.css';
+import config from '../../config';
+import FilterToolbar from './FilterToolbar';
+import { FaSearch } from "react-icons/fa";
+import { MdOutlineConstruction } from "react-icons/md";
+
+Code:
+----------------------------------------
+const JobsPage = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [jobs, setJobs] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [filters, setFilters] = useState({ location: '', jobType: '' });
+  const [viewMode, setViewMode] = useState('suggested');
+  const [userData, setUserData] = useState(null);
+  const [userInterests, setUserInterests] = useState([]);
+
+  const [preventFetching, setPreventFetching] = useState(false)
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${config.apiBaseUrl}/search_jobs`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          }
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch jobs');
+        }
+        const data = await response.json();
+        if (!Array.isArray(data)) {
+          throw new Error('Received invalid data format');
+        }
+        console.log('here is data: ', data)
+        const stringifiedJobs = data.map(job => ({
+          _id: String(job._id || ''),
+          company: String(job.company || ''),
+          location: String(job.location || ''),
+          job_title: String(job.job_title || ''),
+          description: String(job.description || ''),
+          final_url: String(job.url || ''),
+        }));
+        setJobs(stringifiedJobs);
+      } catch (error) {
+        console.error('Error fetching jobs:', error);
+        setError(error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+  
+    fetchJobs();
+  }, []);
+  
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${config.apiBaseUrl}/studentProfile`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          }
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch user data');
+        }
+        const data = await response.json();
+        setUserData(data);
+        setUserInterests([...data.interests, ...data.skills]);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        setError('Failed to fetch user data');
+      }
+    };
+    fetchUserData();
+  }, []);
+
+  const handleFilterChange = (newFilters) => {
+    setFilters(newFilters);
+  };
+
+  const filterJobs = (jobList) => {
+    return jobList.filter(job => {
+      const jobText = `${job.job_title} ${job.description}`.toLowerCase();
+      const matchesSearch = jobText.includes(searchTerm.toLowerCase());
+      const matchesLocation = !filters.location || job.location.toLowerCase().includes(filters.location.toLowerCase());
+      
+      let matchesJobType = true;
+      if (filters.jobType === 'full-time') {
+        matchesJobType = !jobText.includes('internship') && !jobText.includes('part time') && !jobText.includes('intern');
+      } else if (filters.jobType === 'internship') {
+        matchesJobType = jobText.includes('internship') || job.job_title.toLowerCase().includes('intern');
+      }
+      return matchesSearch && matchesLocation && matchesJobType;
+    });
+  };
+
+  const suggestedJobs = useMemo(() => {
+    return jobs.filter(job => {
+      const jobText = `${job.job_title} ${job.description}`.toLowerCase();
+      return userInterests.some(interest => 
+        jobText.includes(interest.toLowerCase()) ||
+        interest.toLowerCase().split(' ').some(word => jobText.includes(word))
+      );
+    });
+  }, [jobs, userInterests]);
+
+  const displayedJobs = useMemo(() => {
+    const jobsToFilter = viewMode === 'suggested' ? suggestedJobs : jobs;
+    return filterJobs(jobsToFilter);
+  }, [viewMode, suggestedJobs, jobs, filterJobs, searchTerm, filters]);
+
+  return (
+    <div className={styles.container}>
+      <div className={styles.headerPaper}>
+      <h1 className={styles.header}>Startup Postings</h1>
+      <h2 className={styles.subheader}>We pull jobs from select US startups. Build out your portfolio projects for smarter suggestions.</h2>
+        <div className={styles.searchContainer}>
+          <div className={styles.searchInputWrapper}>
+            <FaSearch className={styles.searchIcon} />
+            <input
+              type="text"
+              placeholder="Search keywords..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={styles.searchInput}
+            />
+          </div>
+        </div>
+        <FilterToolbar onFilterChange={handleFilterChange} />
+      </div>
+
+      {/*
+      <div className={styles.waitingContainer}>
+        <MdOutlineConstruction /> Coming soon! Build out your portfolio to get better matches in the future!
+      </div> 
+      */}
+      
+      {isLoading ? (
+        <div className={styles.loadingContainer}>
+          <div className={styles.spinner}></div>
+          <h2>Loading jobs...</h2>
+        </div>
+      ) : error ? (
+        <div className={styles.errorContainer}>
+          <h2>Error: {error}</h2>
+          <p>Please try refreshing the page or try again later.</p>
+        </div>
+      ) : (
+        <>
+          <div className={styles.jobGrid}>
+            {displayedJobs.length > 0 ? (
+              displayedJobs.map((job) => (
+                <div key={job._id} className={styles.jobItem}>
+                  <JobCard job={job} />
+                </div>
+              ))
+            ) : (
+              <div className={styles.noJobsFound}>
+                <h2>No jobs found. Try adjusting your filters.</h2>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+        
+    </div>
+  );
+};
+export default JobsPage;
+
+================================================================================
+
+Result 12:
+--------------------------------------------------------------------------------
+File: src/frontend/components/UserKnowledgeGraph.js
+Function: UserKnowledgeGraph
+Repository: Bykho/SiloFrontend
+Match Score: 0.701
+
+Context:
+----------------------------------------
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { ForceGraph2D } from 'react-force-graph';
+import styles from './userKnowledgeGraph.module.css';
+const sampleData = {
+
+Code:
+----------------------------------------
+const UserKnowledgeGraph = () => {
+  const [darkMode, setDarkMode] = useState(false);
+  const graphRef = useRef();
+  const [highlightNodes, setHighlightNodes] = useState(new Set());
+  const [highlightLinks, setHighlightLinks] = useState(new Set());
+  const [hoverNode, setHoverNode] = useState(null);
+
+  const bgColor = useMemo(() => darkMode ? '#1a1a1a' : '#ffffff', [darkMode]);
+  const nodeColor = useMemo(() => darkMode ? '#00aaff' : '#ff6600', [darkMode]);
+  const textColor = useMemo(() => darkMode ? '#ffffff' : '#000000', [darkMode]);
+
+  useEffect(() => {
+    document.body.classList.toggle(styles.darkMode, darkMode);
+  }, [darkMode]);
+
+  const handleNodeHover = node => {
+    highlightNodes.clear();
+    highlightLinks.clear();
+    if (node) {
+      highlightNodes.add(node);
+      sampleData.links.forEach(link => {
+        if (link.source === node || link.target === node) {
+          highlightNodes.add(link.source);
+          highlightNodes.add(link.target);
+          highlightLinks.add(link);
+        }
+      });
+    }
+
+    setHoverNode(node || null);
+    setHighlightNodes(new Set(highlightNodes));
+    setHighlightLinks(new Set(highlightLinks));
+    
+    if (graphRef.current) {
+      graphRef.current.refresh();
+    }
+  };
+
+  return (
+    <div className={`${styles.graphContainer} ${darkMode ? styles.darkMode : ''}`}>
+      <div className={styles.graphHeader}>
+        <span>User Knowledge Graph</span>
+        <div className={styles.darkModeToggle}>
+          <span className={styles.sunIcon}>☀️</span>
+          <label className={styles.switch}>
+            <input
+              type="checkbox"
+              checked={darkMode}
+              onChange={() => setDarkMode(!darkMode)}
+            />
+            <span className={`${styles.slider} ${styles.round}`}></span>
+          </label>
+          <span className={styles.moonIcon}>🌙</span>
+        </div>
+      </div>
+      <div className={styles.graphContent}>
+        <ForceGraph2D
+          ref={graphRef}
+          graphData={sampleData}
+          backgroundColor={bgColor}
+          nodeRelSize={6}
+          nodeColor={node => highlightNodes.has(node) ? nodeColor : darkMode ? '#888' : '#bbb'}
+          nodeCanvasObject={(node, ctx, globalScale) => {
+            const label = node.id;
+            const fontSize = 12/globalScale;
+            ctx.font = `${fontSize}px Sans-Serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = node === hoverNode ? nodeColor : textColor;
+            ctx.fillText(label, node.x, node.y + 8);
+          }}
+          linkWidth={link => highlightLinks.has(link) ? 2 : 1}
+          linkDirectionalParticles={4}
+          linkDirectionalParticleWidth={link => highlightLinks.has(link) ? 2 : 0}
+          linkColor={() => darkMode ? '#ffffff' : '#000000'}
+          onNodeHover={handleNodeHover}
+          cooldownTicks={100}
+          onEngineStop={() => graphRef.current.zoomToFit(400)}
+        />
+      </div>
+    </div>
+  );
+};
+
+
+================================================================================
+
+Result 13:
+--------------------------------------------------------------------------------
+File: src/frontend/pages/SiloDescriptionPage/siloDescription.js
+Function: handleCreateProjectClick
+Repository: Bykho/SiloFrontend
+Match Score: 0.700
+
+Context:
+----------------------------------------
+import React, { useEffect, useState} from 'react';
+import { useNavigate } from 'react-router-dom';
+import styles from './siloDescription.module.css';
+import GameOfLife from './GameOfLife';
+import UserSpiderPlot from '../../components/UserSpiderPlot';
+import config from '../../config';
+import { FaWindowClose } from 'react-icons/fa';
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [userData, setUserData] = useState(null);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+    const fetchUserData = async () => {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${config.apiBaseUrl}/studentProfile`, {
+        const data = await response.json();
+  const toggleModal = () => {
+  const goToStudentProfile = () => {
+
+Code:
+----------------------------------------
+  const handleCreateProjectClick = () => {
+    toggleModal(); // Open the modal instead of navigating
+  };
+
+
+================================================================================
+
+Result 14:
+--------------------------------------------------------------------------------
+File: src/frontend/pages/JobsPage/JobsPage.js
+Function: catch
+Repository: Bykho/SiloFrontend
+Match Score: 0.700
+
+Context:
+----------------------------------------
+import React, { useState, useEffect, useMemo } from 'react';
+import { Container, Typography, Grid, TextField, Button, CircularProgress, Paper, Box } from '@mui/material';
+import JobCard from './JobCard';
+import styles from './jobsPage.module.css';
+import config from '../../config';
+import FilterToolbar from './FilterToolbar';
+import { FaSearch } from "react-icons/fa";
+import { MdOutlineConstruction } from "react-icons/md";
+const JobsPage = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [jobs, setJobs] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [filters, setFilters] = useState({ location: '', jobType: '' });
+  const [viewMode, setViewMode] = useState('suggested');
+  const [userData, setUserData] = useState(null);
+  const [userInterests, setUserInterests] = useState([]);
+  const [preventFetching, setPreventFetching] = useState(false)
+    const fetchJobs = async () => {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${config.apiBaseUrl}/search_jobs`, {
+        const data = await response.json();
+        const stringifiedJobs = data.map(job => ({
+    const fetchUserData = async () => {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${config.apiBaseUrl}/studentProfile`, {
+        const data = await response.json();
+  const handleFilterChange = (newFilters) => {
+  const filterJobs = (jobList) => {
+      const jobText = `${job.job_title} ${job.description}`.toLowerCase();
+      const matchesSearch = jobText.includes(searchTerm.toLowerCase());
+      const matchesLocation = !filters.location || job.location.toLowerCase().includes(filters.location.toLowerCase());
+      let matchesJobType = true;
+  const suggestedJobs = useMemo(() => {
+      const jobText = `${job.job_title} ${job.description}`.toLowerCase();
+  const displayedJobs = useMemo(() => {
+    const jobsToFilter = viewMode === 'suggested' ? suggestedJobs : jobs;
+      <h2 className={styles.subheader}>We pull jobs from select US startups. Build out your portfolio projects for smarter suggestions.</h2>
+
+Code:
+----------------------------------------
+No code content available.
+
+================================================================================
+
+Result 15:
+--------------------------------------------------------------------------------
+File: src/frontend/components/ProfileHeader.js
+Function: handleSkillClick
+Repository: Bykho/SiloFrontend
+Match Score: 0.698
+
+Context:
+----------------------------------------
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import ProfileImage from '../components/ProfileImage';
+import styles from './profileHeader.module.css';
+import { FaGithub, FaGlobe, FaLink, FaChevronDown, FaChevronUp, FaWindowClose } from 'react-icons/fa';
+import { IoMdMail } from "react-icons/io";
+import PlayerRatingSpiderweb from './UserSpiderPlot';
+import { TbAnalyze } from "react-icons/tb";
+import { IoDocument } from "react-icons/io5";
+import { Share, Edit2 } from 'lucide-react';
+import config from '../config';
+import { useUser } from '../contexts/UserContext';
+import InfoEditor from '../pages/OLDStudentProfileEditorPage/StudentProfileEditor'; // Adjust the import path
+const ProfileHeader = ({ userData, loading, error, onShareProfile, setUserData, isOwnProfile = true }) => {
+  const navigate = useNavigate();
+  const [showFullBio, setShowFullBio] = useState(false);
+  const [bioTruncated, setBioTruncated] = useState(false);
+  const skillsSectionRef = useRef(null);
+  const interestsSectionRef = useRef(null);
+  const [showResume, setShowResume] = useState(false);
+  const [showCopiedConfirmation, setShowCopiedConfirmation] = useState(false);
+  const [showRating, setShowRating] = useState(false);
+  const location = useLocation();
+  const isProfilePage = location.pathname.includes('/profile/');
+  const [showPortfolioOptions, setShowPortfolioOptions] = useState(false);
+  const { user } = useUser();
+  const [showEditor, setShowEditor] = useState(false); // Add this line
+  const BIO_LENGTH_LIMIT = 300;
+  const VISIBLE_TAGS = 2;
+  const userSpiderData = userData.scores[userData.scores.length - 1];
+  const isValidResume = (resumeData) => {
+  const toggleResume = () => {
+  const toggleRating = () => {
+  const renderRatingModal = () => (
+  const toggleBio = () => setShowFullBio(!showFullBio);
+  const renderTagsPreview = (tags, type) => {
+    const previewTags = tags.slice(0, VISIBLE_TAGS);
+    const remainingTags = tags.slice(VISIBLE_TAGS);
+  const getTruncatedBio = (bio) => {
+  const getLinkLabel = (url) => {
+      const cleanUrl = url.replace(/^(https?:\/\/)?(www\.)?/, '');
+      const parts = cleanUrl.split('.');
+  const handleContactButton = () => {
+    const email = userData.email;
+  const renderLinkButton = (link, icon) => {
+    let fullLink = ensureProtocol(link);
+    let label = getLinkLabel(link);
+  const ensureProtocol = (url) => {
+  const handleShareProfile = async () => {
+      const response = await fetch(`${config.apiBaseUrl}/toggleShareProfile`, {
+      const modifiedUsername = user.username.replace(/ /g, "_");
+      const currentUrl = `${window.location.origin}/public/${modifiedUsername}/${user._id}`;
+  const handleEditProfileClick = () => {
+  const handleSaveProfile = () => {
+
+Code:
+----------------------------------------
+  const handleSkillClick = (skill) => {
+    navigate('/GenDirectory', { state: { skill: skill } });
+  };
+
+
+================================================================================

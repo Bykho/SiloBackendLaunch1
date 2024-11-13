@@ -8,7 +8,11 @@ load_dotenv()
 pc = Pinecone(api_key=os.getenv("PINECONE_KEY"))
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
+<<<<<<< Updated upstream
 INDEX_NAME = "user-feed-index"
+=======
+INDEX_NAME = "candidate-search-testing-productiondb"
+>>>>>>> Stashed changes
 DIMENSION = 1536  # Dimension for text-embedding-ada-002
 
 
