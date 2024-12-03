@@ -69,3 +69,4 @@ pinecone-client==5.0.1
 PyGithub==2.5.0
 openai[datalib]
 resend
+rich
