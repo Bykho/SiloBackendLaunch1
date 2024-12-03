@@ -8,7 +8,11 @@ load_dotenv()
 pc = Pinecone(api_key=os.getenv("PINECONE_KEY"))
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-INDEX_NAME = "silo-production"
+<<<<<<< Updated upstream
+INDEX_NAME = "user-feed-index"
+=======
+INDEX_NAME = "candidate-search-testing-productiondb"
+>>>>>>> Stashed changes
 DIMENSION = 1536  # Dimension for text-embedding-ada-002
 
 
@@ -24,16 +28,6 @@ def initialize_pinecone():
             )
         )
     return pc.Index(INDEX_NAME)
-
-def query_similar_vectors_research(pinecone_index, embedding, top_k=4):
-    query_response = pinecone_index.query(
-        vector=embedding,
-        top_k=top_k,
-        filter={"type": "research"},  # Filter based on metadata type
-        include_values=False,
-        include_metadata=True
-    )
-    return query_response['matches']
 
 
 def get_embedding(text):
@@ -60,25 +54,6 @@ def query_similar_vectors_projects(index, vector, top_k=20):
         filter={"type": "project"}
     )
     return results['matches']
-
-def query_similar_vectors_users(index, user_id, top_k=5):
-    result = index.fetch([user_id])
-    # Check if the user_id exists in the fetched vectors
-    if 'vectors' not in result or user_id not in result['vectors']:
-        return []  # Return an empty list or handle as per your requirement
-
-    # Extract the vector from the result
-    user_vector = result['vectors'][user_id]['values']
-
-    results = index.query(
-        vector=user_vector,
-        top_k=top_k,
-        include_metadata=True,
-        include_values=False,
-        filter={"type": "user"}
-    )
-    return results['matches']
-
 
 def query_similar_vectors_jobs(index, vector, top_k=20):
     results = index.query(
@@ -108,7 +83,3 @@ def get_or_create_user_embedding(index, user):
         upsert_vector(index, user_id, user_embedding, metadata={"type": "user", "username": user['username']})
         
         return user_embedding
-
-def delete_vector(index, id):
-    index.delete(ids=[id])
-
