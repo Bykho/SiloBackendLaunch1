@@ -28,100 +28,20 @@ def search_jobs():
     api_key = os.getenv("THEIRSTACK_KEY")
 
     #switch to Post request w/ sending data.
-
+    #Industry IDs:
+    # [1,4,53, 3127, 1285, 113, 2458, 383, 119, 1649, 1644, 8, 94, 87, 95, 3242, 3248, 118, 3102, 12, 114, 7, 147, 3247, 3251, 3, 52]
     url = "https://api.theirstack.com/v1/jobs/search"
 
     
     payload = {
-        "order_by": [
-            {
-                "desc": True,
-                "field": "date_posted"
-            },
-            {
-                "desc": True,
-                "field": "discovered_at"
-            }
-        ],
-        "page": 0,
-        "limit": 500,
-        "company_description_pattern_or": [],
-        "company_description_pattern_not": [],
-        "company_description_pattern_accent_insensitive": False,
-        "min_revenue_usd": 5000000,
-        "max_revenue_usd": None,
-        "min_employee_count": 5,
-        "max_employee_count": None,
-        "min_employee_count_or_null": None,
-        "max_employee_count_or_null": None,
-        "min_funding_usd": None,
-        "max_funding_usd": None,
-        "funding_stage_or": [],
-        "industry_or": [], 
-        "industry_not": [],
-        "industry_id_or": [1,4,53, 3127, 1285, 113, 2458, 383, 119, 1649, 1644, 8, 94, 87, 95, 3242, 3248, 118, 3102, 12, 114, 7, 147, 3247, 3251, 3, 52],
-        "industry_id_not": [],
-        "company_tags_or": [],
-        "company_type": "all",
-        "company_investors_or": [],
-        "company_investors_partial_match_or": [],
-        "company_technology_slug_or": [],
-        "company_technology_slug_and": [],
-        "company_technology_slug_not": [],
-        "only_yc_companies": False,
-        "company_location_pattern_or": [],
-        "company_country_code_or": ["US"],
-        "company_country_code_not": [],
-        "company_list_id_or": [],
-        "company_list_id_not": [],
-        "company_linkedin_url_exists": None,
-        "revealed_company_data": None,
-        "company_name_or": [],
-        "company_name_case_insensitive_or": [],
-        "company_id_or": [],
-        "company_domain_or": [],
-        "company_domain_not": [],
-        "company_name_not": ["Davidayo"],
-        "company_name_partial_match_or": [],
-        "company_name_partial_match_not": [],
-        "company_linkedin_url_or": [],
-        "job_title_or": [],
-        "job_title_not": [],
-        "job_title_pattern_and": [],
-        "job_title_pattern_or": [],
-        "job_title_pattern_not": ["consultant","support","administrator", "administrative", "business", "finance", "barber", "stylist", "artist", "executive", "HR", "Chairman", "Recruiting", "Recruiter", "Resources", "Administrator", "Security", "Assistant", "Concierge", "Secretary", "Janitor", "Sanitation", "Host", "Hostess", "Service","Technician", "Tech", "Writer", "Grant", "Physician", "Nurse", "Senior", "Sr", "Director", "Principal", "Co-op", "Contract"],
-        "job_country_code_or": ["US"],
-        "job_country_code_not": [],
-        "posted_at_max_age_days": 31,
-        "posted_at_gte": None,
-        "posted_at_lte": None,
-        "discovered_at_max_age_days": 31,
-        "discovered_at_min_age_days": None,
-        "discovered_at_gte": None,
-        "discovered_at_lte": None,
-        "job_description_pattern_or": ["engineer", "engineering", "STEM", "scientist", "research", "mechanical", "robotics", "aerospace"],
-        "job_description_pattern_not": ["marketing","sales", "finance","accounting","HR" ,"copywriter", "legal", "lawyer","attorney","administrative","business","teacher", "instructor", "nurse", "doctor", "physician", "chef","consulting", "consulting"],
-        "job_description_pattern_is_case_insensitive": True,
-        "remote": None,
-        "only_jobs_with_reports_to": None,
-        "reports_to_exists": None,
-        "final_url_exists": None,
-        "only_jobs_with_hiring_managers": None,
-        "hiring_managers_exists": None,
-        "job_id_or": [],
-        "job_ids": [],
-        "min_salary_usd": None,
-        "max_salary_usd": None,
-        "job_technology_slug_or": [],
-        "job_technology_slug_not": [],
-        "job_technology_slug_and": [],
-        "job_location_pattern_or": [],
-        "job_location_pattern_not": [],
-        "scraper_name_pattern_or": [],
-        "include_total_results": False,
-        "blur_company_data": False,
-        "group_by": []
+    "page": 0,
+    "limit": 500,
+    "job_country_code_or": ["US"],
+    "posted_at_max_age_days": 30,
+    "only_yc_companies": True,
+    "job_title_or": ["engineer", "engineering", "STEM", "scientist", "research", "mechanical", "robotics", "aerospace"]
     }
+
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {api_key}"  # Replace with your actual API key
@@ -136,13 +56,13 @@ def search_jobs():
 
         last_fetch = mongo.db.theirstack_metadata.find_one({"_id": "last_fetch"})
         
-        if last_fetch is None or datetime.utcnow() - last_fetch['timestamp'] > timedelta(hours=24):
-        #if True: #for testing
+        #if last_fetch is None or datetime.utcnow() - last_fetch['timestamp'] > timedelta(hours=336):
+        if False: #temporary
             print("Fetching new data from Theirstack API...")
             response = requests.post(url, json=payload, headers=headers)
             response.raise_for_status()
             print(response.json())
-            
+        
             jobs_data = response.json().get('data', [])
             
             if jobs_data:
@@ -178,6 +98,7 @@ def search_jobs():
 
         # Query Pinecone for similar job vectors
         similar_jobs = query_similar_vectors_jobs(pinecone_index, user_embedding, top_k=500)
+
 
         # Get job IDs in order of similarity
         job_ids = [match['id'] for match in similar_jobs]

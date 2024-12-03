@@ -11,7 +11,7 @@ from flask_cors import cross_origin
 import logging
 from flask_mail import Message
 from ..routes.mixpanel_utils import track_event, set_user_profile
-from .pinecone_utils import initialize_pinecone, get_embedding, upsert_vector
+from .pinecone_utils import *
 import datetime
 import random
 import string
@@ -102,11 +102,13 @@ def register():
         }
         return ('', 204, headers)
 
+
     data = request.get_json()
+    print(f"\n \n signup data coming in: {data.get('workhistory')}")
     password = data.get('password')
     email = data.get('email')
     username = data.get('username')
-    major = data.get('major')  # Get the user's major from the request data
+    major = data.get('major')
 
     print('here is the data: ', data)
     if not mongo.db.users.find_one({"email": email}):
@@ -267,11 +269,22 @@ def edit_student_profile():
         update_data = {key: value for key, value in data.items() if key in {
             'username', 'email', 'university', 'interests', 'skills', 'biography',
             'profile_photo', 'personal_website', 'resume', 
-            'links', 'major', 'grad', 'github_link'
+            'links', 'major', 'grad', 'github_link', 'workhistory'
         }}
         
         if 'password' in update_data:
             update_data['password'] = generate_password_hash(update_data['password'])
+
+        print("Received data:", data)
+
+        if 'workhistory' in data:
+            print("Received workhistory:", data['workhistory'])  # Add this line
+            try:
+                update_data['workhistory'] = json.loads(data['workhistory'])
+                print("Parsed workhistory:", update_data['workhistory'])  # Add this line
+            except json.JSONDecodeError as e:
+                print("Error decoding workhistory JSON:", str(e))  # Modify this line
+                update_data['workhistory'] = {}
 
         # Update the user in the database
         mongo.db.users.update_one({"username": username}, {"$set": update_data})
@@ -293,6 +306,7 @@ def edit_student_profile():
     # Handle GET request to fetch user details
     user_details = get_user_details(user)
     portfolio = user_details.get('portfolio', [])
+    user_details['workhistory'] = user.get('workhistory', [])  # Add this line
     project_ids = [ObjectId(project_id) for project_id in portfolio]
     projects = list(mongo.db.projects.find({"_id": {"$in": project_ids}}))
     user_details['portfolio'] = projects
@@ -510,7 +524,6 @@ def reset_password():
 @jwt_required()
 @cross_origin()
 def get_notifications():
-    print('notifications is getting run')
     jwt_claims = get_jwt()
     user_id = jwt_claims.get('_id')
     user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
@@ -523,7 +536,6 @@ def get_notifications():
     ).sort("created_at", -1).limit(10)
     
     notifications = list(notifications_cursor)  # Convert cursor to a list
-    print('NOTIFICATIONS notifications:', notifications)
 
     return jsonify([
         {
@@ -579,5 +591,59 @@ def create_notification():
     }
     result = mongo.db.notifications.insert_one(new_notification)
     return jsonify({'success': True, 'id': str(result.inserted_id)}), 201
+
+
+@user_bp.route('/getUserWorkHistory', methods=['POST'])
+@jwt_required()
+@cross_origin()
+def get_user_work_history():
+    data = request.get_json()
+    user_id = data.get('user_id')
+    
+    if not user_id:
+        return jsonify({"error": "User ID is required"}), 400
+    
+    try:
+        user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        
+        work_history = user.get('workhistory', {})
+        print('\n \n BUG TEST work_history: ', work_history)
+        return jsonify(work_history), 200
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@user_bp.route('/updateWorkExperience', methods=['POST'])
+@jwt_required()
+@cross_origin()
+def update_work_experience():
+    data = request.get_json()
+    user_id = data.get('user_id')
+    work_history = data.get('workHistory')
+
+    if not user_id or not work_history:
+        return jsonify({"error": "User ID and work history are required"}), 400
+
+    try:
+        user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+
+        # Update the entire work history in the database
+        mongo.db.users.update_one(
+            {"_id": ObjectId(user_id)},
+            {"$set": {"workhistory": work_history}}
+        )
+
+        return jsonify({
+            "message": "Work history updated successfully",
+            "data": work_history
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+
 
 

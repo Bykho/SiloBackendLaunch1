@@ -35,13 +35,36 @@ def summarize_resume_text(text):
                 },
                 {
                     "role": "user",
-                    "content": f"For the following resume, please write a concise (less than 200 words) bio for this person in the first person, also provide lists for suggested interests, suggested skills, a string for their latest university, a string for major, and a string for graduation year. If there are projects on the resume, also include the title of the project and its description (make the description be as long as possible). Please always format your response as a json with keys: bio, skills, interests, latestUniversity, major, grad_yr, projects (with contents title and desc). This is very important: the entirety of your response should constitute a valid JSON. There should be no json tags in the front or any leading/trailing text. Only give the json. Here is the text:\n\n{text}"
+                    "content": f"""For the following resume, extract the person's first name, last name, and email address, then write a concise (less than 200 words) bio in the first person. Also provide lists for suggested interests, suggested skills, a string for their latest university, a string for major, a string for their personal website (if they have one), and a string for graduation year. If there is a section discussing work history, include the name of the company they worked for and a description of what they did.
+
+                        Please format your response as a JSON with these keys:
+                        - firstName (string): The person's first name
+                        - lastName (string): The person's last name
+                        - email (string): The person's email address
+                        - bio (string): First-person bio, less than 200 words
+                        - skills (array): List of skills
+                        - interests (array): List of interests
+                        - latestUniversity (string): Most recent university attended
+                        - major (string): Field of study
+                        - personalWebsite (string): a personal website
+                        - grad_yr (string): Graduation year
+                        - workhistory (object): Dictionary with each company as a key, containing:
+                        - company (string): Company name
+                        - role (string): Person's title
+                        - description (string): Brief description of their work
+
+                        The response must be valid JSON with no additional text. 
+                        This is very important: the entirety of your response should constitute a valid JSON. There should be no json tags in the front or any leading/trailing text. Only give the json. 
+                        Here is the resume text:
+
+                        {text}"""
                 }
             ],
             model="llama3-70b-8192",
             max_tokens=1000,
             temperature=0.2
         )
+
         message_content = response.choices[0].message.content.strip()
         print(f'Here is the response: {message_content}')
         
@@ -53,15 +76,20 @@ def summarize_resume_text(text):
         print(f"SUMMARIZE_RESUME_TEXT message_content {message_content}")
         print()
         print()
-        # Validate and parse JSON format
         try:
             json_content = json.loads(message_content)
             print('here is json content: ', json_content)
+            
+            # Now we can safely access the 'workhistory' key
+            if 'workhistory' in json_content:
+                print(f"\nSUMMARIZE_RESUME_TEXT workhistory: {json_content['workhistory']}")
+            else:
+                print("\nNo workhistory found in the parsed JSON.")
+            
+            return json_content
         except json.JSONDecodeError as e:
             print(f"JSONDecodeError: {e}")
             return {}  # Return an empty dict if there's an error
-        
-        return json_content
     except Exception as e:
         print(f"Error summarizing text: {e}")
         return {}
