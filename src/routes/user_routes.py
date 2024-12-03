@@ -581,3 +581,24 @@ def create_notification():
     return jsonify({'success': True, 'id': str(result.inserted_id)}), 201
 
 
+@user_bp.route('/recruiter-waitlist', methods=['POST'])
+def add_to_recruiter_waitlist():
+    data = request.get_json()
+    
+    required_fields = ['name', 'email']
+    if not all(field in data for field in required_fields):
+        return jsonify({"error": "Missing required fields"}), 400
+
+    recruiter_data = {
+        'name': data['name'],
+        'email': data['email'],
+        'company': data.get('company', ''),
+        'focus': data.get('focus', ''),
+        'created_at': datetime.datetime.utcnow()
+    }
+
+    try:
+        result = mongo.db.recruiter_waiting_list.insert_one(recruiter_data)
+        return jsonify({"message": "Added to waitlist successfully"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

@@ -1,0 +1,74 @@
+Search Query:
+================================================================================
+Experience with relational and non-relational databases (e.g., Postgres, MySQL, MongoDB, Cassandra, DynamoDB) in a cloud native environment
+
+
+Result 1:
+--------------------------------------------------------------------------------
+File: backend/routes/feed_routes.py
+Function: updateProjectEmbeddings
+Repository: Bykho/SiloBackendLaunch1
+Match Score: 0.900
+Explanation: This function updates project embeddings using data from MongoDB, indicating knowledge in non-relational databases (MongoDB) in a cloud-native environment.
+
+Code:
+----------------------------------------
+No code content available.
+
+================================================================================
+
+Result 2:
+--------------------------------------------------------------------------------
+File: backend/routes/user_routes.py
+Function: getUserWorkHistory
+Repository: Bykho/SiloBackendLaunch1
+Match Score: 0.850
+Explanation: This function fetches user work history from MongoDB, demonstrating experience with non-relational databases in a cloud-native application.
+
+Code:
+----------------------------------------
+No code content available.
+
+================================================================================
+
+Result 3:
+--------------------------------------------------------------------------------
+File: backend/routes/utility_routes.py
+Function: migrateProjects
+Repository: Bykho/SiloBackendLaunch1
+Match Score: 0.850
+Explanation: This function migrates projects in the database, working with relational-like structures in MongoDB, showcasing skills applicable to both relational and non-relational databases.
+
+Code:
+----------------------------------------
+No code content available.
+
+================================================================================
+
+Result 4:
+--------------------------------------------------------------------------------
+File: backend/routes/utility_routes.py
+Function: populateLayers
+Repository: Bykho/SiloBackendLaunch1
+Match Score: 0.800
+Explanation: This function updates layers for all projects in a MongoDB environment, indicative of experience with non-relational database operations.
+
+Code:
+----------------------------------------
+No code content available.
+
+================================================================================
+
+Result 5:
+--------------------------------------------------------------------------------
+File: backend/arxiv_pull.py
+Function: parse_and_insert
+Repository: Bykho/SiloBackendLaunch1
+Match Score: 0.750
+Explanation: This function handles the parsing of data and insertion into MongoDB, illustrating experience with non-relational databases in a data ingestion context.
+
+Code:
+----------------------------------------
+No code content available.
+
+================================================================================

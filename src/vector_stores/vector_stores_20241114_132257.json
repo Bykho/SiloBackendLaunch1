@@ -1,0 +1,21 @@
+[
+  {
+    "assistant_id": "asst_86TX8eUUYjf2VmUqfbDIKn6Z",
+    "vector_store_id": "vs_kJajQZHRGJUeYtm55j8veFZF",
+    "file_count": {
+      "cancelled": 0,
+      "completed": 157,
+      "failed": 9,
+      "in_progress": 0,
+      "total": 166
+    },
+    "repositories": [
+      "Bykho/FileTransferral",
+      "Bykho/HUDsearch",
+      "Bykho/SiloBackendLaunch1",
+      "Bykho/SiloFrontend",
+      "Bykho/SiloV2",
+      "Bykho/SiloV3"
+    ]
+  }
+]

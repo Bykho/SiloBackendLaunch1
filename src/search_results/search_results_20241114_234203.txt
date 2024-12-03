@@ -1,0 +1,74 @@
+Search Query:
+================================================================================
+Experience with relational and non-relational databases (e.g., Postgres, MySQL, MongoDB, Cassandra, DynamoDB) in a cloud native environment
+
+
+Result 1:
+--------------------------------------------------------------------------------
+File: backend/routes/user_routes.py
+Function: send_reset_code
+Repository: Bykho/SiloBackendLaunch1
+Match Score: 0.850
+Explanation: This file handles user-related HTTP routes, including user data management which could relate to databases.
+
+Code:
+----------------------------------------
+No code content available.
+
+================================================================================
+
+Result 2:
+--------------------------------------------------------------------------------
+File: backend/routes/routes.py
+Function: migrate_projects
+Repository: Bykho/SiloBackendLaunch1
+Match Score: 0.800
+Explanation: This function facilitates the migration of user projects within a MongoDB database, showcasing non-relational database interaction.
+
+Code:
+----------------------------------------
+No code content available.
+
+================================================================================
+
+Result 3:
+--------------------------------------------------------------------------------
+File: backend/routes/user_routes.py
+Function: get_notifications
+Repository: Bykho/SiloBackendLaunch1
+Match Score: 0.750
+Explanation: Processes notifications for users from a MongoDB database, demonstrating non-relational database usage.
+
+Code:
+----------------------------------------
+No code content available.
+
+================================================================================
+
+Result 4:
+--------------------------------------------------------------------------------
+File: backend/routes/utility_routes.py
+Function: inject_sample_data
+Repository: Bykho/SiloBackendLaunch1
+Match Score: 0.700
+Explanation: Inserts sample user data into a MongoDB database, illustrating practical non-relational database management.
+
+Code:
+----------------------------------------
+No code content available.
+
+================================================================================
+
+Result 5:
+--------------------------------------------------------------------------------
+File: backend/routes/comment_routes.py
+Function: get_comments_by_ids
+Repository: Bykho/SiloBackendLaunch1
+Match Score: 0.680
+Explanation: Retrieves comments by their IDs from a non-relational MongoDB, showing how to interact with such databases.
+
+Code:
+----------------------------------------
+No code content available.
+
+================================================================================

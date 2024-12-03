@@ -1,588 +1,501 @@
 import os
-import openai
-from github import Github
-import base64
-from tqdm import tqdm
+import json
+from github import Github, RateLimitExceededException, UnknownObjectException
 from dotenv import load_dotenv
-import time
-from pinecone import Pinecone, ServerlessSpec
+import openai
+from rich.console import Console
+from datetime import datetime
 import re
-from pymongo import MongoClient
-import ast
 from typing import List, Dict
+import time
+import tempfile
+from tqdm import tqdm  # For progress bars
+import pymongo
+from bson import ObjectId
+import bson.errors
 
-# Load environment variables
-load_dotenv()
-
-# Retrieve GitHub Token
-github_token = os.getenv('GITHUB_API_TOKEN')
-if not github_token:
-    raise ValueError("GITHUB_TOKEN not found in environment variables.")
-
-print(f"GitHub Token loaded: {'***' + github_token[-4:]}")  # Masked for security
-
-# Initialize GitHub client with the new token
-g = Github(github_token)
-
-# Initialize other clients
-openai.api_key = os.getenv('OPENAI_API_KEY')
-if not openai.api_key:
-    raise ValueError("OPENAI_API_KEY not found in environment variables.")
-
-# Initialize MongoDB
-MONGO_URI = os.getenv('MONGO_URI')
-if not MONGO_URI:
-    raise ValueError("MONGO_URI not found in environment variables.")
-
-mongo_client = MongoClient(MONGO_URI)
-db = mongo_client['ProductionDatabase']
-users_collection = db.users
-
-# Initialize Pinecone
-pinecone_api_key = os.getenv("PINECONE_KEY")
-if not pinecone_api_key:
-    raise ValueError("PINECONE_KEY not found in environment variables.")
-
-pc = Pinecone(api_key=pinecone_api_key)
-
-index_name = 'candidate-github-rag-test'
-if index_name not in [index.name for index in pc.list_indexes()]:
-    pc.create_index(
-        name=index_name,
-        dimension=1536,  # Adjust dimension as needed
-        metric='cosine',
-        spec=ServerlessSpec(cloud='gcp', region='us-west1')
-    )
-
-# Access the index
-index = pc.Index(index_name)
-
-print(f"Index {index_name} initialized.")
-
-# Updated File filtering patterns
+# Define exclusion patterns
 EXCLUDED_PATTERNS = [
-    r'node_modules',
-    r'virtualenvs?',
-    r'venv\d*',
-    r'env\d*',
-    r'dist',
-    r'build',
-    r'target',
-    r'bin',
-    r'public',
-    r'static',
-    r'tests?',
-    r'docs?',
-    r'examples?',
-    r'\.env$',
-    r'\.prettierrc$',
-    r'\.eslintrc$',
-    r'tsconfig\.json$',
-    r'package\.json$',
-    r'yarn\.lock$',
-    r'\.gitignore$',
-    r'LICENSE$',
-    r'CHANGELOG\.md$',
-    r'CONTRIBUTING\.md$',
-    r'\.DS_Store$',
-    r'\.log$',
-    r'\.min\.js$',
-    r'\.(png|jpg|jpeg|gif|svg)$',
-    r'\.(ttf|woff|woff2|eot)$',
-    r'\.(json|yaml|yml|xml)$',
-    r'pyvenv\.cfg$',   # Exclude pyvenv.cfg files
+    r'node_modules', r'virtualenvs?', r'venv\d*', r'env\d*', r'dist',
+    r'build', r'target', r'bin', r'public', r'static', r'tests?',
+    r'docs?', r'examples?', r'\.env$', r'\.prettierrc$', r'\.eslintrc$',
+    r'tsconfig\.json$', r'package\.json$', r'yarn\.lock$', r'\.gitignore$',
+    r'LICENSE$', r'CHANGELOG\.md$', r'CONTRIBUTING\.md$', r'\.DS_Store$',
+    r'\.log$', r'\.min\.js$'
 ]
 
 PRIORITIZED_EXTENSIONS = [
-    '.js', '.ts', '.jsx', '.tsx', '.py', '.java',
-    '.c', '.cpp', '.cs', '.rb', '.php', '.go', '.rs',
-    '.md'  # Include markdown files (e.g., ReadMe)
+    '.js', '.ts', '.py', '.java', '.cpp', '.c', 
+    '.php', '.rb', '.css', '.html', '.md', '.txt',
+    '.json', '.xml'  # Only include extensions that OpenAI supports
 ]
 
-def parse_python_functions(content: str, file_path: str) -> List[Dict]:
-    """Parse Python file content into function-level chunks with context."""
-    try:
-        tree = ast.parse(content)
-        functions = []
 
-        # Track imports and global context
-        imports = []
-        global_vars = []
+# List of binary file extensions to skip
+BINARY_EXTENSIONS = [
+    '.pdf', '.docx', '.pptx', '.jpg', '.jpeg', '.png', '.gif',
+    '.bmp', '.tiff', '.mp4', '.mp3', '.avi', '.mov', '.zip',
+    '.tar', '.gz', '.7z', '.exe', '.dll'
+]
 
-        for node in ast.walk(tree):
-            # Collect imports
-            if isinstance(node, (ast.Import, ast.ImportFrom)):
-                imports.append(ast.unparse(node))
+# Mapping of repositories to specific branches
+REPO_BRANCH_MAPPING = {
+    "Bykho/SiloBackendLaunch1": "Development"
+}
 
-            # Collect global variables
-            elif isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name):
-                global_vars.append(ast.unparse(node))
+def load_environment():
+    """Load environment variables and set API keys."""
+    load_dotenv()
+    openai_api_key = os.getenv('OPENAI_API_KEY')
+    github_token = os.getenv('GITHUB_API_TOKEN')
+    mongo_uri = os.getenv('MONGO_URI')
+    
+    if not all([openai_api_key, github_token, mongo_uri]):
+        missing = []
+        if not openai_api_key: missing.append("OPENAI_API_KEY")
+        if not github_token: missing.append("GITHUB_API_TOKEN")
+        if not mongo_uri: missing.append("MONGO_URI")
+        raise ValueError(f"Missing environment variables: {', '.join(missing)}")
+    
+    openai.api_key = openai_api_key
+    return github_token, mongo_uri
 
-            # Process functions and classes
-            elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
-                # Get the docstring if it exists
-                docstring = ast.get_docstring(node)
+def is_virtual_env(contents):
+    """Check if directory is a virtual environment."""
+    for content in contents:
+        if content.type == "file" and content.name in ['pyvenv.cfg', 'activate', 'activate.bat', 'activate.ps1']:
+            return True
+    return False
 
-                # Get function dependencies (other functions it calls)
-                function_calls = []
-                for child in ast.walk(node):
-                    if isinstance(child, ast.Call) and isinstance(child.func, ast.Name):
-                        function_calls.append(child.func.id)
-
-                # Get the full source code
-                function_code = ast.unparse(node)
-
-                # Create context block
-                context = "\n".join(imports + global_vars)
-
-                functions.append({
-                    'name': node.name,
-                    'code': function_code,
-                    'docstring': docstring,
-                    'context': context,
-                    'dependencies': list(set(function_calls)),
-                    'file_path': file_path,
-                    'type': 'class' if isinstance(node, ast.ClassDef) else 'function'
-                })
-
-        return functions
-    except Exception as e:
-        print(f"Error parsing Python file {file_path}: {e}")
-        return []
-
-def parse_javascript_functions(content: str, file_path: str) -> List[Dict]:
-    """Parse JavaScript/TypeScript file content into function-level chunks."""
-    functions = []
-
-    # Patterns for different function types
-    patterns = [
-        # Regular functions
-        r'(?:async\s+)?function\s+(\w+)\s*\([^)]*\)\s*{',
-        # Arrow functions with explicit name
-        r'(?:export\s+)?(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s*)?\([^)]*\)\s*=>',
-        # Class methods
-        r'(?:async\s+)?(\w+)\s*\([^)]*\)\s*{',
-        # Class declarations
-        r'class\s+(\w+)\s*(?:extends\s+\w+\s*)?{'
-    ]
-
-    # Find all imports first
-    import_pattern = r'^(?:import|export).*?;\s*$'
-    imports = re.findall(import_pattern, content, re.MULTILINE)
-    context = "\n".join(imports)
-
-    # Find and process all functions
-    for pattern in patterns:
-        matches = re.finditer(pattern, content, re.MULTILINE)
-        for match in matches:
-            try:
-                start = match.start()
-                # Find the matching closing brace
-                bracket_count = 0
-                found_first = False
-                end = start
-
-                for i in range(start, len(content)):
-                    if content[i] == '{':
-                        bracket_count += 1
-                        found_first = True
-                    elif content[i] == '}':
-                        bracket_count -= 1
-                        if found_first and bracket_count == 0:
-                            end = i + 1
-                            break
-
-                if end > start:
-                    function_code = content[start:end]
-                    function_name = match.group(1)
-
-                    functions.append({
-                        'name': function_name,
-                        'code': function_code,
-                        'context': context,
-                        'file_path': file_path,
-                        'dependencies': [],  # Could be enhanced with static analysis
-                        'type': 'function'
-                    })
-            except Exception as e:
-                print(f"Error processing function match in {file_path}: {e}")
-                continue
-
-    return functions
-
-def group_related_functions(functions: List[Dict]) -> List[Dict]:
-    """Group related functions based on dependencies and naming patterns."""
-    grouped_functions = []
-    processed = set()
-
-    for func in functions:
-        if func['name'] in processed:
-            continue
-
-        related_funcs = [func]
-        processed.add(func['name'])
-
-        # Group by class (for methods)
-        if func['type'] == 'class':
-            # Find all methods that might belong to this class
-            for other_func in functions:
-                if other_func['name'] in processed:
-                    continue
-                if func['file_path'] == other_func['file_path']:
-                    related_funcs.append(other_func)
-                    processed.add(other_func['name'])
-
-        # Group by dependencies and naming patterns
-        else:
-            for other_func in functions:
-                if other_func['name'] in processed:
-                    continue
-
-                # Check if functions are related
-                if (func['name'] in other_func.get('dependencies', []) or
-                    other_func['name'] in func.get('dependencies', []) or
-                    similar_names(func['name'], other_func['name'])):
-                    related_funcs.append(other_func)
-                    processed.add(other_func['name'])
-
-        # Combine related functions into a single chunk
-        grouped_functions.append({
-            'name': related_funcs[0]['name'],
-            'code': '\n\n'.join(f['code'] for f in related_funcs),
-            'context': related_funcs[0]['context'],
-            'related_functions': [f['name'] for f in related_funcs],
-            'file_path': func['file_path'],
-            'type': func['type']
-        })
-
-
-    return grouped_functions
-
-def similar_names(name1: str, name2: str) -> bool:
-    """Check if function names are similar."""
-    common_prefixes = ['get_', 'set_', 'update_', 'delete_', 'create_', 'fetch_', 'process_']
-    common_suffixes = ['_async', '_sync', '_internal', '_helper', '_util', '_handler']
-
-    # Remove common prefixes/suffixes
-    for prefix in common_prefixes:
-        if name1.startswith(prefix):
-            name1 = name1[len(prefix):]
-        if name2.startswith(prefix):
-            name2 = name2[len(prefix):]
-
-    for suffix in common_suffixes:
-        if name1.endswith(suffix):
-            name1 = name1[:-len(suffix)]
-        if name2.endswith(suffix):
-            name2 = name2[:-len(suffix)]
-
-    # Check if the core names are similar
-    return name1 == name2 or (
-        len(name1) > 3 and len(name2) > 3 and
-        (name1 in name2 or name2 in name1)
-    )
-
-def extract_github_username(github_link):
-    """Extract GitHub username from a given GitHub URL or username string."""
-    if not github_link:
-        return None
-    pattern = r'(?:https?://)?(?:www\.)?github\.com/([^/]+)/?'
-    match = re.search(pattern, github_link)
-    if match:
-        return match.group(1)
-    return github_link.strip('/')
-
-def get_users_with_github():
-    """Get hardcoded Bykho user data."""
-    return [{
-        '_id': 'bykho_test',
-        'github_link': 'github.com/Bykho'
-    }]
-    """Get all users with GitHub profiles from MongoDB.
-    try:
-        users = users_collection.find({
-            '$or': [
-                {'github_link': {'$exists': True, '$ne': ''}},
-                {'personal_website': {'$regex': 'github\\.com', '$options': 'i'}}
-            ],
-            'github_processed': {'$ne': True}  # Skip already processed users
-        })
-        return list(users)
-    except Exception as e:
-        print(f"Error fetching users from MongoDB: {e}")
-        return []
-    """
-        
 def should_process_file(file_path):
     """Determine if a file should be processed based on patterns."""
-    for pattern in EXCLUDED_PATTERNS:
-        if re.search(pattern, file_path, re.IGNORECASE):
-            return False
-
     _, ext = os.path.splitext(file_path)
-    return ext.lower() in PRIORITIZED_EXTENSIONS
-
-def process_file_content(file_data: Dict, repo_name: str, username: str) -> List[Dict]:
-    """Process a file and prepare its chunks for embedding."""
-    extension = file_data['extension']
-    content = file_data['content']
-    file_path = file_data['path']
-
-    # Handle README files differently
-    if file_data.get('is_readme'):
-        return [{
-            'id': f"{username}_{repo_name}_{file_path}",
-            'text': f"Repository: {repo_name}\nDocumentation Type: README\n\n{content}",
-            'metadata': {
-                'username': username,
-                'repo_name': repo_name,
-                'file_path': file_path,
-                'type': 'readme'
-            }
-        }]
-
-    # Process code files
-    if extension == '.py':
-        functions = parse_python_functions(content, file_path)
-    elif extension in ['.js', '.jsx', '.ts', '.tsx']:
-        functions = parse_javascript_functions(content, file_path)
-    else:
-        # For other supported file types, treat as whole file
-        return [{
-            'id': f"{username}_{repo_name}_{file_path}",
-            'text': f"File: {file_path}\n\n{content}",
-            'metadata': {
-                'username': username,
-                'repo_name': repo_name,
-                'file_path': file_path,
-                'type': 'code_file'
-            }
-        }]
-
-    # Group related functions
-    grouped_functions = group_related_functions(functions)
-
-    # Prepare chunks for embedding
-    chunks = []
-    for func in grouped_functions:
-        chunks.append({
-            'id': f"{username}_{repo_name}_{file_path}_{func['name']}",
-            'text': f"File: {file_path}\n{func['type'].title()}: {func['name']}\n\nContext:\n{func['context']}\n\nCode:\n{func['code']}",
-            'metadata': {
-                'username': username,
-                'repo_name': repo_name,
-                'file_path': file_path,
-                'function_name': func['name'],
-                'related_functions': func.get('related_functions', []),
-                'type': 'function' if func['type'] == 'function' else 'class'
-            }
-        })
-
-    return chunks
-
-def get_repository_files(repo):
-    """Get all relevant files from a repository, excluding virtual environments."""
-    files_data = []
-
-    def is_virtual_env(contents):
-        """Check if the current directory is a virtual environment by looking for indicators."""
-        for content in contents:
-            if content.type == "file" and content.name in ['pyvenv.cfg', 'activate', 'activate.bat', 'activate.ps1']:
-                return True
+    ext = ext.lower()
+    
+    # Skip binary files
+    if ext in BINARY_EXTENSIONS:
         return False
+    
+    # Handle special cases for TypeScript/JavaScript files
+    if ext in ['.tsx', '.jsx']:
+        return True  # We'll convert these to .ts or .js later
+        
+    # Include only prioritized extensions
+    return ext in PRIORITIZED_EXTENSIONS
+
+def get_repository_files(repo, user_id, github_username, repo_name, console, github_client, branch='main'):
+    """Get all relevant files from a repository, excluding virtual environments and binary files."""
+    files_data = []
 
     def process_contents(contents, current_path=""):
         for content in contents:
-            # Construct the full path for the current content
             full_path = os.path.join(current_path, content.path) if current_path else content.path
 
             if content.type == "dir":
-                # Fetch the contents of the directory to check for virtual environment indicators
                 try:
-                    dir_contents = repo.get_contents(content.path)
-                except Exception as e:
-                    print(f"Error accessing directory {content.path}: {e}")
-                    continue
-
-                if is_virtual_env(dir_contents):
-                    print(f"Skipping virtual environment directory: {content.path}")
-                    continue  # Skip processing this directory
-
-                # Check if the directory matches any excluded patterns
-                if any(re.search(pattern, content.path, re.IGNORECASE) for pattern in EXCLUDED_PATTERNS):
-                    print(f"Skipping excluded directory: {content.path}")
-                    continue
-
-                # Recursively process the contents of the directory
-                process_contents(dir_contents, current_path=content.path)
-
-            elif content.type == "file":
-                if should_process_file(content.path):
+                    dir_contents = repo.get_contents(content.path, ref=branch)
+                    if is_virtual_env(dir_contents):
+                        console.print(f"[yellow]Skipping virtual environment directory: {content.path}[/yellow]")
+                        continue
+                    if any(re.search(pattern, content.path, re.IGNORECASE) for pattern in EXCLUDED_PATTERNS):
+                        console.print(f"[yellow]Skipping excluded directory: {content.path}[/yellow]")
+                        continue
+                    process_contents(dir_contents, current_path=content.path)
+                except RateLimitExceededException:
+                    reset_time = github_client.rate_limiting_resettime
+                    sleep_time = reset_time - time.time() + 5  # Adding buffer
+                    if sleep_time > 0:
+                        console.print(f"[red]GitHub API rate limit exceeded. Sleeping for {int(sleep_time)} seconds...[/red]")
+                        time.sleep(sleep_time)
+                    # Retry after sleeping
                     try:
-                        file_content = base64.b64decode(content.content).decode('utf-8')
-                        is_readme = content.name.lower() == 'readme.md'
-
-                        files_data.append({
-                            'name': content.name,
-                            'path': content.path,
-                            'content': file_content,
-                            'extension': os.path.splitext(content.name)[1].lower(),
-                            'is_readme': is_readme
-                        })
+                        dir_contents = repo.get_contents(content.path, ref=branch)
+                        process_contents(dir_contents, current_path=content.path)
                     except Exception as e:
-                        print(f"Error processing file {content.path}: {e}")
+                        console.print(f"[red]Error accessing directory {content.path} after rate limit reset: {e}[/red]")
+                        continue
+                except UnknownObjectException:
+                    console.print(f"[red]Directory {content.path} not found. It might have been removed or is inaccessible.[/red]")
+                    continue
+                except Exception as e:
+                    console.print(f"[red]Error accessing directory {content.path}: {e}[/red]")
+                    continue
+
+            elif content.type == "file" and should_process_file(content.path):
+                try:
+                    file_content = content.decoded_content.decode('utf-8')
+                    if not file_content.strip():
+                        console.print(f"[yellow]Skipping empty file: {content.path}[/yellow]")
+                        continue
+                    # Encode metadata into file_path with user_id
+                    encoded_path = f"{user_id}_{github_username}/{repo_name}/{content.path}"
+                    files_data.append({
+                        'name': content.name,
+                        'path': encoded_path,
+                        'content': file_content,
+                        'url': content.html_url
+                    })
+                    console.print(f"[green]Processed file: {encoded_path}[/green]")
+                except Exception as e:
+                    console.print(f"[red]Error processing file {content.path}: {e}[/red]")
 
     try:
-        contents = repo.get_contents("")
+        contents = repo.get_contents("", ref=branch)
         process_contents(contents)
+    except RateLimitExceededException:
+        reset_time = github_client.rate_limiting_resettime
+        sleep_time = reset_time - time.time() + 5  # Adding buffer
+        if sleep_time > 0:
+            console.print(f"[red]GitHub API rate limit exceeded. Sleeping for {int(sleep_time)} seconds...[/red]")
+            time.sleep(sleep_time)
+        try:
+            contents = repo.get_contents("", ref=branch)
+            process_contents(contents)
+        except Exception as e:
+            console.print(f"[red]Error accessing repository contents after rate limit reset: {e}[/red]")
+
+    except UnknownObjectException:
+        console.print(f"[red]Repository {repo.full_name} not found.[/red]")
     except Exception as e:
-        print(f"Error accessing repository contents: {e}")
+        console.print(f"[red]Error accessing repository contents: {e}[/red]")
 
     return files_data
 
-def process_batch(chunks):
-    """Process a batch of chunks for embedding."""
-    success = False
-    retry_count = 0
-    max_retries = 5
-    sleep_time = 60  # in seconds
+def save_vector_store_info(vector_stores_info):
+    """Save vector store information to a JSON file."""
+    output_dir = "vector_stores"
+    os.makedirs(output_dir, exist_ok=True)
+    
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = os.path.join(output_dir, f"vector_stores_{timestamp}.json")
+    
+    with open(filename, 'w') as f:
+        json.dump(vector_stores_info, f, indent=2)
+    
+    return filename
 
-    while not success and retry_count < max_retries:
-        try:
-            # Generate embeddings
-            texts = [chunk['text'] for chunk in chunks]
-            response = openai.Embedding.create(
-                input=texts,
-                model='text-embedding-ada-002'
-            )
-            embeddings = [record['embedding'] for record in response['data']]
-
-            # Prepare vectors for Pinecone
-            vectors = []
-            for idx, embedding in enumerate(embeddings):
-                vector = {
-                    'id': chunks[idx]['id'],
-                    'values': embedding,
-                    'metadata': chunks[idx]['metadata']
-                }
-                vectors.append(vector)
-
-            # Upsert to Pinecone
-            index.upsert(vectors)
-            success = True
-            print(f"Successfully processed batch of {len(vectors)} chunks")
-
-        except openai.error.RateLimitError as e:
-            print(f'OpenAI RateLimitError: {e}')
-            retry_count += 1
-            # Extract retry-after time if available
-            retry_after = e.headers.get('Retry-After')
-            if retry_after:
-                sleep_time = int(retry_after)
-            else:
-                sleep_time *= 2  # Exponential backoff
-            print(f'Retrying after {sleep_time} seconds...')
-            time.sleep(sleep_time)
-
-        except openai.error.APIError as e:
-            print(f'OpenAI APIError: {e}')
-            retry_count += 1
-            sleep_time *= 2
-            print(f'Retrying after {sleep_time} seconds...')
-            time.sleep(sleep_time)
-
-        except Exception as e:
-            print(f'Error in process_batch: {e}')
-            retry_count += 1
-            sleep_time *= 2
-            print(f'Retrying after {sleep_time} seconds...')
-            time.sleep(sleep_time)
-
-    if not success:
-        print('Failed to process batch after multiple retries.')
-
-def process_user_github(user):
-    """Process all GitHub repositories for a single user."""
-    github_link = user.get('github_link', user.get('personal_website', ''))
-    username = extract_github_username(github_link)
-    user_id = str(user.get('_id'))
-
-    if not username:
-        print(f"Could not extract GitHub username for user {user_id}")
-        return False
-
-    print(f"Processing GitHub repositories for user {username}")
-
+def create_assistant(console):
+    """Create a new Assistant with File Search enabled using a supported model."""
     try:
-        github_user = g.get_user(username)
-        repositories = github_user.get_repos()
-
-        batch_chunks = []
-
-        for repo in repositories:
-            print(f"Processing repository: {repo.name}")
-            check_rate_limit()  # Check rate limit before processing
-            files = get_repository_files(repo)
-
-            for file in files:
-                chunks = process_file_content(file, repo.name, username)
-                batch_chunks.extend(chunks)
-
-                if len(batch_chunks) >= 100:  # Process in batches of 100
-                    process_batch(batch_chunks)
-                    batch_chunks.clear()
-                    # Optional: Add a short delay to prevent rapid API calls
-                    time.sleep(1)
-
-        # Process remaining chunks
-        if batch_chunks:
-            process_batch(batch_chunks)
-
-        # Mark user as processed in MongoDB
-        users_collection.update_one(
-            {'_id': user.get('_id')},
-            {'$set': {'github_processed': True}}
+        assistant = openai.beta.assistants.create(
+            name="GitHub Code Assistant",
+            instructions="You are an assistant that can answer questions based on GitHub repository files.",
+            model="gpt-4-turbo-preview",  # Use a supported model
+            tools=[{"type": "file_search"}],
         )
-
-        return True
-
+        console.print(f"[green]Created new assistant: {assistant.id}[/green]")
+        return assistant
     except Exception as e:
-        print(f"Error processing GitHub data for user {username}: {e}")
+        console.print(f"[red]Error creating assistant: {e}[/red]")
+        raise e
+
+
+
+def setup_openai_vector_store(assistant_id, vector_store_id, files_data: List[Dict], console: Console, batch_size: int = 450):
+    """Populate an existing OpenAI vector store with repository files in batches."""
+    try:
+        # Extension mapping for unsupported extensions
+        extension_mapping = {
+            '.tsx': '.ts',
+            '.jsx': '.js'
+        }
+        
+        # Process all files in batches
+        total_files = len(files_data)
+        batch_count = (total_files + batch_size - 1) // batch_size  # Calculate number of batches
+        all_file_counts = {
+            'cancelled': 0,
+            'completed': 0,
+            'failed': 0,
+            'in_progress': 0,
+            'total': 0
+        }
+        
+        console.print(f"[blue]Processing {total_files} files in {batch_count} batches[/blue]")
+        
+        for batch_num in range(batch_count):
+            start_idx = batch_num * batch_size
+            end_idx = min((batch_num + 1) * batch_size, total_files)
+            current_batch = files_data[start_idx:end_idx]
+            
+            console.print(f"\n[blue]Processing batch {batch_num + 1}/{batch_count} ({len(current_batch)} files)[/blue]")
+            
+            # Create a new temporary directory for this batch
+            temp_dir = tempfile.mkdtemp()
+            file_streams = []
+            
+            try:
+                # Process files in current batch
+                for file in current_batch:
+                    # Extract the original extension in lowercase
+                    _, ext = os.path.splitext(file['name'])
+                    ext = ext.lower()
+
+                    # Map unsupported extensions to supported ones
+                    if ext in extension_mapping:
+                        ext = extension_mapping[ext]
+
+                    # Skip if extension is not supported by OpenAI
+                    if ext not in PRIORITIZED_EXTENSIONS:
+                        console.print(f"[yellow]Skipping file with unsupported extension: {file['name']}[/yellow]")
+                        continue
+
+                    # Ensure the encoded name ends with the correct extension
+                    encoded_name = file['path'].replace("/", "_")
+                    if not encoded_name.endswith(ext):
+                        encoded_name = encoded_name.rsplit('.', 1)[0] + ext
+
+                    temp_path = os.path.join(temp_dir, encoded_name)
+
+                    try:
+                        # Write content to a temp file
+                        with open(temp_path, 'w', encoding='utf-8') as temp_file:
+                            temp_file.write(file['content'])
+
+                        # Open the renamed file for reading
+                        file_streams.append(open(temp_path, "rb"))
+                        console.print(f"[green]Prepared file: {encoded_name}[/green]")
+                    except Exception as e:
+                        console.print(f"[red]Error preparing file {encoded_name}: {e}[/red]")
+                        continue
+
+                if not file_streams:
+                    console.print("[yellow]No valid files to upload in this batch[/yellow]")
+                    continue
+
+                # Upload current batch
+                try:
+                    file_batch = openai.beta.vector_stores.file_batches.upload_and_poll(
+                        vector_store_id=vector_store_id,
+                        files=file_streams
+                    )
+                    
+                    # Update total counts
+                    all_file_counts['cancelled'] += file_batch.file_counts.cancelled
+                    all_file_counts['completed'] += file_batch.file_counts.completed
+                    all_file_counts['failed'] += file_batch.file_counts.failed
+                    all_file_counts['in_progress'] += file_batch.file_counts.in_progress
+                    all_file_counts['total'] += file_batch.file_counts.total
+                    
+                    console.print(f"[green]Batch {batch_num + 1} upload complete: {file_batch.file_counts.completed} files processed[/green]")
+                
+                except Exception as e:
+                    console.print(f"[red]Error uploading batch {batch_num + 1}: {e}[/red]")
+                    continue
+                
+            finally:
+                # Clean up the current batch's resources
+                for f in file_streams:
+                    try:
+                        path = f.name
+                        f.close()
+                        os.remove(path)
+                    except Exception as e:
+                        console.print(f"[yellow]Error cleaning up file {f.name}: {e}[/yellow]")
+                
+                try:
+                    os.rmdir(temp_dir)
+                except Exception as e:
+                    console.print(f"[yellow]Error removing temp directory: {e}[/yellow]")
+
+        # After all batches are processed, attach vector store to assistant
+        if all_file_counts['completed'] > 0:
+            openai.beta.assistants.update(
+                assistant_id=assistant_id,
+                tool_resources={"file_search": {"vector_store_ids": [vector_store_id]}}
+            )
+            console.print(f"[green]Attached vector store {vector_store_id} to assistant[/green]")
+            
+            return {
+                'vector_store_id': vector_store_id,
+                'file_count': all_file_counts
+            }
+        else:
+            console.print("[red]No files were successfully uploaded[/red]")
+            return None
+    
+    except Exception as e:
+        console.print(f"[red]Error setting up vector store: {e}[/red]")
+        return None
+
+
+
+
+def is_valid_objectid(value):
+    """Check if the provided value is a valid ObjectId."""
+    try:
+        ObjectId(value)
+        return True
+    except (bson.errors.InvalidId, TypeError):
         return False
 
-def check_rate_limit():
-    """Check the current GitHub API rate limit."""
-    try:
-        rate_limit = g.get_rate_limit()
-        core_limits = rate_limit.core
-        print(f"GitHub API Rate Limit: {core_limits.remaining}/{core_limits.limit} remaining.")
-        reset_timestamp = core_limits.reset.timestamp()
-        reset_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(reset_timestamp))
-        print(f"Rate limit resets at: {reset_time}")
-        if core_limits.remaining < 100:  # Threshold for pausing
-            sleep_seconds = max(reset_timestamp - time.time(), 0) + 10  # Adding buffer
-            print(f"Approaching rate limit. Sleeping for {sleep_seconds} seconds...")
-            time.sleep(sleep_seconds)
-    except Exception as e:
-        print(f"Error checking rate limit: {e}")
 
 def main():
-    print("Starting GitHub RAG preparation...")
-    check_rate_limit()  # Monitor rate limits
-    
-    # Create single user entry for Bykho
-    user = {
-        '_id': 'bykho_test',
-        'github_link': 'github.com/Bykho'
-    }
-    
-    print("Processing GitHub repositories for Bykho...")
-    success = process_user_github(user)
-    
-    if success:
-        print("Successfully processed Bykho's GitHub data")
-    else:
-        print("Failed to process Bykho's GitHub data")
+    console = Console()
+    console.print("[bold blue]Starting GitHub Repository Processing...[/bold blue]")
+    temp_dir = None
+
+    try:
+        github_token, mongo_uri = load_environment()
+        
+        # Connect to MongoDB using pymongo
+        client = pymongo.MongoClient(mongo_uri)
+        db = client.get_default_database()
+        console.print("[green]Connected to MongoDB.[/green]")
+
+        github_client = Github(github_token)
+        console.print("[green]Initialized GitHub client.[/green]")
+
+        # Use existing Assistant ID
+        assistant_id = "asst_hUjlVpcx3CKjAlvmFOgjjsbf"
+
+        total_files = 0
+        processed_repos = []
+        all_files_data = []
+
+        # Flag to break after the first successful upload
+        first_upload_done = False
+
+        try:
+            # Fetch users with GitHub links
+            users = db.users.find({
+                "$or": [
+                    {"github_link": {"$exists": True, "$ne": ""}},
+                    {"personal_website": {"$regex": "github.com", "$options": "i"}}
+                ]
+            })
+
+            # Process each user's repositories
+            for user in users:
+                if first_upload_done:  # Check the flag to break the loop
+                    break
+
+                try:
+                    # Extract user information
+                    user_id = str(user['_id'])
+                    github_link = user.get('github_link', '')
+                    personal_website = user.get('personal_website', '')
+                    
+                    # Get GitHub username
+                    if github_link:
+                        github_username = github_link.rstrip('/').split('/')[-1]
+                    elif 'github.com' in personal_website.lower():
+                        github_username = personal_website.rstrip('/').split('/')[-1]
+                    else:
+                        console.print(f"[yellow]No valid GitHub link found for user with ID '{user_id}'.[/yellow]")
+                        continue
+                    
+                    # Process user's repositories
+                    try:
+                        user_data = github_client.get_user(github_username)
+                        repositories = []
+                        
+                        # Fetch repositories with rate limit handling
+                        try:
+                            for repo in user_data.get_repos():
+                                repositories.append(repo.full_name)
+                        except RateLimitExceededException:
+                            reset_time = github_client.rate_limiting_resettime
+                            sleep_time = reset_time - time.time() + 5
+                            if sleep_time > 0:
+                                console.print(f"[red]GitHub API rate limit exceeded. Sleeping for {int(sleep_time)} seconds...[/red]")
+                                time.sleep(sleep_time)
+                                # Retry after sleep
+                                for repo in user_data.get_repos():
+                                    repositories.append(repo.full_name)
+                        
+                        if not repositories:
+                            console.print(f"[yellow]No repositories found for user '{github_username}'.[/yellow]")
+                            continue
+
+                        console.print(f"[green]Found {len(repositories)} repositories for user '{github_username}'.[/green]")
+                        
+                        # Process each repository
+                        for repo_path in repositories:
+                            try:
+                                owner, repo_name = repo_path.split('/')
+                                branch = REPO_BRANCH_MAPPING.get(repo_path, 'main')
+                                
+                                repo = github_client.get_repo(repo_path)
+                                files_data = get_repository_files(repo, user_id, github_username, repo_name, console, github_client, branch=branch)
+                                
+                                if files_data:
+                                    all_files_data.extend(files_data)
+                                    processed_repos.append(f"{owner}/{repo_name}")
+                                    total_files += len(files_data)
+                                    console.print(f"[green]Collected {len(files_data)} files from {owner}/{repo_name}[/green]")
+                                
+                                time.sleep(0.1)  # Rate limit protection
+                                
+                            except Exception as repo_error:
+                                console.print(f"[red]Error processing repository {repo_path}: {repo_error}[/red]")
+                                continue
+                                
+                    except UnknownObjectException:
+                        console.print(f"[red]GitHub user '{github_username}' not found.[/red]")
+                        continue
+                    except Exception as user_error:
+                        console.print(f"[red]Error processing user {github_username}: {user_error}[/red]")
+                        continue
+                        
+                except Exception as user_processing_error:
+                    console.print(f"[red]Error processing user data: {user_processing_error}[/red]")
+                    continue
+
+            # Upload to vector store if we have files
+            if all_files_data:
+                vector_store_id = "vs_uOiITYpmod1DxYVABOVaC8Xj"
+                
+                vector_store_info = setup_openai_vector_store(
+                    assistant_id=assistant_id,
+                    vector_store_id=vector_store_id,
+                    files_data=all_files_data,
+                    console=console
+                )
+                
+                if vector_store_info:
+                    # Save successful upload info
+                    vector_store_info_saved = {
+                        'assistant_id': assistant_id,
+                        'vector_store_id': vector_store_info['vector_store_id'],
+                        'file_count': vector_store_info['file_count'],
+                        'repositories': processed_repos
+                    }
+                    
+                    output_file = save_vector_store_info([vector_store_info_saved])
+                    console.print(f"\n[green]Info saved to: {output_file}[/green]")
+                    console.print(f"[green]Total completed uploads: {vector_store_info['file_count']['completed']}[/green]")
+                    
+                    if vector_store_info['file_count']['failed'] > 0:
+                        console.print(f"[red]{vector_store_info['file_count']['failed']} files failed to upload.[/red]")
+                    
+                    console.print(f"[green]Repositories processed: {', '.join(processed_repos)}[/green]")
+                    
+                    # Set the flag to indicate the first upload is done
+                    first_upload_done = True
+                else:
+                    console.print("[red]Failed to set up vector store.[/red]")
+            else:
+                console.print("[yellow]No files collected to upload.[/yellow]")
+
+        finally:
+            # Close MongoDB connection
+            client.close()
+            console.print("[green]Closed MongoDB connection.[/green]")
+
+    except Exception as e:
+        console.print(f"[red]Critical error in main process: {e}[/red]")
+    finally:
+        # Ensure any remaining temporary files are cleaned up
+        if 'temp_dir' in locals() and temp_dir:
+            try:
+                import shutil
+                shutil.rmtree(temp_dir)
+                console.print("[green]Cleaned up temporary files.[/green]")
+            except Exception as cleanup_error:
+                console.print(f"[yellow]Error cleaning up temporary files: {cleanup_error}[/yellow]")
 
 if __name__ == '__main__':
     main()
+
+

@@ -1,0 +1,60 @@
+Search Query:
+================================================================================
+Experience with relational and non-relational databases (e.g., Postgres, MySQL, MongoDB, Cassandra, DynamoDB) in a cloud native environment
+
+
+Result 1:
+--------------------------------------------------------------------------------
+File: tmp9j0e6bmi.py
+Function: migrate_projects
+Repository: N/A/N/A
+Match Score: 0.950
+Explanation: This function utilizes MongoDB to gather user data and migrate project portfolios, showcasing data manipulation in a cloud-native setup with non-relational databases.
+
+Code:
+----------------------------------------
+No code content available.
+
+================================================================================
+
+Result 2:
+--------------------------------------------------------------------------------
+File: tmp0e98sxsn.py
+Function: populate_layers
+Repository: N/A/N/A
+Match Score: 0.900
+Explanation: This function updates layers in MongoDB, demonstrating an application of non-relational database operations within a cloud environment.
+
+Code:
+----------------------------------------
+No code content available.
+
+================================================================================
+
+Result 3:
+--------------------------------------------------------------------------------
+File: tmp04mi_uzt.py
+Function: parse_and_insert
+Repository: N/A/N/A
+Match Score: 0.850
+Explanation: This function processes records and performs batch operations in MongoDB, illustrating handling of data in a non-relational database context.
+
+Code:
+----------------------------------------
+No code content available.
+
+================================================================================
+
+Result 4:
+--------------------------------------------------------------------------------
+File: tmpd1uuybij.py
+Function: ingest_projects
+Repository: N/A/N/A
+Match Score: 0.800
+Explanation: This function retrieves project data from MongoDB and prepares it for further processing, demonstrating operations within a cloud-native ecosystem.
+
+Code:
+----------------------------------------
+No code content available.
+
+================================================================================

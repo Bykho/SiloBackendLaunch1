@@ -8,11 +8,7 @@ load_dotenv()
 pc = Pinecone(api_key=os.getenv("PINECONE_KEY"))
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-<<<<<<< Updated upstream
-INDEX_NAME = "user-feed-index"
-=======
 INDEX_NAME = "candidate-search-testing-productiondb"
->>>>>>> Stashed changes
 DIMENSION = 1536  # Dimension for text-embedding-ada-002
 
 
@@ -61,6 +57,24 @@ def query_similar_vectors_jobs(index, vector, top_k=20):
         top_k=top_k,
         include_metadata=True,
         filter={"type": "job"}
+    )
+    return results['matches']
+
+def query_similar_vectors_users(index, user_id, top_k=5):
+    result = index.fetch([user_id])
+    # Check if the user_id exists in the fetched vectors
+    if 'vectors' not in result or user_id not in result['vectors']:
+        return []  # Return an empty list or handle as per your requirement
+
+    # Extract the vector from the result
+    user_vector = result['vectors'][user_id]['values']
+
+    results = index.query(
+        vector=user_vector,
+        top_k=top_k,
+        include_metadata=True,
+        include_values=False,
+        filter={"type": "user"}
     )
     return results['matches']
 

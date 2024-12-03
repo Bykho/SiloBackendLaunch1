@@ -1,0 +1,74 @@
+Search Query:
+================================================================================
+Experience with CI/CD tools (e.g., Jenkins, Travis CI, CircleCI) and related technologies
+
+
+Result 1:
+--------------------------------------------------------------------------------
+File: Bykho_SiloFrontend/src/frontend/components/GitPull.js
+Function: fetchRepos
+Repository: Bykho/SiloFrontend
+Match Score: 0.950
+Explanation: This function fetches repositories from a GitHub user's account, which is a fundamental aspect relevant to CI/CD as it integrates with version control systems.
+
+Code:
+----------------------------------------
+No code content available.
+
+================================================================================
+
+Result 2:
+--------------------------------------------------------------------------------
+File: Bykho_SiloFrontend/src/frontend/components/GitPull.js
+Function: fetchBranches
+Repository: Bykho/SiloFrontend
+Match Score: 0.920
+Explanation: This function retrieves branches from a specified repository, essential for CI/CD tools that often need to deploy specific branches.
+
+Code:
+----------------------------------------
+No code content available.
+
+================================================================================
+
+Result 3:
+--------------------------------------------------------------------------------
+File: Bykho_SiloFrontend/src/frontend/components/GitPull.js
+Function: handleSubmit
+Repository: Bykho/SiloFrontend
+Match Score: 0.900
+Explanation: This function processes input files and interacts with the GitHub API, highlighting an integration aspect related to CI/CD pipelines.
+
+Code:
+----------------------------------------
+No code content available.
+
+================================================================================
+
+Result 4:
+--------------------------------------------------------------------------------
+File: Bykho_SiloBackendLaunch1/src/routes/codeAutoHolder.py
+Function: autofill_code_project
+Repository: Bykho/SiloBackendLaunch1
+Match Score: 0.880
+Explanation: This function illustrates how code is automatically filled based on input projects, relevant to CI/CD as it often necessitates automated code handling in deployment processes.
+
+Code:
+----------------------------------------
+No code content available.
+
+================================================================================
+
+Result 5:
+--------------------------------------------------------------------------------
+File: Bykho_SiloFrontend/src/frontend/components/AddProjectComponent/AddProject.js
+Function: handleSave
+Repository: Bykho/SiloFrontend
+Match Score: 0.870
+Explanation: Handles project saving which often includes version control interactions, a fundamental part of CI/CD workflows.
+
+Code:
+----------------------------------------
+No code content available.
+
+================================================================================

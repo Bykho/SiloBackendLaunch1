@@ -1,0 +1,74 @@
+Search Query:
+================================================================================
+Experience with relational and non-relational databases (e.g., Postgres, MySQL, MongoDB, Cassandra, DynamoDB) in a cloud native environment
+
+
+Result 1:
+--------------------------------------------------------------------------------
+File: backend/models.py
+Function: project_filtered_search
+Repository: Bykho/SiloBackendLaunch1
+Match Score: 0.950
+Explanation: This function retrieves projects from a MongoDB database based on a search value, showcasing a non-relational database (MongoDB) implementation.
+
+Code:
+----------------------------------------
+No code content available.
+
+================================================================================
+
+Result 2:
+--------------------------------------------------------------------------------
+File: backend/models.py
+Function: migrate_projects
+Repository: Bykho/SiloBackendLaunch1
+Match Score: 0.850
+Explanation: This function migrates project data in a MongoDB collection, demonstrating how to manage data in a non-relational database.
+
+Code:
+----------------------------------------
+No code content available.
+
+================================================================================
+
+Result 3:
+--------------------------------------------------------------------------------
+File: backend/models.py
+Function: update_project_embeddings
+Repository: Bykho/SiloBackendLaunch1
+Match Score: 0.900
+Explanation: This function updates project embeddings in a MongoDB database, highlighting the usage of non-relational databases in data handling.
+
+Code:
+----------------------------------------
+No code content available.
+
+================================================================================
+
+Result 4:
+--------------------------------------------------------------------------------
+File: backend/routes/feed_routes.py
+Function: return_projects
+Repository: Bykho/SiloBackendLaunch1
+Match Score: 0.930
+Explanation: This function handles the retrieval of projects from a MongoDB database for a user's feed, relevant to non-relational database usage.
+
+Code:
+----------------------------------------
+No code content available.
+
+================================================================================
+
+Result 5:
+--------------------------------------------------------------------------------
+File: backend/routes/group_routes.py
+Function: save_project_to_group
+Repository: Bykho/SiloBackendLaunch1
+Match Score: 0.880
+Explanation: This function saves projects to a specified group in a MongoDB database, demonstrating data manipulation in a non-relational environment.
+
+Code:
+----------------------------------------
+No code content available.
+
+================================================================================
