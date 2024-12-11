@@ -1,0 +1,20 @@
+[
+  {
+    "user_id": "66bd4c2e74f6118200cf3baa",
+    "github_username": "Bykho",
+    "github_url": "github.com/Bykho",
+    "vector_store_id": "vs_M6vWnnxWsCiuu8dgn8Pkl5RO",
+    "file_count": {
+      "completed": 220,
+      "failed": 0,
+      "total": 220
+    },
+    "repositories": [
+      "Bykho/FileTransferral",
+      "Bykho/HUDsearch",
+      "Bykho/SiloBackendLaunch1",
+      "Bykho/SiloFrontend",
+      "Bykho/SiloV2",
+      "Bykho/SiloV3"
+    ],
+    "created_at": 

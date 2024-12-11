@@ -10,23 +10,38 @@ from pdf2image import convert_from_bytes
 import pytesseract
 import openai
 from bson.errors import InvalidId
-from bson import ObjectId  # Add this import
-from ..search_github_rag import (create_thread, add_message_to_thread, 
-                             run_assistant, poll_run_status)
+from bson import ObjectId
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from .. import mongo  # Import mongo from your app package
+from typing import Dict, List, Optional
+from .. import mongo
+from ..search_github_rag import (
+    create_thread,
+    add_message_to_thread,
+    run_assistant,
+    poll_run_status,
+    attach_vector_store,
+    detach_vector_store,
+    search_with_retries,
+    process_vector_store,
+    search_across_stores,
+    write_results_to_file
+)
 
+# Configure Blueprint and logging
 candidate_search_uninspired_bp = Blueprint('candidate_search_uninspired', __name__)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Validate environment variables
 openai_api_key = os.getenv('OPENAI_API_KEY')
 if not openai_api_key:
     raise EnvironmentError("Missing OPENAI_API_KEY environment variable.")
 
-def extract_text_from_pdf(pdf_file):
+def extract_text_from_pdf(pdf_file) -> str:
+    """Extract text from PDF using multiple methods with fallback."""
     text = ""
     
+    # Try PyPDF2 first
     try:
         pdf_file.seek(0)
         reader = PyPDF2.PdfReader(pdf_file)
@@ -37,6 +52,7 @@ def extract_text_from_pdf(pdf_file):
     except Exception as e:
         logger.error(f"PyPDF2 extraction failed: {e}")
     
+    # Try pdfminer if PyPDF2 fails
     try:
         pdf_file.seek(0)
         text = pdfminer_extract(io.BytesIO(pdf_file.read()))
@@ -45,6 +61,7 @@ def extract_text_from_pdf(pdf_file):
     except Exception as e:
         logger.error(f"pdfminer extraction failed: {e}")
     
+    # Try OCR as last resort
     try:
         pdf_file.seek(0)
         images = convert_from_bytes(pdf_file.read())
@@ -57,17 +74,17 @@ def extract_text_from_pdf(pdf_file):
 
     raise ValueError("Text extraction failed for all PDF methods.")
 
-
-def extract_skills(text):
+def extract_skills(text: str) -> List[str]:
+    """Extract technical skills from job description text using GPT-4."""
     client = openai.OpenAI()
-    prompt = """Extract a list of technical skills from this job description. Return only a JSON array of strings, with no formatting or explanation.
+    
+    prompt = """Extract a list of technical skills from this job description. Return only a JSON array of strings, with no formatting or explanation. They should be longer sentences that would work well as a query for a vector store of code files.
 
 Example:
 [
-    "Python programming",
-    "AWS cloud services",
-    "Docker containerization",
-    "CI/CD pipelines"
+    "Experience with python programming",
+    "Past work implementing AWS cloud services",
+    "Experience with Docker containerization",
 ]
 
 Important: Respond ONLY with a JSON array. Do not include any other text, markdown formatting, or explanations.
@@ -77,7 +94,7 @@ Job Description:
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": "You must respond with a valid JSON array of strings only. No other text or formatting."},
                 {"role": "user", "content": prompt.format(text=text)}
@@ -85,7 +102,6 @@ Job Description:
             temperature=0.3,
         )
         
-        # Log the raw response for debugging
         response_content = response.choices[0].message.content
         logger.info(f"Raw GPT response: {response_content}")
 
@@ -111,167 +127,130 @@ Job Description:
 
     except Exception as e:
         logger.error(f"Error extracting skills: {e}")
-        logger.error(f"Full text being processed: {text[:200]}...")  # Log first 200 chars of input
+        logger.error(f"Full text being processed: {text[:200]}...")
         return []
 
-
-def search_github_for_skill(client, skill, assistant_id="asst_hUjlVpcx3CKjAlvmFOgjjsbf"):
+def fetch_user_details(db, user_ids: List[str]) -> Dict:
+    """Fetch user details from MongoDB."""
     try:
-        # Create a separate thread for each skill
-        thread_id = create_thread(client, assistant_id)
-
-        # Add the skill as a new message
-        add_message_to_thread(client, thread_id, "user", skill)
-        run_id = run_assistant(client, thread_id, assistant_id)
-        run_output = poll_run_status(client, thread_id, run_id)
-
-        # Get the last assistant message
-        _, messages = run_output
-        assistant_messages = [msg for msg in messages if msg.role == 'assistant']
-        if not assistant_messages:
-            return []
-
-        last_message = assistant_messages[-1]
-        content = last_message.content[0].text.value if isinstance(last_message.content, list) else last_message.content
-
-        # Extract JSON from within markdown code blocks if present
-        if '```json' in content:
-            content = content.split('```json')[1].split('```')[0].strip()
-        else:
-            content = content.strip()
-
-        try:
-            data = json.loads(content)
-            if 'matches' in data:
-                return [m for m in data['matches'] if m.get('score', 0) >= 0.7]
-        except json.JSONDecodeError as e:
-            logger.error(f"Error parsing JSON response: {e}\nContent was: {content}")
-            return []
-
-        return []
-
+        users = db.users.find(
+            {'_id': {'$in': [ObjectId(uid) for uid in user_ids]}},
+            {'_id': 1, 'username': 1, 'email': 1, 'github_link': 1}
+        )
+        
+        return {
+            str(user['_id']): {
+                'id': str(user['_id']),
+                'name': user.get('username', ''),
+                'email': user.get('email', ''),
+                'github_link': user.get('github_link', ''),
+                'matches': [],
+                'skills_matched': set(),
+                'total_matches': 0
+            }
+            for user in users
+        }
     except Exception as e:
-        logger.error(f"Error searching GitHub for skill: {e}")
-        return []
+        logger.error(f"Error fetching user details: {e}")
+        return {}
 
-def is_valid_objectid(id_str: str) -> bool:
-    """Check if a string is a valid MongoDB ObjectId."""
-    try:
-        ObjectId(id_str)
-        return True
-    except (InvalidId, TypeError):
-        return False
+def format_results(user_map: Dict, skill_results: Dict, total_skills: int) -> Dict:
+    """Format the final results with user details and match scores."""
+    for user_id, results in skill_results.items():
+        if user_id in user_map:
+            user_data = user_map[user_id]
+            user_data['matches'].extend(results['matches'])
+            user_data['skills_matched'].update(results['skills_matched'])
+            user_data['total_matches'] = len(results['matches'])
+
+    candidates = [
+        {
+            'id': user_data['id'],
+            'name': user_data['name'],
+            'email': user_data['email'],
+            'github_link': user_data['github_link'],
+            'skills_matched': list(user_data['skills_matched']),
+            'match_score': (len(user_data['skills_matched']) / total_skills * 100) if total_skills else 0,
+            'matches': user_data['matches']
+        }
+        for user_data in user_map.values()
+    ]
+
+    candidates.sort(key=lambda x: x['match_score'], reverse=True)
+    return candidates
 
 @candidate_search_uninspired_bp.route('/JDKeywords', methods=['POST'])
 @jwt_required()
 def jd_keywords():
+    """Process job description and search for matching candidates."""
     if 'jobDescription' not in request.files:
         return jsonify({'error': 'No file provided'}), 400
 
     file = request.files['jobDescription']
     if not file.filename or not file.filename.lower().endswith('.pdf'):
-        return jsonify({'error': 'Invalid file'}), 400
+        return jsonify({'error': 'Invalid file type. Please provide a PDF file.'}), 400
 
     try:
+        # Extract text and skills from PDF
         text = extract_text_from_pdf(file)
         skills = extract_skills(text)
         if not skills:
-            return jsonify({'error': 'Failed to extract skills'}), 500
+            return jsonify({'error': 'No skills could be extracted from the document'}), 500
 
         client = openai.OpenAI()
         assistant_id = "asst_hUjlVpcx3CKjAlvmFOgjjsbf"
 
-        # Process skills in parallel using ThreadPoolExecutor
-        skill_results = []
-        with ThreadPoolExecutor(max_workers=5) as executor:
-            future_to_skill = {
-                executor.submit(search_github_for_skill, client, skill, assistant_id): skill
-                for skill in skills
+        # Fetch active vector stores
+        vector_stores = [
+            {
+                "user_id": str(store["user_id"]),
+                "vectorstore_idx": store["vectorstore_idx"]
             }
+            for store in mongo.db.vector_stores.find({"status": "active"})
+        ]
 
-            for future in as_completed(future_to_skill):
-                skill = future_to_skill[future]
-                try:
-                    matches = future.result()
-                except Exception as exc:
-                    logger.error(f"{skill} generated an exception: {exc}")
-                    matches = []
-                skill_results.append({
-                    'query': skill,
-                    'matches': matches
-                })
+        print(f'\n \n Here are the vector stores: {vector_stores} \n \n ')
 
-        # Extract unique user IDs from all matches
-        print(f"\n \n \nHere is skill results: {skill_results} \n \n \n")
-        user_ids = set()
-        for result in skill_results:
-            for match in result['matches']:
-                file_path = match.get('file_path', '')
-                if file_path and '_' in file_path:
-                    potential_id = file_path.split('_')[0]
-                    if is_valid_objectid(potential_id):  # Only include valid ObjectIds
-                        user_ids.add(potential_id)
-                        # Add ObjectId to match for later filtering
-                        match['user_id'] = potential_id
+        if not vector_stores:
+            return jsonify({'error': 'No active vector stores available'}), 500
 
-        # Fetch user information once for all valid users
-        user_map = {}
-        if user_ids:
-            try:
-                users = mongo.db.users.find(
-                    {'_id': {'$in': [ObjectId(uid) for uid in user_ids]}},
-                    {'_id': 1, 'username': 1, 'email': 1, 'github_link': 1}
-                )
-                
-                for user in users:
-                    user_map[str(user['_id'])] = {
-                        'id': str(user['_id']),
-                        'name': user.get('username', ''),
-                        'email': user.get('email', ''),
-                        'github_link': user.get('github_link', ''),
-                        'matches': [],
-                        'skills_matched': set(),
-                        'total_matches': 0
-                    }
-            except Exception as e:
-                logger.error(f"Error fetching user information: {e}")
+        # Search across all vector stores
+        skill_results = search_across_stores(
+            client=client,
+            assistant_id=assistant_id,
+            vector_stores=vector_stores,
+            skills=skills
+        )
 
-        # Only process matches that have valid user IDs
-        user_results = {}
-        for result in skill_results:
-            skill_name = result['query']
-            for match in result['matches']:
-                if 'user_id' in match and match['user_id'] in user_map:
-                    user_id = match['user_id']
-                    
-                    if user_id not in user_results:
-                        user_results[user_id] = user_map[user_id].copy()
-                        user_results[user_id]['skills_matched'] = set()
-                        user_results[user_id]['total_matches'] = 0
-                    
-                    match['skill'] = skill_name
-                    user_results[user_id]['matches'].append(match)
-                    user_results[user_id]['skills_matched'].add(skill_name)
-                    user_results[user_id]['total_matches'] += 1
+        if not skill_results:
+            return jsonify({
+                'skills_searched': skills,
+                'candidates': []
+            }), 200
 
-        # Convert to final format
+        # Fetch and format user details
+        user_map = fetch_user_details(mongo.db, list(skill_results.keys()))
+        candidates = format_results(user_map, skill_results, len(skills))
+
+        # Prepare final response
         final_results = {
             'skills_searched': skills,
-            'candidates': [
-                {
-                    **user_data,
-                    'skills_matched': list(user_data['skills_matched']),  # Convert set to list
-                    'match_score': (len(user_data['skills_matched']) / len(skills)) * 100 if skills else 0
-                }
-                for user_data in user_results.values()
-            ]
+            'candidates': candidates
         }
 
-        # Sort candidates by match_score in descending order
-        final_results['candidates'].sort(key=lambda x: x['match_score'], reverse=True)
+        # Save results to file
+        summary = text[:100] + "..." if len(text) > 100 else text
+        try:
+            output_file = write_results_to_file(summary, final_results)
+            logger.info(f"Results saved to: {output_file}")
+        except Exception as e:
+            logger.error(f"Error saving results to file: {e}")
 
         return jsonify(final_results), 200
-    
+
+    except ValueError as e:
+        logger.error(f"Validation error: {e}")
+        return jsonify({'error': str(e)}), 400
     except Exception as e:
         logger.error(f"Error processing request: {e}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'An error occurred processing your request'}), 500

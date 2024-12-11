@@ -1,0 +1,830 @@
+{
+  "query": "Sta\ufb00 So\u0000ware Engineer, Data\nAlpharetta, GA\nDevelopment \u2013 PlayOn! Sports /Full-Time /Hybrid\nTHE ROLE\n...",
+  "results": {
+    "skills_searched": [
+      "Experience with cloud native software development principles and design patterns",
+      "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust",
+      "Strong understanding of software design principles and patterns such as SOLID, DRY, and GoF design patterns",
+      "Strong understanding of event-driven architecture and distributed systems",
+      "Strong understanding of domain-driven design principles and practices",
+      "Experience with cloud native technologies such as containers like Docker, container orchestration like Kubernetes, and service mesh like Istio",
+      "Experience with web application development using cloud native technologies such as microservices, APIs, and serverless functions",
+      "Experience with agile software development methodologies",
+      "Experience with cloud computing platforms such as AWS, Azure, or Google Cloud Platform",
+      "Experience with CI/CD tools like Jenkins, Travis CI, or CircleCI and related technologies like Git, Docker, Kubernetes",
+      "Experience with relational and non-relational databases such as Postgres, MySQL, MongoDB, Cassandra, or DynamoDB in a cloud native environment"
+    ],
+    "candidates": [
+      {
+        "id": "66bd4c2e74f6118200cf3baa",
+        "name": "Nico Bykhovsky",
+        "email": "nb3227@columbia.edu",
+        "github_link": "github.com/Bykho",
+        "skills_matched": [
+          "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust",
+          "Strong understanding of software design principles and patterns such as SOLID, DRY, and GoF design patterns",
+          "Experience with cloud native technologies such as containers like Docker, container orchestration like Kubernetes, and service mesh like Istio",
+          "Strong understanding of event-driven architecture and distributed systems",
+          "Experience with CI/CD tools like Jenkins, Travis CI, or CircleCI and related technologies like Git, Docker, Kubernetes",
+          "Experience with relational and non-relational databases such as Postgres, MySQL, MongoDB, Cassandra, or DynamoDB in a cloud native environment",
+          "Experience with cloud native software development principles and design patterns",
+          "Experience with web application development using cloud native technologies such as microservices, APIs, and serverless functions",
+          "Experience with cloud computing platforms such as AWS, Azure, or Google Cloud Platform"
+        ],
+        "match_score": 81.81818181818183,
+        "matches": [
+          {
+            "file_path": "beam.py",
+            "repository_name": "SiloV3",
+            "github_username": "Bykho",
+            "function_name": "beam_to_cloud",
+            "explanation": "This function connects to MongoDB Atlas and uploads file metadata to the database, illustrating cloud integration principles."
+          },
+          {
+            "file_path": "GameOfLife.js",
+            "repository_name": "SiloV3",
+            "github_username": "Bykho",
+            "function_name": "buildGrid",
+            "explanation": "This function dynamically creates a grid for the Game of Life, showing an organizational pattern that aligns with cloud-native architecture."
+          },
+          {
+            "file_path": "fake_data.py",
+            "repository_name": "SiloV3",
+            "github_username": "Bykho",
+            "function_name": "sample_users",
+            "explanation": "Defines a list of sample users with a focus on programming skills including Python and JavaScript, demonstrating strong programming foundational skills."
+          },
+          {
+            "file_path": "requirements.txt",
+            "repository_name": "SiloV3",
+            "github_username": "Bykho",
+            "function_name": "dependencies",
+            "explanation": "Specifies dependencies including Flask and TensorFlow which are often associated with Python programming skills, indicating the usage of Python in the project."
+          },
+          {
+            "file_path": "User.py",
+            "repository_name": "SiloV3",
+            "github_username": "Bykho",
+            "function_name": "__init__",
+            "explanation": "The User class constructor accepts programming skills, showcasing the representation of strong programming skills in user profiles."
+          },
+          {
+            "file_path": "README.md",
+            "repository_name": "SiloV3",
+            "github_username": "Bykho",
+            "function_name": "Project Overview",
+            "explanation": "Describes the architecture of the Silo project, emphasizing the Design Patterns applied, notably encouraging adherence to SOLID principles in its modular design."
+          },
+          {
+            "file_path": "GameOfLife.js",
+            "repository_name": "SiloV3",
+            "github_username": "Bykho",
+            "function_name": "addPattern",
+            "explanation": "The addPattern function showcases the DRY principle by using a reusable pattern addition process in the Game of Life project, which adheres to best practices in software design."
+          },
+          {
+            "file_path": "GroupDisplay.js",
+            "repository_name": "SiloV3",
+            "github_username": "Bykho",
+            "function_name": "GroupDisplay",
+            "explanation": "This component demonstrates the use of design patterns to manage state and toggle views effectively, which reflects a solid understanding of component-based design principles."
+          },
+          {
+            "file_path": "fake_data.py",
+            "repository_name": "unknown",
+            "github_username": "unknown",
+            "function_name": "Open Source Distributed System",
+            "explanation": "An open source project focused on building a distributed system for efficient data processing, utilizing a microservices architecture for reliability and performance."
+          },
+          {
+            "file_path": "fake_data.py",
+            "repository_name": "unknown",
+            "github_username": "unknown",
+            "function_name": "Scalable Web Application",
+            "explanation": "This project involves creating a highly scalable web application designed to handle millions of users simultaneously, showcasing principles of distributed systems."
+          },
+          {
+            "file_path": "package-lock.json",
+            "repository_name": "SiloBacken",
+            "github_username": "unknown",
+            "function_name": "is-docker",
+            "explanation": "The code references the 'is-docker' module, which checks whether the code is being executed inside a Docker container."
+          },
+          {
+            "file_path": "package-lock.json",
+            "repository_name": "SiloBacken",
+            "github_username": "unknown",
+            "function_name": "is-wsl",
+            "explanation": "The code includes the 'is-wsl' package which can identify if the code is running in Windows Subsystem for Linux, often relevant when using cloud native technologies."
+          },
+          {
+            "file_path": "package-lock.json",
+            "repository_name": "SiloBacken",
+            "github_username": "unknown",
+            "function_name": "open",
+            "explanation": "The presence of the 'open' package suggests capabilities for launching URLs or files, which is sometimes integrated with cloud operations."
+          },
+          {
+            "file_path": "PasswordReset.js",
+            "repository_name": "SiloBacken",
+            "github_username": "unknown",
+            "function_name": "handleEmailSubmit",
+            "explanation": "This function demonstrates a REST API call to send a password reset code to a user, which is an example of using microservices in web application development."
+          },
+          {
+            "file_path": "PasswordReset.js",
+            "repository_name": "SiloBacken",
+            "github_username": "unknown",
+            "function_name": "handleCodeSubmit",
+            "explanation": "This function verifies the reset code sent to the user's email, another API interaction showcasing microservice architecture."
+          },
+          {
+            "file_path": "PasswordReset.js",
+            "repository_name": "SiloBacken",
+            "github_username": "unknown",
+            "function_name": "handlePasswordReset",
+            "explanation": "This function completes the password reset process by calling an API to set a new password, demonstrating serverless architecture for RESTful services."
+          },
+          {
+            "file_path": "NewAddProjectToGroup.js",
+            "repository_name": "SiloBacken",
+            "github_username": "unknown",
+            "function_name": "fetchProjects",
+            "explanation": "This function fetches user projects using a REST API, showcasing the implementation of APIs in web application development."
+          },
+          {
+            "file_path": "NewAddProjectToGroup.js",
+            "repository_name": "SiloBacken",
+            "github_username": "unknown",
+            "function_name": "handleSaveProjectToGroup",
+            "explanation": "Handles saving projects to a group through an API call, demonstrating how microservices can work to manage group functionalities within the app."
+          },
+          {
+            "file_path": "66bd4c2e74f6118200cf3baa_nico/SiloV3/beam.py",
+            "repository_name": "SiloV3",
+            "github_username": "nico",
+            "function_name": "beam_to_cloud",
+            "explanation": "This function uploads metadata of files from a specified folder to a MongoDB Atlas database, demonstrating interaction with cloud services."
+          },
+          {
+            "file_path": "66bd4c2e74f6118200cf3baa_nico/requirements.txt",
+            "repository_name": "SiloV3",
+            "github_username": "nico",
+            "function_name": "Requirements",
+            "explanation": "The requirements include libraries that enable interaction with Google Cloud Platform services, like google-cloud-speech, which suggests experience with cloud platforms."
+          },
+          {
+            "file_path": "66bd4c2e74f6118200cf3baa_nico/requirements.txt",
+            "repository_name": "SiloV3",
+            "github_username": "nico",
+            "function_name": "Dependencies",
+            "explanation": "In addition to Google Cloud, libraries such as Flask-PyMongo suggest integration with cloud-based databases, indicating competence in cloud computing."
+          },
+          {
+            "file_path": "GitPull.js",
+            "repository_name": "N/A",
+            "github_username": "N/A",
+            "function_name": "handleSubmit",
+            "explanation": "This function prepares and sends a request to an API, indicating integration with version control (Git) for fetching file information, which is often part of CI/CD workflows."
+          },
+          {
+            "file_path": "66bd4c2e74f6118200cf3baa_nico/requirements.txt",
+            "repository_name": "SiloV3",
+            "github_username": "nico",
+            "function_name": "Dependencies",
+            "explanation": "The requirements include CI/CD tools like Docker, indicating familiarity with containerization technologies commonly used in CI/CD pipelines."
+          },
+          {
+            "file_path": "routes.py",
+            "repository_name": "N/A",
+            "github_username": "N/A",
+            "function_name": "migrate_projects",
+            "explanation": "This function is designed to migrate project data from one format to another, utilizing MongoDB to handle storage and retrieval of user and project data, showcasing experience with non-relational databases in a cloud-native environment."
+          },
+          {
+            "file_path": "beam.py",
+            "repository_name": "N/A",
+            "github_username": "N/A",
+            "function_name": "beam_to_cloud",
+            "explanation": "This function connects to a MongoDB Atlas instance to insert file metadata, demonstrating experience with non-relational databases in a cloud-native architecture."
+          },
+          {
+            "file_path": "mongodel.py",
+            "repository_name": "N/A",
+            "github_username": "N/A",
+            "function_name": "MongoDB operations",
+            "explanation": "Shows basic operations with MongoDB including connecting and deleting documents, indicating familiarity with non-relational database management."
+          },
+          {
+            "file_path": "mongoose.js",
+            "repository_name": "N/A",
+            "github_username": "N/A",
+            "function_name": "Mongoose setup",
+            "explanation": "Establishes a connection to MongoDB, showcasing expertise in working with non-relational databases in a node.js environment."
+          }
+        ]
+      },
+      {
+        "id": "66e34478261016236189c86a",
+        "name": "Benjamin Benscher",
+        "email": "benbenscher@gmail.com",
+        "github_link": "https://github.com/donbool",
+        "skills_matched": [
+          "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust",
+          "Strong understanding of software design principles and patterns such as SOLID, DRY, and GoF design patterns",
+          "Strong understanding of event-driven architecture and distributed systems",
+          "Experience with CI/CD tools like Jenkins, Travis CI, or CircleCI and related technologies like Git, Docker, Kubernetes",
+          "Experience with relational and non-relational databases such as Postgres, MySQL, MongoDB, Cassandra, or DynamoDB in a cloud native environment",
+          "Experience with cloud native software development principles and design patterns",
+          "Experience with web application development using cloud native technologies such as microservices, APIs, and serverless functions",
+          "Experience with cloud computing platforms such as AWS, Azure, or Google Cloud Platform"
+        ],
+        "match_score": 72.72727272727273,
+        "matches": [
+          {
+            "file_path": "server.js",
+            "repository_name": "Unknown",
+            "github_username": "Unknown",
+            "function_name": "Start Server",
+            "explanation": "Starts an Express server which could be deployed on cloud services like AWS, Azure, or Google Cloud Platform."
+          },
+          {
+            "file_path": "api.js",
+            "repository_name": "Unknown",
+            "github_username": "Unknown",
+            "function_name": "Axios Instance",
+            "explanation": "Creates an Axios instance to handle HTTP requests, showcasing how to interact with REST APIs on cloud services."
+          },
+          {
+            "file_path": "Explore_TabNet.html",
+            "repository_name": "Unknown",
+            "github_username": "Unknown",
+            "function_name": "Unknown",
+            "explanation": "Contains programming concepts potentially related to Java, Python, Go, C#, or Rust."
+          },
+          {
+            "file_path": "Explore_TabNet.html",
+            "repository_name": "Unknown",
+            "github_username": "Unknown",
+            "function_name": "Unknown",
+            "explanation": "The document references design principles such as SOLID, DRY, and potential GoF design patterns."
+          },
+          {
+            "file_path": "sessions.js",
+            "repository_name": "Sessions Management",
+            "github_username": "Unknown",
+            "function_name": "getSession",
+            "explanation": "This function demonstrates event-driven architecture by fetching session data from a server based on user actions, which is indicative of a distributed system handling separate responsibilities."
+          },
+          {
+            "file_path": "sessions.js",
+            "repository_name": "Sessions Management",
+            "github_username": "Unknown",
+            "function_name": "getAllTutors",
+            "explanation": "This function fetches all tutor data from the server, showcasing inter-service communication typical in distributed systems."
+          },
+          {
+            "file_path": "sessions.js",
+            "repository_name": "Sessions Management",
+            "github_username": "Unknown",
+            "function_name": "componentDidMount",
+            "explanation": "In this lifecycle method, the application checks user authentication and retrieves data on mount, representing an event-driven model where actions are triggered by user presence."
+          },
+          {
+            "file_path": "workout.js",
+            "repository_name": "Workout Generator",
+            "github_username": "Unknown",
+            "function_name": "router.post",
+            "explanation": "This function processes requests to generate workouts asynchronously, demonstrating a service-oriented approach typically found in event-driven architectures."
+          },
+          {
+            "file_path": "api.js",
+            "repository_name": "unknown",
+            "github_username": "unknown",
+            "function_name": "axios.create",
+            "explanation": "Sets up an axios instance for API calls with different base URLs for production and development environments."
+          },
+          {
+            "file_path": "index.js",
+            "repository_name": "unknown",
+            "github_username": "unknown",
+            "function_name": "router.get",
+            "explanation": "Defines a route for getting user information, which checks if the user is authenticated before sending user data."
+          },
+          {
+            "file_path": "server.js",
+            "repository_name": "unknown",
+            "github_username": "unknown",
+            "function_name": "app.use",
+            "explanation": "Configures the Express application, including session management, CORS settings, and routing."
+          },
+          {
+            "file_path": "auth.js",
+            "repository_name": "unknown",
+            "github_username": "unknown",
+            "function_name": "router.get",
+            "explanation": "Handles Google OAuth authentication and route for logging out users."
+          },
+          {
+            "file_path": "passport.js",
+            "repository_name": "unknown",
+            "github_username": "unknown",
+            "function_name": "passport.use",
+            "explanation": "Implements Google authentication strategy and user serialization for maintaining authentication state."
+          },
+          {
+            "file_path": "api.js",
+            "repository_name": "CleverHealth",
+            "github_username": "michelestew",
+            "function_name": "axios.create",
+            "explanation": "The code sets up an Axios instance to handle HTTP requests. It adjusts the base URL based on the environment, ensuring compatibility with cloud deployment (e.g., Heroku for production)."
+          },
+          {
+            "file_path": "package.json",
+            "repository_name": "CleverHealth",
+            "github_username": "michelestew",
+            "function_name": "dependencies",
+            "explanation": "This package.json lists dependencies that may be useful for integrating cloud services, such as 'dotenv' for environment variable management, which is essential for cloud computing applications."
+          },
+          {
+            "file_path": "package.json",
+            "repository_name": "mern-stack-boilerplate",
+            "github_username": "michelestew",
+            "function_name": "scripts",
+            "explanation": "The scripts section includes 'heroku-postbuild', which is used as a build command in CI/CD pipelines to ensure the client-side application is built before deployment."
+          },
+          {
+            "file_path": "Dockerfile",
+            "repository_name": "CleverHealth",
+            "github_username": "michelestew",
+            "function_name": "FROM node:14",
+            "explanation": "This Dockerfile initiates a Docker image using Node.js, which is useful for creating containerized applications that can be integrated into CI/CD workflows."
+          },
+          {
+            "file_path": "db.js",
+            "repository_name": "sample-project",
+            "github_username": "sampleuser",
+            "function_name": "connectDB",
+            "explanation": "This function establishes a connection to a MongoDB database using Mongoose, which demonstrates the use of a non-relational database in a cloud-native environment."
+          },
+          {
+            "file_path": "server.js",
+            "repository_name": "sample-project",
+            "github_username": "sampleuser",
+            "function_name": "app.use",
+            "explanation": "This server script configures various middlewares including session management with MongoStore, allowing the use of MongoDB as a session store in an Express application which is typical in cloud-native applications."
+          }
+        ]
+      },
+      {
+        "id": "66e355781bfd88fa2be9564e",
+        "name": "kristofer bjornsson",
+        "email": "kfb2117@columbia.edu",
+        "github_link": "https://github.com/kristoferfannar",
+        "skills_matched": [
+          "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust",
+          "Strong understanding of software design principles and patterns such as SOLID, DRY, and GoF design patterns",
+          "Experience with cloud native technologies such as containers like Docker, container orchestration like Kubernetes, and service mesh like Istio",
+          "Strong understanding of event-driven architecture and distributed systems",
+          "Experience with CI/CD tools like Jenkins, Travis CI, or CircleCI and related technologies like Git, Docker, Kubernetes",
+          "Experience with relational and non-relational databases such as Postgres, MySQL, MongoDB, Cassandra, or DynamoDB in a cloud native environment",
+          "Experience with cloud native software development principles and design patterns",
+          "Experience with web application development using cloud native technologies such as microservices, APIs, and serverless functions"
+        ],
+        "match_score": 72.72727272727273,
+        "matches": [
+          {
+            "file_path": "README.md",
+            "repository_name": "T3 Stack",
+            "github_username": "N/A",
+            "function_name": "N/A",
+            "explanation": "The README discusses the simplicity and scaffolding provided by the T3 Stack project, which is built using cloud-native technologies such as Next.js, Prisma, and tRPC."
+          },
+          {
+            "file_path": "[trpc].ts",
+            "repository_name": "T3 Stack",
+            "github_username": "N/A",
+            "function_name": "createNextApiHandler",
+            "explanation": "This file exports an API handler using tRPC which is designed for modern cloud architectures, leveraging serverless functions and a context for handling requests."
+          },
+          {
+            "file_path": "api.ts",
+            "repository_name": "T3 Stack",
+            "github_username": "N/A",
+            "function_name": "createTRPCNext",
+            "explanation": "It sets up type-safe APIs for React using tRPC, showcasing principles of cloud-native software by managing request flows and data serialization in a client-server architecture."
+          },
+          {
+            "file_path": "trpc.ts",
+            "repository_name": "T3 Stack",
+            "github_username": "N/A",
+            "function_name": "createTRPCContext",
+            "explanation": "Defines the context for the tRPC API, including database access, and emphasizes modularity and separation of concerns in cloud-native design."
+          },
+          {
+            "file_path": "env.js",
+            "repository_name": "T3 Stack",
+            "github_username": "N/A",
+            "function_name": "createEnv",
+            "explanation": "Handles environment variable management and validation, crucial for cloud-native applications to ensure proper configuration across different deployment environments."
+          },
+          {
+            "file_path": "README.md",
+            "repository_name": "Community Simulation Project",
+            "github_username": "N/A",
+            "function_name": "N/A",
+            "explanation": "The README describes the project, which involves programming in Python with tasks and players, emphasizing the skills in programming required for implementing the project."
+          },
+          {
+            "file_path": "train.py",
+            "repository_name": "Community Simulation Project",
+            "github_username": "N/A",
+            "function_name": "TaskScorerNN.forward",
+            "explanation": "This function demonstrates strong programming skills in Python, using PyTorch for building neural networks to evaluate tasks based on features and player states."
+          },
+          {
+            "file_path": "train.py",
+            "repository_name": "Community Simulation Project",
+            "github_username": "N/A",
+            "function_name": "RestDecisionNN.forward",
+            "explanation": "The method showcases the use of neural networks in Python, with a focus on programming skills to handle input features and compute scores."
+          },
+          {
+            "file_path": "main.py",
+            "repository_name": "Community Simulation Project",
+            "github_username": "N/A",
+            "function_name": "Solution.closeStrings",
+            "explanation": "The function implements string manipulation logic in Python, showcasing problem-solving skills through programming techniques."
+          },
+          {
+            "file_path": "main.cpp",
+            "repository_name": "Community Simulation Project",
+            "github_username": "N/A",
+            "function_name": "Solution.scoreOfString",
+            "explanation": "This C++ function highlights programming skills by calculating the score of a string based on character differences, demonstrating algorithmic thinking."
+          },
+          {
+            "file_path": "g1_player.py",
+            "repository_name": "Community Simulation Project",
+            "github_username": "N/A",
+            "function_name": "divide_horizontally",
+            "explanation": "This function implements a strategy for cutting, following principles akin to SOLID by maintaining separation of concerns and encapsulating behavior related to horizontal divisions."
+          },
+          {
+            "file_path": "g1_player.py",
+            "repository_name": "Community Simulation Project",
+            "github_username": "N/A",
+            "function_name": "make_rectangles",
+            "explanation": "The function adheres to the DRY principle by encapsulating logic for rectangle creation, preventing code duplication and ensuring reusability in the main cutting algorithm."
+          },
+          {
+            "file_path": "g1_player.py",
+            "repository_name": "Community Simulation Project",
+            "github_username": "N/A",
+            "function_name": "assign_requests",
+            "explanation": "This method assigns requests based on a structured approach, reflecting the use of GoF design patterns to optimize the assignment process effectively."
+          },
+          {
+            "file_path": "g4_player2.py",
+            "repository_name": "Community Simulation Project",
+            "github_username": "N/A",
+            "function_name": "_assign_requests",
+            "explanation": "By sorting and managing assignments through methodical logic, this function exemplifies the application of design principles that enhance clarity and maintainability."
+          },
+          {
+            "file_path": "even_cuts.py",
+            "repository_name": "Community Simulation Project",
+            "github_username": "N/A",
+            "function_name": "even_cuts",
+            "explanation": "Implements an event-driven strategy for moving and cutting based on user requests, allowing for dynamic reactions to input and scenarios."
+          },
+          {
+            "file_path": "uneven_cuts.py",
+            "repository_name": "Community Simulation Project",
+            "github_username": "N/A",
+            "function_name": "update_queue",
+            "explanation": "Manages the queue of movements for uneven cuts, reflecting an understanding of event-driven architecture where moves are queued based on conditions."
+          },
+          {
+            "file_path": "g1_player.py",
+            "repository_name": "Community Simulation Project",
+            "github_username": "N/A",
+            "function_name": "assign_requests",
+            "explanation": "Assigns requests dynamically, utilizing principles of distributed systems by handling multiple requests through structured queue management."
+          },
+          {
+            "file_path": "g4_player2.py",
+            "repository_name": "Community Simulation Project",
+            "github_username": "N/A",
+            "function_name": "move",
+            "explanation": "Processes movements based on current state and previous actions, demonstrating an event-driven model where the state affects future events and decisions."
+          },
+          {
+            "file_path": "README.md",
+            "repository_name": "T3 Stack Project",
+            "github_username": "unknown",
+            "function_name": "Deployment Guides",
+            "explanation": "Includes deployment guides for Docker, providing insights on how to containerize the application."
+          },
+          {
+            "file_path": "next.config.js",
+            "repository_name": "T3 Stack Project",
+            "github_username": "unknown",
+            "function_name": "Environment Validation",
+            "explanation": "Mentions the use of SKIP_ENV_VALIDATION for Docker builds, indicating practices related to cloud-native deployment."
+          },
+          {
+            "file_path": "[7] [trpc].ts",
+            "repository_name": "T3 Stack Project",
+            "github_username": "unknown",
+            "function_name": "createNextApiHandler",
+            "explanation": "Utilizes tRPC to create an API handler for a web application, exemplifying a microservices architecture."
+          },
+          {
+            "file_path": "[7] post.ts",
+            "repository_name": "T3 Stack Project",
+            "github_username": "unknown",
+            "function_name": "postRouter",
+            "explanation": "Defines a router for handling API requests, showcasing RESTful API design principles alongside microservices."
+          },
+          {
+            "file_path": "[7] hello.ts",
+            "repository_name": "T3 Stack Project",
+            "github_username": "unknown",
+            "function_name": "handler",
+            "explanation": "Implements a simple serverless function to return a JSON response, demonstrating serverless architecture capabilities."
+          },
+          {
+            "file_path": "README.md",
+            "repository_name": "sesh",
+            "github_username": "joshmedeski",
+            "function_name": "CI/CD Pipeline",
+            "explanation": "This project includes a CI/CD pipeline configured with GitHub Actions, showcasing how to automate testing and deployment for a CLI tool."
+          },
+          {
+            "file_path": "package.json",
+            "repository_name": "2fa-site",
+            "github_username": "unknown",
+            "function_name": "N/A",
+            "explanation": "The project utilizes CI/CD through scripts defined for building the application and managing deployments, leveraging Prisma and Next.js."
+          },
+          {
+            "file_path": "post.ts",
+            "repository_name": "unknown",
+            "github_username": "unknown",
+            "function_name": "create",
+            "explanation": "This function performs a database creation operation using Prisma, which is compatible with various relational databases like Postgres and MySQL."
+          },
+          {
+            "file_path": "db.ts",
+            "repository_name": "unknown",
+            "github_username": "unknown",
+            "function_name": "db",
+            "explanation": "Establishes a connection to a database using PrismaClient, which supports relational databases such as Postgres and MySQL as well as non-relational databases through various adaptors."
+          }
+        ]
+      },
+      {
+        "id": "67196e61e4298ccdc5d58ba6",
+        "name": "Nikolay Kolev",
+        "email": "nikolaynkolev@gmail.com",
+        "github_link": "https://github.com/nikolay",
+        "skills_matched": [
+          "Strong understanding of event-driven architecture and distributed systems",
+          "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust",
+          "Experience with CI/CD tools like Jenkins, Travis CI, or CircleCI and related technologies like Git, Docker, Kubernetes",
+          "Experience with relational and non-relational databases such as Postgres, MySQL, MongoDB, Cassandra, or DynamoDB in a cloud native environment",
+          "Experience with web application development using cloud native technologies such as microservices, APIs, and serverless functions",
+          "Experience with cloud native technologies such as containers like Docker, container orchestration like Kubernetes, and service mesh like Istio"
+        ],
+        "match_score": 54.54545454545454,
+        "matches": [
+          {
+            "file_path": "README.md",
+            "repository_name": "Advent of Code",
+            "github_username": null,
+            "function_name": null,
+            "explanation": "This repository contains solutions for the Advent of Code 2021 using Go, demonstrating programming skills in Go."
+          },
+          {
+            "file_path": "README.md",
+            "repository_name": "adventofcode",
+            "github_username": null,
+            "function_name": null,
+            "explanation": "This repository contains solutions for Advent of Code in Go, showcasing proficiency in programming with Go."
+          },
+          {
+            "file_path": "README.md",
+            "repository_name": "Advent of Code (2022)",
+            "github_username": null,
+            "function_name": null,
+            "explanation": "This repository shows the user's attempts to solve programming puzzles, demonstrating skills in Python and Go."
+          },
+          {
+            "file_path": "db.ts",
+            "repository_name": "Deno KV Example",
+            "github_username": "NotSpecified",
+            "function_name": "setCount",
+            "explanation": "Sets a count value in Deno KV, demonstrating a simple event-driven style where a state change happens based on user input."
+          },
+          {
+            "file_path": "db.ts",
+            "repository_name": "Deno KV Example",
+            "github_username": "NotSpecified",
+            "function_name": "getCount",
+            "explanation": "Retrieves the current count from Deno KV, utilizing asynchronous operations characteristic of event-driven and distributed architectures."
+          },
+          {
+            "file_path": "XtnKDQcTf7F2sbGGYrgJ4b/README.md",
+            "repository_name": "Kor",
+            "github_username": "yonahd",
+            "function_name": "Kor usage",
+            "explanation": "Kor is a tool designed to discover unused Kubernetes resources including ConfigMaps, Secrets, Services, and more, which plays a crucial role in container orchestration by helping optimize the resources in Kubernetes environments."
+          },
+          {
+            "file_path": "5yKSzR9Cf2cbhCcURebUnc/count.ts",
+            "repository_name": "Deno KV Template",
+            "github_username": "user1",
+            "function_name": "handler",
+            "explanation": "This code defines a server-side handler for a POST request that updates a count in a Deno KV database, demonstrating web application development using serverless functions."
+          },
+          {
+            "file_path": "5yKSzR9Cf2cbhCcURebUnc/db.ts",
+            "repository_name": "Deno KV Template",
+            "github_username": "user1",
+            "function_name": "setCount",
+            "explanation": "This function is responsible for setting a new count in the Deno KV database, illustrating how to interact with a cloud-native database from a web application."
+          },
+          {
+            "file_path": "5yKSzR9Cf2cbhCcURebUnc/README.md",
+            "repository_name": "Deno KV Template",
+            "github_username": "user1",
+            "function_name": "Deno KV Overview",
+            "explanation": "The README provides an overview of building web applications with Deno and Fresh, detailing the usage of APIs for database interactions, a key aspect of cloud-native development."
+          },
+          {
+            "file_path": "XtnKDQcTf7F2sbGGYrgJ4b/README.md",
+            "repository_name": "Kor",
+            "github_username": "yonahd",
+            "function_name": "Kor functionality",
+            "explanation": "Kor is a tool for discovering orphaned resources in Kubernetes environments, showcasing how microservices can manage cloud-native architectures by efficiently utilizing resources."
+          },
+          {
+            "file_path": "XtnKDQcTf7F2sbGGYrgJ4b/README.md",
+            "repository_name": "kor",
+            "github_username": "yonahd",
+            "function_name": "kubeconfig",
+            "explanation": "The README describes a tool called 'Kor' for managing Kubernetes resources, which is relevant to CI/CD environments where Kubernetes is used for deployment."
+          },
+          {
+            "file_path": "FeE2mBmZU3jpoMvDXnSnYa/README.md",
+            "repository_name": "cloud-database-examples",
+            "github_username": "user123",
+            "function_name": "database_management",
+            "explanation": "The README details examples of using PostgreSQL and MongoDB in a cloud native architecture, demonstrating experience with both relational and non-relational databases."
+          },
+          {
+            "file_path": "FeE2mBmZU3jpoMvDXnSnYa/db.ts",
+            "repository_name": "cloud-database-examples",
+            "github_username": "user123",
+            "function_name": "getCount",
+            "explanation": "This function retrieves a count from a Deno KV data store, indicating the use of a key-value store that can complement relational databases in cloud environments."
+          }
+        ]
+      },
+      {
+        "id": "670480c80b6f35d94b92ba7f",
+        "name": "Jhovan Daniel",
+        "email": "jhovanedaniel@gmail.com",
+        "github_link": "https://github.com/JhovanDaniel",
+        "skills_matched": [
+          "Strong understanding of event-driven architecture and distributed systems",
+          "Experience with web application development using cloud native technologies such as microservices, APIs, and serverless functions"
+        ],
+        "match_score": 18.181818181818183,
+        "matches": [
+          {
+            "file_path": "application.js",
+            "repository_name": "app",
+            "github_username": "unknown",
+            "function_name": "initialize",
+            "explanation": "This file initializes the Stimulus application, which can be part of an event-driven architecture by responding to DOM events."
+          },
+          {
+            "file_path": "hello_controller.js",
+            "repository_name": "app",
+            "github_username": "unknown",
+            "function_name": "connect",
+            "explanation": "This function in the controller sets up event listener behaviour, exemplifying event-driven architecture in web applications."
+          },
+          {
+            "file_path": "environment.rb",
+            "repository_name": "app",
+            "github_username": "unknown",
+            "function_name": "initialize",
+            "explanation": "This file is responsible for initializing the Rails application, which can serve as a backbone for distributed systems."
+          },
+          {
+            "file_path": "application.js",
+            "repository_name": "unknown",
+            "github_username": "unknown",
+            "function_name": "Application.start",
+            "explanation": "Starts the Stimulus JavaScript framework for building web applications, aligning with the cloud-native philosophy of modular and easily manageable components."
+          },
+          {
+            "file_path": "hello_controller.js",
+            "repository_name": "unknown",
+            "github_username": "unknown",
+            "function_name": "connect",
+            "explanation": "A simple controller that modifies the DOM, showing basic interaction handling in a web application."
+          },
+          {
+            "file_path": "index.js",
+            "repository_name": "unknown",
+            "github_username": "unknown",
+            "function_name": "application.register",
+            "explanation": "Registers a Stimulus controller to an application, demonstrating modular design suitable for microservices."
+          },
+          {
+            "file_path": "package.json",
+            "repository_name": "unknown",
+            "github_username": "unknown",
+            "function_name": "dependencies",
+            "explanation": "Defines dependencies for the application, including backend frameworks, indicating the use of cloud-native technologies."
+          }
+        ]
+      },
+      {
+        "id": "67203ab77646d00b2402c637",
+        "name": "Chaeeun Ryu",
+        "email": "cr3413@columbia.edu",
+        "github_link": "",
+        "skills_matched": [
+          "Strong understanding of event-driven architecture and distributed systems",
+          "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust"
+        ],
+        "match_score": 18.181818181818183,
+        "matches": [
+          {
+            "file_path": "1_CircularQueue.py",
+            "repository_name": "data-structures",
+            "github_username": "unknown",
+            "function_name": "enqueue",
+            "explanation": "The enqueue function implements the logic to add an element to a circular queue in Python. This function showcases programming skills in Python."
+          },
+          {
+            "file_path": "2_splay_tree_proffessional.py",
+            "repository_name": "data-structures",
+            "github_username": "AlgorithmTutor",
+            "function_name": "__search_tree_helper",
+            "explanation": "The __search_tree_helper function implements a splay tree search algorithm in Python, demonstrating programming skills in Python."
+          },
+          {
+            "file_path": "4_app.py",
+            "repository_name": "flask-web-app",
+            "github_username": "unknown",
+            "function_name": "index",
+            "explanation": "The index function serves the main route of a Flask web application, showcasing skills in Python web development."
+          },
+          {
+            "file_path": "5_red_black_tree.py",
+            "repository_name": "data-structures",
+            "github_username": "unknown",
+            "function_name": "search_tree_helper",
+            "explanation": "The search_tree_helper function searches a value in a Red-Black tree implemented in Python, illustrating advanced programming skills."
+          },
+          {
+            "file_path": "3_array_queue.py",
+            "repository_name": "data-structures",
+            "github_username": "unknown",
+            "function_name": "enqueue",
+            "explanation": "This function adds an element to a queue, showcasing an implementation of a queue data structure in Python."
+          },
+          {
+            "file_path": "amp_ddp_unet.py",
+            "repository_name": "Medical Vision Lab",
+            "github_username": "team_medvision",
+            "function_name": "init_distributed",
+            "explanation": "This function initializes distributed training for event-driven architecture using NVIDIA's DDP for multi-GPU training."
+          },
+          {
+            "file_path": "psp_net.py",
+            "repository_name": "Medical Vision Lab",
+            "github_username": "team_medvision",
+            "function_name": "save_checkpoint",
+            "explanation": "This function saves model checkpoints which can be used for recovery and analysis in distributed systems, ensuring that model states are preserved during event-driven processes."
+          }
+        ]
+      },
+      {
+        "id": "67201dfe7646d00b2402c633",
+        "name": "Mihika Riya Sanghvi",
+        "email": "mrs2356@columbia.edu",
+        "github_link": "https://github.com/mihikasanghvi/Image-Classification-using-Vision-Transformer",
+        "skills_matched": [],
+        "match_score": 0.0,
+        "matches": []
+      }
+    ]
+  }
+}

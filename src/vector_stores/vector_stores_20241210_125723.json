@@ -1,0 +1,24 @@
+[
+  {
+    "user_id": "66e34478261016236189c86a",
+    "github_username": "donbool",
+    "github_url": "https://github.com/donbool",
+    "vector_store_id": "vs_ujz64WM1zqEiGU011A8iVg3c",
+    "file_count": {
+      "completed": 68,
+      "failed": 67,
+      "total": 135
+    },
+    "repositories": [
+      "donbool/CleverHealth",
+      "donbool/counter-assignment",
+      "donbool/donbool",
+      "donbool/EEG_seizure_detect",
+      "donbool/git-enterprise-strategies",
+      "donbool/miltest",
+      "donbool/museum_engine",
+      "donbool/observability",
+      "donbool/UF-YIT",
+      "donbool/wad_study"
+    ],
+    "created_at": 

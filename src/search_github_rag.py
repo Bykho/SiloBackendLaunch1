@@ -12,6 +12,11 @@ from datetime import datetime
 import json
 import time
 import logging
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import List, Dict, Tuple, Optional
+
+# Import MongoDB
+from . import mongo  # Adjust based on your project structure
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -32,80 +37,95 @@ def load_environment():
     openai.api_key = openai_api_key
     return github_token
 
-def create_assistant(client, name, instructions, model):
-    """
-    Create an Assistant via the OpenAI SDK.
-    """
+def create_assistant(client, name: str, instructions: str, model: str) -> str:
+    """Create an Assistant via the OpenAI SDK."""
     try:
         assistant = client.beta.assistants.create(
             name=name,
             instructions=instructions,
-            model=model
+            model=model,
+            tools=[{"type": "file_search"}]
         )
+        logger.info(f"Created new assistant: {assistant.id}")
         return assistant.id
     except Exception as e:
         logger.error(f"Error creating assistant: {e}")
-        raise e
+        raise
 
-def create_thread(client, assistant_id):
-    """
-    Create a Thread.
-    """
+def create_thread(client) -> str:
+    """Create a Thread."""
     try:
         thread = client.beta.threads.create()
+        logger.info(f"Created thread: {thread.id}")
         return thread.id
     except Exception as e:
         logger.error(f"Error creating thread: {e}")
-        raise e
+        raise
 
-def add_message_to_thread(client, thread_id, role, content):
-    """
-    Add a message to a Thread.
-    """
+def get_or_create_thread(client, user_id: str) -> str:
+    """Retrieve an existing thread for the user or create a new one."""
+    try:
+        # Check for an existing thread
+        thread_record = mongo.db.threads.find_one({"user_id": user_id})
+        
+        if thread_record:
+            try:
+                # Verify the thread still exists in OpenAI
+                client.beta.threads.retrieve(thread_record['thread_id'])
+                logger.info(f"Using existing thread {thread_record['thread_id']} for user {user_id}")
+                return thread_record['thread_id']
+            except Exception as e:
+                # Thread doesn't exist in OpenAI, create a new one
+                logger.warning(f"Thread not found in OpenAI for user {user_id}, creating new thread")
+                mongo.db.threads.delete_one({"_id": thread_record['_id']})
+        
+        # Create a new thread
+        new_thread_id = create_thread(client)
+        
+        # Store the association
+        mongo.db.threads.insert_one({
+            "user_id": user_id,
+            "thread_id": new_thread_id,
+            "created_at": datetime.utcnow()
+        })
+        
+        logger.info(f"Created new thread {new_thread_id} for user {user_id}")
+        return new_thread_id
+        
+    except Exception as e:
+        logger.error(f"Error in get_or_create_thread for user {user_id}: {e}")
+        raise
+
+def add_message_to_thread(client, thread_id: str, role: str, content: str) -> str:
+    """Add a message to a Thread."""
     try:
         message = client.beta.threads.messages.create(
             thread_id=thread_id,
             role=role,
             content=content
         )
+        logger.info(f"Added message to thread {thread_id}")
         return message.id
     except Exception as e:
         logger.error(f"Error adding message to thread: {e}")
-        raise e
+        raise
 
-def run_assistant(client, thread_id, assistant_id, instructions=None):
-    """
-    Run the Assistant on the specified Thread.
-    """
+def run_assistant(client, thread_id: str, assistant_id: str, instructions: Optional[str] = None) -> str:
+    """Run the Assistant on the specified Thread."""
     try:
         run = client.beta.threads.runs.create(
             thread_id=thread_id,
             assistant_id=assistant_id,
             instructions=instructions
         )
+        logger.info(f"Created run {run.id} for thread {thread_id}")
         return run.id
     except Exception as e:
         logger.error(f"Error creating run: {e}")
-        raise e
+        raise
 
-def poll_run_status(client, thread_id, run_id, timeout=300, interval=5):
-    """
-    Poll the Run status until completion or timeout.
-    
-    Args:
-        client: OpenAI client instance
-        thread_id: ID of the thread
-        run_id: ID of the run to poll
-        timeout: Maximum time to poll in seconds (default: 300)
-        interval: Time between polling attempts in seconds (default: 5)
-        
-    Returns:
-        tuple: (run object, list of messages)
-        
-    Raises:
-        ValueError: If the run fails, is cancelled, or requires action
-        TimeoutError: If polling exceeds the timeout period
-    """
+def poll_run_status(client, thread_id: str, run_id: str, timeout: int = 300, interval: int = 1) -> Tuple:
+    """Poll the Run status until completion or timeout."""
     try:
         start_time = time.time()
         while True:
@@ -113,26 +133,25 @@ def poll_run_status(client, thread_id, run_id, timeout=300, interval=5):
             logger.info(f"Run status: {run.status}")
             
             if run.status == 'completed':
-                # Fetch messages after completion
                 messages = client.beta.threads.messages.list(thread_id=thread_id)
                 return run, messages
+                
             elif run.status == 'requires_action':
+                error_msg = f"Run {run_id} requires action"
                 if run.required_action:
-                    raise ValueError(f"Run {run_id} requires action: {run.required_action}")
-                else:
-                    raise ValueError(f"Run {run_id} requires action but no action specified")
+                    error_msg += f": {run.required_action}"
+                raise ValueError(error_msg)
+                
             elif run.status in ['failed', 'cancelled', 'expired']:
                 error_msg = f"Run {run_id} ended with status: {run.status}"
                 if run.last_error:
                     error_msg += f", Error: {run.last_error}"
-                if run.status == 'incomplete' and run.incomplete_details:
-                    error_msg += f", Details: {run.incomplete_details}"
                 raise ValueError(error_msg)
+                
             elif run.status not in ['queued', 'in_progress', 'cancelling']:
                 raise ValueError(f"Run {run_id} has unexpected status: {run.status}")
                 
-            elapsed = time.time() - start_time
-            if elapsed > timeout:
+            if time.time() - start_time > timeout:
                 raise TimeoutError(f"Polling timed out after {timeout} seconds")
                 
             time.sleep(interval)
@@ -141,157 +160,235 @@ def poll_run_status(client, thread_id, run_id, timeout=300, interval=5):
         logger.error(f"Error polling run status: {e}")
         raise
 
-def validate_json_response(content):
-    """
-    Validate that the content is a JSON with the required structure.
-    """
+def attach_vector_store(client, assistant_id: str, vector_store_idx: str):
+    """Attach a vector store to the assistant."""
     try:
-        data = json.loads(content)
-        if 'matches' not in data:
-            logger.error("JSON response does not contain 'matches' key.")
-            return False
-        for match in data['matches']:
-            required_keys = ['file_path', 'repository_name', 'github_username', 'function_name', 'score', 'explanation']
-            if not all(key in match for key in required_keys):
-                logger.error(f"Match missing required keys: {match}")
-                return False
-        return True
-    except json.JSONDecodeError as e:
-        logger.error(f"Invalid JSON response: {e}")
-        return False
+        client.beta.assistants.update(
+            assistant_id=assistant_id,
+            tool_resources={"file_search": {"vector_store_ids": [vector_store_idx]}}
+        )
+        logger.info(f"Attached vector store {vector_store_idx} to assistant {assistant_id}")
+        time.sleep(1)  # Wait for attachment to take effect
+    except Exception as e:
+        logger.error(f"Error attaching vector store: {e}")
+        raise
 
-def extract_search_results(run_output, threshold):
+def detach_vector_store(client, assistant_id: str):
+    """Detach all vector stores from the assistant."""
+    try:
+        client.beta.assistants.update(
+            assistant_id=assistant_id,
+            tool_resources={"file_search": {"vector_store_ids": []}}
+        )
+        logger.info(f"Detached vector stores from assistant {assistant_id}")
+    except Exception as e:
+        logger.error(f"Error detaching vector store: {e}")
+        raise
+
+def extract_search_results(run_output: Tuple, skill: str) -> List[Dict]:
     """
-    Extract and group search results by user_id based on threshold.
+    Extract search results from the assistant's response and format with skill context.
+    Now includes the skill that was searched for in each match.
     """
     try:
         _, messages = run_output
         
-        # Get all assistant messages
+        # Get last assistant message
         assistant_messages = [msg for msg in messages if msg.role == 'assistant']
         if not assistant_messages:
-            logger.info("No assistant messages found.")
-            return {}
+            return []
             
         last_message = assistant_messages[-1]
         content = last_message.content[0].text.value if isinstance(last_message.content, list) else last_message.content
-        logger.info(f"Message content: {content}")
         
-        # Validate JSON
-        if not validate_json_response(content):
-            logger.error("JSON response validation failed.")
-            return {}
+        logger.info(f"Raw response content: {content}")
         
-        data = json.loads(content)
-        matches = [m for m in data.get('matches', []) if m.get('score', 0) >= threshold]
-        logger.info(f"Filtered to {len(matches)} matches with score >= {threshold}.")
-
-        # Aggregate by user_id
-        aggregated = {}
-        for match in matches:
-            encoded_path = match.get('file_path', '')
-            user_id = encoded_path.split('_')[0] if '_' in encoded_path else 'unknown_user'
-            if user_id not in aggregated:
-                aggregated[user_id] = {
-                    'user_id': user_id,
-                    'github_username': match.get('github_username', 'N/A'),
-                    'matches': []
-                }
-            aggregated[user_id]['matches'].append(match)
+        # Extract JSON from content
+        try:
+            # Try to parse as plain JSON first
+            data = json.loads(content)
+        except json.JSONDecodeError:
+            # If that fails, try to extract JSON from markdown
+            if '```json' in content:
+                json_content = content.split('```json')[1].split('```')[0].strip()
+                data = json.loads(json_content)
+            else:
+                logger.error("Could not extract JSON from response")
+                return []
         
-        return aggregated
+        if 'matches' in data:
+            matches = data['matches']
+            # Add skill context to each match
+            formatted_matches = []
+            for match in matches:
+                formatted_matches.append({
+                    'skill': skill,
+                    'file_path': match.get('file_path', ''),
+                    'explanation': match.get('explanation', '')
+                })
+            logger.info(f"Found {len(formatted_matches)} matches for skill {skill}")
+            return formatted_matches
+        
+        return []
     
     except Exception as e:
         logger.error(f"Error extracting search results: {e}")
-        raise ValueError(f"Error processing assistant response: {str(e)}")
+        return []
 
+def search_with_retries(client, thread_id: str, assistant_id: str, vector_store_idx: str, skill: str, max_retries: int = 3) -> List[Dict]:
+    """Search for a skill with retries and exponential backoff using an existing thread."""
+    retry_count = 0
+    base_delay = 2
+    
+    while retry_count < max_retries:
+        try:
+            # Add message to thread
+            add_message_to_thread(client, thread_id, "user", f"Search for code related to: {skill}")
+            
+            # Create and wait for run to complete
+            run_id = run_assistant(client, thread_id, assistant_id)
+            run_output = poll_run_status(client, thread_id, run_id)
+            
+            # Extract results before cleaning up
+            results = extract_search_results(run_output, skill)  # Pass skill to extract_search_results
+            
+            # Clean up messages
+            try:
+                messages = client.beta.threads.messages.list(thread_id=thread_id)
+                for msg in messages.data:
+                    try:
+                        client.beta.threads.messages.delete(thread_id=thread_id, message_id=msg.id)
+                    except Exception as e:
+                        logger.warning(f"Failed to delete message {msg.id}: {e}")
+                        continue
+                logger.info(f"Cleaned up messages for thread {thread_id}")
+            except Exception as e:
+                logger.warning(f"Failed to clean thread messages: {e}")
+            
+            return results
 
-def fetch_code_from_github(g, metadata, console):
-    """
-    Fetch code content from GitHub using the metadata.
-    Returns tuple of (code_content, context_content, error_message)
-    """
+        except Exception as e:
+            retry_count += 1
+            if retry_count == max_retries:
+                logger.error(f"Failed after {max_retries} attempts for skill '{skill}': {e}")
+                return []
+
+            delay = base_delay * (2 ** (retry_count - 1))
+            logger.warning(f"Attempt {retry_count} failed for skill '{skill}', retrying in {delay} seconds...")
+            time.sleep(delay)
+            
+    return []
+
+def process_vector_store(client, assistant_id: str, store: Dict, skills: List[str]) -> Tuple[str, Dict]:
+    """Process a single vector store with proper error handling and rate limiting."""
+    user_id = store.get('user_id')
+    vector_store_idx = store.get('vectorstore_idx')
+    
+    if not user_id or not vector_store_idx:
+        raise ValueError(f"Missing required fields in store: {store}")
+        
+    logger.info(f"Processing vector store {vector_store_idx} for user {user_id}")
+    results = {'matches': [], 'skills_matched': set()}
+    
     try:
-        username = metadata.get('github_username')
-        repo_name = metadata.get('repository_name')
-        file_path = metadata.get('file_path')
-        function_name = metadata.get('function_name', 'N/A')
+        # Get or create thread
+        thread_id = get_or_create_thread(client, user_id)
+        logger.info(f"Using thread {thread_id} for user {user_id}")
         
-        if not all([username, repo_name, file_path]):
-            logger.error(f"Missing metadata fields. Received metadata: {metadata}")
-            return None, None, "Incomplete metadata for fetching code."
+        # Attach vector store
+        attach_vector_store(client, assistant_id, vector_store_idx)
+        logger.info(f"Attached vector store {vector_store_idx}")
         
-        # Hardcode branch selection
-        if repo_name == "SiloBackendLaunch1":
-            branch = "Development"
-        else:
-            branch = "main"
-        
-        # Get repository and file content
-        repo = g.get_repo(f"{username}/{repo_name}")
-        file_content = repo.get_contents(file_path, ref=branch)
-        decoded_content = base64.b64decode(file_content.content).decode('utf-8')
-        
-        # If it's a README, return the whole file
-        if os.path.basename(file_path).lower() == 'readme.md':
-            return decoded_content, None, None
-            
-        # Split into lines for processing
-        lines = decoded_content.split('\n')
-        
-        # Initialize result containers
-        main_content = []
-        context_content = []
-        in_target = False
-        current_function = None
-        bracket_count = 0
-        
-        # Process line by line
-        for line in lines:
-            # Check for function/class definitions
-            is_def_line = False
-            if function_name != 'N/A':
-                is_def_line = any(
-                    f"{def_type} {function_name}" in line 
-                    for def_type in ['def', 'class', 'function', 'const', 'let', 'var']
+        # Process skills sequentially within each vector store
+        for skill in skills:
+            try:
+                matches = search_with_retries(
+                    client,
+                    thread_id,
+                    assistant_id,
+                    vector_store_idx,
+                    skill
                 )
-            
-            if is_def_line:
-                in_target = True
-                current_function = line
-                bracket_count = line.count('{') - line.count('}')
-                main_content.append(line)
-            elif in_target:
-                bracket_count += line.count('{') - line.count('}')
-                main_content.append(line)
                 
-                # Check if we've reached the end of the function
-                if bracket_count <= 0 and line.strip() == '' and current_function:
-                    in_target = False
-                    current_function = None
-            else:
-                # Store potential context (imports, global variables, etc.)
-                if any(context_item in line for context_item in ['import ', 'from ', 'require', 'const ', 'let ', 'var ']):
-                    context_content.append(line)
-
-        main_code = '\n'.join(main_content)
-        context = '\n'.join(context_content) if context_content else None
-        
-        return main_code, context, None
-            
+                if matches:
+                    results['matches'].extend(matches)
+                    results['skills_matched'].add(skill)
+                    logger.info(f"Found matches for skill '{skill}'")
+                
+                # Add delay between skills
+                time.sleep(0.1)
+                
+            except Exception as e:
+                logger.error(f"Error processing skill '{skill}': {e}")
+                continue
+    
     except Exception as e:
-        logger.error(f"Error fetching code from GitHub: {e}")
-        return None, None, f"Error fetching code: {str(e)}"
+        logger.error(f"Error processing vector store {vector_store_idx}: {e}")
+        raise
+    finally:
+        try:
+            detach_vector_store(client, assistant_id)
+            logger.info(f"Detached vector store {vector_store_idx}")
+        except Exception as e:
+            logger.error(f"Error detaching vector store {vector_store_idx}: {e}")
+    
+    return user_id, results
 
-def create_results_directory():
-    """Create a directory for storing search results if it doesn't exist."""
+def search_across_stores(client, assistant_id: str, vector_stores: List[Dict], skills: List[str], max_workers: int = 3) -> Dict:
+    """
+    Coordinate searching across all vector stores in parallel with proper error handling.
+    
+    Args:
+        client: OpenAI client instance
+        assistant_id: ID of the assistant to use
+        vector_stores: List of vector store configurations
+        skills: List of skills to search for
+        max_workers: Maximum number of concurrent threads (default: 3)
+    
+    Returns:
+        Dict containing search results for each user
+    """
+    results = {}
+    total_stores = len(vector_stores)
+    completed_stores = 0
+    
+    # Using ThreadPoolExecutor for parallel processing
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        # Submit all tasks to the executor
+        future_to_store = {
+            executor.submit(
+                process_vector_store,
+                client,
+                assistant_id,
+                store,
+                skills
+            ): store for store in vector_stores
+        }
+        
+        # Process completed futures as they finish
+        for future in as_completed(future_to_store):
+            store = future_to_store[future]
+            try:
+                user_id, store_results = future.result()
+                results[user_id] = store_results
+                completed_stores += 1
+                logger.info(f"Completed processing for user {user_id} ({completed_stores}/{total_stores})")
+                time.sleep(2)  # Add delay between vector stores
+                
+            except Exception as e:
+                logger.error(f"Error processing store for user {store['user_id']}: {e}")
+                continue
+    
+    return results
+
+def create_results_directory() -> str:
+    """Create a directory for storing search results."""
     results_dir = "search_results"
-    if not os.path.exists(results_dir):
-        os.makedirs(results_dir)
+    os.makedirs(results_dir, exist_ok=True)
     return results_dir
 
-def write_results_to_file(query, aggregated_matches):
-    """Write aggregated search results to a JSON file."""
+def write_results_to_file(query: str, results: Dict) -> str:
+    """Write search results to a JSON file."""
     results_dir = create_results_directory()
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = os.path.join(results_dir, f"search_results_{timestamp}.json")
@@ -299,161 +396,7 @@ def write_results_to_file(query, aggregated_matches):
     with open(filename, 'w', encoding='utf-8') as f:
         json.dump({
             'query': query,
-            'results': aggregated_matches
+            'results': results
         }, f, indent=2)
     
     return filename
-
-
-def display_result(console, idx, match, code_content, context_content):
-    """Display a single search result with syntax highlighting."""
-    file_path = match.get('file_path', 'Unknown File')
-    function_name = match.get('function_name', 'N/A')
-    username = match.get('github_username', 'N/A')
-    repo_name = match.get('repository_name', 'N/A')
-    
-    # Determine the language for syntax highlighting
-    extension = os.path.splitext(file_path)[1][1:]
-    if extension in ['js', 'jsx', 'ts', 'tsx']:
-        language = 'javascript'
-    elif extension == 'py':
-        language = 'python'
-    else:
-        language = extension if extension else 'text'
-
-    # Create header with metadata
-    header = f"Result {idx}"
-    metadata_text = textwrap.dedent(f"""
-        File: {file_path}
-        Function: {function_name}
-        Repository: {username}/{repo_name}
-        Match Score: {match.get('score', 0):.3f}
-    """)
-    
-    # Display the result in a panel
-    console.print(Panel(metadata_text, title=header, title_align="left"))
-    
-    # Display context if available
-    if context_content:
-        console.print("Context:")
-        console.print(Syntax(context_content, language, theme="monokai", line_numbers=True))
-    
-    # Display main code content
-    if code_content:
-        console.print("Code:")
-        console.print(Syntax(code_content, language, theme="monokai", line_numbers=True))
-    
-    console.print("\n")
-
-
-def main():
-    # Parse command-line arguments
-    parser = argparse.ArgumentParser(description="Search GitHub RAG for relevant files.")
-    parser.add_argument('query', type=str, help='Search query')
-    args = parser.parse_args()
-    
-    # Initialize console for rich output
-    console = Console()
-    
-    try:
-        # Load environment variables and initialize GitHub client
-        github_token = load_environment()
-        g = Github(github_token)
-        
-        # Initialize OpenAI client
-        client = openai.OpenAI(api_key=openai.api_key)
-        
-        # Define your assistant_id and vector_store_id (replace with your actual IDs)
-        assistant_id = "asst_hUjlVpcx3CKjAlvmFOgjjsbf"
-        vector_store_id = "vs_uOiITYpmod1DxYVABOVaC8Xj"  # Your existing vector store ID
-        
-        # Step 1: Create a Thread
-        console.print("🔍 Creating a thread with your query...\n")
-        thread_id = create_thread(client, assistant_id)
-        console.print(f"✅ Created thread with ID: {thread_id}\n")
-        
-        # Step 2: Add Message to Thread
-        console.print("✍️ Adding your query to the thread...\n")
-        add_message_to_thread(client, thread_id, role="user", content=args.query)
-        console.print("✅ Added message to thread.\n")
-        
-        # Step 3: Create a Run on the Thread
-        instructions = """
-        Provide your response in a JSON format with a key called "matches". Each match should be an object containing the following fields:
-        - file_path: The path to the file in the repository (e.g., "backend/models.py").
-        - repository_name: The name of the GitHub repository (e.g., "SiloBackendLaunch1").
-        - github_username: The GitHub username of the repository owner (e.g., "Bykho").
-        - function_name: The name of the function if applicable (e.g., "get_user"). Use "N/A" if not applicable.
-        - score: A relevance score between 0 and 1 (e.g., 0.95).
-        - explanation: A brief explanation of how this file relates to the query.
-        
-        **Important:** Do not include any additional text or explanations outside the JSON object. The entire response should be valid JSON only.
-        
-        Example Response:
-        {
-            "matches": [
-                {
-                    "file_path": "backend/models.py",
-                    "repository_name": "SiloBackendLaunch1",
-                    "github_username": "Bykho",
-                    "function_name": "get_user",
-                    "score": 0.95,
-                    "explanation": "This function handles user retrieval from the database, which is relevant to managing relational databases."
-                },
-                {
-                    "file_path": "frontend/app.js",
-                    "repository_name": "SiloFrontendLaunch1",
-                    "github_username": "Bykho",
-                    "function_name": "initializeApp",
-                    "score": 0.90,
-                    "explanation": "Initializes the application and connects to MongoDB, demonstrating non-relational database usage."
-                }
-            ]
-        }
-        """
-        console.print("🛠️ Creating a run on the thread...\n")
-        run_id = run_assistant(client, thread_id, assistant_id, instructions)
-        console.print(f"✅ Created run with ID: {run_id}\n")
-        
-        # Step 4: Poll the Run Status until completion
-        console.print("🔄 Polling run status...")
-        run_and_messages = poll_run_status(client, thread_id, run_id)
-        console.print("✅ Run completed.\n")
-        
-        # Step 5: Extract and Aggregate search results
-        threshold = 0.4  # Similarity score threshold
-        aggregated_matches = extract_search_results(run_and_messages, threshold)
-
-        if not aggregated_matches:
-            console.print("ℹ️ No relevant file matches found in the response.")
-            # Optionally display assistant's message
-            return
-
-        # Step 6: Process aggregated matches for scoring
-        for user_id, user_data in aggregated_matches.items():
-            scores = [match['score'] for match in user_data['matches']]
-            user_data['total_score'] = sum(scores) / len(scores) if scores else 0
-
-        # Step 7: Display aggregated results and collect codes
-        console.print(f"📄 Displaying results for {len(aggregated_matches)} users:\n")
-        for idx, (user_id, user_data) in enumerate(aggregated_matches.items(), 1):
-            console.print(f"[bold green]User {idx}: {user_data['github_username']} (ID: {user_id})[/bold green]")
-            console.print(f"Total Score: {user_data['total_score']:.2f}\n")
-            for match_idx, match in enumerate(user_data['matches'], 1):
-                code_content, context_content, error = fetch_code_from_github(g, match, console)
-                if error:
-                    console.print(f"[red]Error for match {match_idx}: {error}[/red]\n")
-                    continue
-                display_result(console, match_idx, match, code_content, context_content)
-            console.print("\n" + "=" * 80 + "\n")
-
-        # Step 8: Write aggregated results to file
-        output_file = write_results_to_file(args.query, aggregated_matches)
-        console.print(f"\n✅ Aggregated results have been saved to: {output_file}")
-            
-    except Exception as e:
-        console.print(f"[red]Error: {str(e)}[/red]")
-
-
-if __name__ == '__main__':
-    main()

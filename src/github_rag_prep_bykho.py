@@ -9,7 +9,6 @@ import re
 from typing import List, Dict
 import time
 import tempfile
-from tqdm import tqdm  # For progress bars
 import pymongo
 from bson import ObjectId
 import bson.errors
@@ -20,20 +19,22 @@ EXCLUDED_PATTERNS = [
     r'build', r'target', r'bin', r'public', r'static', r'tests?',
     r'docs?', r'examples?', r'\.env$', r'\.prettierrc$', r'\.eslintrc$',
     r'tsconfig\.json$', r'package\.json$', r'yarn\.lock$', r'\.gitignore$',
-    r'LICENSE$', r'CHANGELOG\.md$', r'CONTRIBUTING\.md$', r'\.DS_Store$',
+    r'LICENSE$', r'CHANGELOG\.md$', r'CONTRIBUTING\.md$', r'\.DS_Store$', 
     r'\.log$', r'\.min\.js$'
 ]
 
 PRIORITIZED_EXTENSIONS = [
     '.js', '.ts', '.py', '.java', '.cpp', '.c', 
     '.php', '.rb', '.css', '.html', '.md', '.txt',
-    '.json', '.xml', '.cs', '.tsx', '.jsx', '.css'  # Only include extensions that OpenAI supports
+    '.json', '.xml', '.cs', '.tsx', '.jsx'
 ]
-
 
 REPO_BRANCH_MAPPING = {
     "Bykho/SiloBackendLaunch1": "Development"
 }
+
+MAX_RETRIES = 40
+BATCH_SIZE = 50  # Reduced batch size from 100 to 50
 
 def load_environment():
     """Load environment variables and set API keys."""
@@ -59,15 +60,13 @@ def is_virtual_env(contents):
             return True
     return False
 
-
 def should_process_file(file_path):
     """Determine if a file should be processed based on patterns."""
     _, ext = os.path.splitext(file_path)
-    ext = ext.lower()
-    return ext in PRIORITIZED_EXTENSIONS
+    return ext.lower() in PRIORITIZED_EXTENSIONS
 
 def get_repository_files(repo, user_id, github_username, repo_name, console, github_client, branch='main'):
-    """Get all relevant files from a repository, embedding user_id as a directory prefix."""
+    """Get all relevant files from a repository, excluding virtual environments and binary files."""
     files_data = []
 
     def process_contents(contents, current_path=""):
@@ -88,13 +87,20 @@ def get_repository_files(repo, user_id, github_username, repo_name, console, git
                     reset_time = github_client.rate_limiting_resettime
                     sleep_time = reset_time - time.time() + 5
                     if sleep_time > 0:
-                        console.print(f"[red]Rate limit exceeded. Sleeping for {int(sleep_time)} seconds...[/red]")
+                        console.print(f"[red]GitHub API rate limit exceeded. Sleeping for {int(sleep_time)} seconds...[/red]")
                         time.sleep(sleep_time)
-                    process_contents(repo.get_contents(content.path, ref=branch), current_path=content.path)
+                    try:
+                        dir_contents = repo.get_contents(content.path, ref=branch)
+                        process_contents(dir_contents, current_path=content.path)
+                    except Exception as e:
+                        console.print(f"[red]Error accessing directory {content.path} after rate limit reset: {e}[/red]")
+                        continue
                 except UnknownObjectException:
-                    console.print(f"[red]Directory {content.path} not found.[/red]")
+                    console.print(f"[red]Directory {content.path} not found. It might have been removed or is inaccessible.[/red]")
+                    continue
                 except Exception as e:
-                    console.print(f"[red]Error accessing {content.path}: {e}[/red]")
+                    console.print(f"[red]Error accessing directory {content.path}: {e}[/red]")
+                    continue
 
             elif content.type == "file" and should_process_file(content.path):
                 try:
@@ -102,7 +108,6 @@ def get_repository_files(repo, user_id, github_username, repo_name, console, git
                     if not file_content.strip():
                         console.print(f"[yellow]Skipping empty file: {content.path}[/yellow]")
                         continue
-                    # Embed user_id as directory prefix
                     encoded_path = f"{user_id}_{github_username}/{repo_name}/{content.path}"
                     files_data.append({
                         'name': content.name,
@@ -121,18 +126,20 @@ def get_repository_files(repo, user_id, github_username, repo_name, console, git
         reset_time = github_client.rate_limiting_resettime
         sleep_time = reset_time - time.time() + 5
         if sleep_time > 0:
-            console.print(f"[red]Rate limit exceeded. Sleeping for {int(sleep_time)} seconds...[/red]")
+            console.print(f"[red]GitHub API rate limit exceeded. Sleeping for {int(sleep_time)} seconds...[/red]")
             time.sleep(sleep_time)
-        contents = repo.get_contents("", ref=branch)
-        process_contents(contents)
+        try:
+            contents = repo.get_contents("", ref=branch)
+            process_contents(contents)
+        except Exception as e:
+            console.print(f"[red]Error accessing repository contents after rate limit reset: {e}[/red]")
+
     except UnknownObjectException:
         console.print(f"[red]Repository {repo.full_name} not found.[/red]")
     except Exception as e:
         console.print(f"[red]Error accessing repository contents: {e}[/red]")
 
     return files_data
-
-
 
 def save_vector_store_info(vector_stores_info):
     """Save vector store information to a JSON file."""
@@ -147,17 +154,34 @@ def save_vector_store_info(vector_stores_info):
     
     return filename
 
-#
-#
-#
-#Appears to be highly deletable
+def save_failed_uploads(failed_files, console):
+    """Save failed upload details to a separate JSON file."""
+    if not failed_files:
+        console.print("[yellow]No failed uploads to save.[/yellow]")
+        return
+    
+    try:
+        output_dir = "failed_uploads"
+        os.makedirs(output_dir, exist_ok=True)
+        console.print(f"[green]Created or verified existence of directory: {output_dir}[/green]")
+        
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = os.path.join(output_dir, f"failed_uploads_{timestamp}.json")
+        
+        with open(filename, 'w') as f:
+            json.dump(failed_files, f, indent=2)
+        
+        console.print(f"\n[yellow]Failed uploads details saved to: {os.path.abspath(filename)}[/yellow]")
+    except Exception as e:
+        console.print(f"[red]Failed to save failed uploads: {e}[/red]")
+
 def create_assistant(console):
     """Create a new Assistant with File Search enabled using a supported model."""
     try:
         assistant = openai.beta.assistants.create(
             name="GitHub Code Assistant",
             instructions="You are an assistant that can answer questions based on GitHub repository files.",
-            model="gpt-4-turbo-preview",  # Use a supported model
+            model="gpt-4-turbo-preview",
             tools=[{"type": "file_search"}],
         )
         console.print(f"[green]Created new assistant: {assistant.id}[/green]")
@@ -166,90 +190,94 @@ def create_assistant(console):
         console.print(f"[red]Error creating assistant: {e}[/red]")
         raise e
 
+def setup_openai_vector_store(assistant_id, vector_store_id, files_data: List[Dict], console: Console, batch_size: int = 50):
+    """Populate an existing OpenAI vector store with repository files in batches with retry logic."""
+    MAX_RETRIES = 10
+    extension_mapping = {
+        '.tsx': '.ts',
+        '.jsx': '.js'
+    }
+    
+    total_files = len(files_data)
+    batch_count = (total_files + batch_size - 1) // batch_size
+    all_file_counts = {
+        'cancelled': 0,
+        'completed': 0,
+        'failed': 0,
+        'in_progress': 0,
+        'total': 0
+    }
 
-def setup_openai_vector_store(assistant_id, vector_store_id, files_data: List[Dict], console: Console, batch_size: int = 450):
-    """Populate an existing OpenAI vector store with repository files in batches."""
-    try:
-        # Extension mapping for unsupported extensions
-        extension_mapping = {
-            '.tsx': '.ts',
-            '.jsx': '.js'
-        }
+    # Dictionary to track retry counts for each file
+    retry_counts = {}
+    # List to store files that have failed after max retries
+    failed_files_list = []
+
+    console.print(f"[blue]Processing {total_files} files in {batch_count} batches[/blue]")
+    
+    for batch_num in range(batch_count):
+        start_idx = batch_num * batch_size
+        end_idx = min((batch_num + 1) * batch_size, total_files)
+        current_batch = files_data[start_idx:end_idx]
         
-        # Process all files in batches
-        total_files = len(files_data)
-        batch_count = (total_files + batch_size - 1) // batch_size  # Calculate number of batches
-        all_file_counts = {
-            'cancelled': 0,
-            'completed': 0,
-            'failed': 0,
-            'in_progress': 0,
-            'total': 0
-        }
+        console.print(f"\n[blue]Processing batch {batch_num + 1}/{batch_count} ({len(current_batch)} files)[/blue]")
         
-        console.print(f"[blue]Processing {total_files} files in {batch_count} batches[/blue]")
-        
-        for batch_num in range(batch_count):
-            start_idx = batch_num * batch_size
-            end_idx = min((batch_num + 1) * batch_size, total_files)
-            current_batch = files_data[start_idx:end_idx]
-            
-            console.print(f"\n[blue]Processing batch {batch_num + 1}/{batch_count} ({len(current_batch)} files)[/blue]")
-            
-            # Create a new temporary directory for this batch
-            temp_dir = tempfile.mkdtemp()
-            file_streams = []
-            
-            try:
-                # Process files in current batch
-                for file in current_batch:
-                    # Extract the original extension in lowercase
-                    _, ext = os.path.splitext(file['name'])
-                    ext = ext.lower()
+        temp_dir = tempfile.mkdtemp()
+        file_streams = []
+        encoded_files = []
 
-                    # Map unsupported extensions to supported ones
-                    if ext in extension_mapping:
-                        ext = extension_mapping[ext]
+        try:
+            for file in current_batch:
+                _, ext = os.path.splitext(file['name'])
+                ext = ext.lower()
 
-                    # Skip if extension is not supported by OpenAI
-                    if ext not in PRIORITIZED_EXTENSIONS:
-                        console.print(f"[yellow]Skipping file with unsupported extension: {file['name']}[/yellow]")
-                        continue
+                if ext in extension_mapping:
+                    ext = extension_mapping[ext]
 
-                    # Ensure the encoded name ends with the correct extension
-                    encoded_name = file['path']  # Retain directory structure
-                    if not encoded_name.endswith(ext):
-                        encoded_name = encoded_name.rsplit('.', 1)[0] + ext
-
-                    temp_path = os.path.join(temp_dir, encoded_name)
-
-                    try:
-                        # Ensure directories exist
-                        os.makedirs(os.path.dirname(temp_path), exist_ok=True)
-                        
-                        # Write content to a temp file
-                        with open(temp_path, 'w', encoding='utf-8') as temp_file:
-                            temp_file.write(file['content'])
-
-                        # Open the renamed file for reading
-                        file_streams.append(open(temp_path, "rb"))
-                        console.print(f"[green]Prepared file: {encoded_name}[/green]")
-                    except Exception as e:
-                        console.print(f"[red]Error preparing file {encoded_name}: {e}[/red]")
-                        continue
-
-                if not file_streams:
-                    console.print("[yellow]No valid files to upload in this batch[/yellow]")
+                if ext not in PRIORITIZED_EXTENSIONS:
+                    console.print(f"[yellow]Skipping file with unsupported extension: {file['name']}[/yellow]")
                     continue
 
-                # Upload current batch
+                encoded_name = file['path'].replace("/", "_").replace("\n", "").replace("\r", "")
+                if not encoded_name.endswith(ext):
+                    encoded_name = encoded_name.rsplit('.', 1)[0] + ext
+
+                temp_path = os.path.join(temp_dir, encoded_name)
+
                 try:
+                    with open(temp_path, 'w', encoding='utf-8') as temp_file:
+                        temp_file.write(file['content'])
+
+                    file_stream = open(temp_path, "rb")
+                    file_streams.append(file_stream)
+                    encoded_files.append(encoded_name)
+                    console.print(f"[green]Prepared file: {encoded_name}[/green]")
+                except Exception as e:
+                    console.print(f"[red]Error preparing file {encoded_name}: {e}[/red]")
+                    retry_counts[encoded_name] = retry_counts.get(encoded_name, 0) + 1
+                    if retry_counts[encoded_name] < MAX_RETRIES:
+                        files_data.append(file)  # Re-queue the file for retry
+                        console.print(f"[yellow]Re-queued file {encoded_name} for retry ({retry_counts[encoded_name]}/{MAX_RETRIES})[/yellow]")
+                    else:
+                        failed_files_list.append({'file': encoded_name, 'error': str(e)})
+                        console.print(f"[red]Max retries reached for file {encoded_name}. Marking as failed.[/red]")
+                    continue
+
+            if not file_streams:
+                console.print("[yellow]No valid files to upload in this batch[/yellow]")
+                continue
+
+            attempt = 0
+            while attempt < MAX_RETRIES:
+                try:
+                    # Add delay before each batch upload to prevent server overload
+                    time.sleep(2)  # 2-second delay before upload
+
                     file_batch = openai.beta.vector_stores.file_batches.upload_and_poll(
                         vector_store_id=vector_store_id,
                         files=file_streams
                     )
                     
-                    # Update total counts
                     all_file_counts['cancelled'] += file_batch.file_counts.cancelled
                     all_file_counts['completed'] += file_batch.file_counts.completed
                     all_file_counts['failed'] += file_batch.file_counts.failed
@@ -257,47 +285,77 @@ def setup_openai_vector_store(assistant_id, vector_store_id, files_data: List[Di
                     all_file_counts['total'] += file_batch.file_counts.total
                     
                     console.print(f"[green]Batch {batch_num + 1} upload complete: {file_batch.file_counts.completed} files processed[/green]")
-                
+                    
+                    if hasattr(file_batch, 'failed_files') and file_batch.failed_files:
+                        for failed in file_batch.failed_files:
+                            file_name = getattr(failed, 'file_name', 'Unknown File')
+                            error_message = getattr(failed, 'error_message', 'Unknown Error')
+                            retry_counts[file_name] = retry_counts.get(file_name, 0) + 1
+                            
+                            if retry_counts[file_name] < MAX_RETRIES:
+                                # Find the original file data
+                                original_file = next((f for f in files_data if f['path'].replace("/", "_") == file_name), None)
+                                if original_file:
+                                    files_data.append(original_file)  # Re-queue for retry
+                                    console.print(f"[yellow]Re-queued failed file {file_name} for retry ({retry_counts[file_name]}/{MAX_RETRIES})[/yellow]")
+                            else:
+                                failed_files_list.append({'file': file_name, 'error': error_message})
+                                console.print(f"[red]Max retries reached for file {file_name}. Marking as failed.[/red]")
+                    
+                    # Add a brief delay after successful upload
+                    time.sleep(1)  # 1-second delay after upload
+                    break  # Exit retry loop if upload is successful
                 except Exception as e:
+                    attempt += 1
                     console.print(f"[red]Error uploading batch {batch_num + 1}: {e}[/red]")
-                    continue
-                
-            finally:
-                # Clean up the current batch's resources
-                for f in file_streams:
-                    try:
-                        path = f.name
-                        f.close()
-                        os.remove(path)
-                    except Exception as e:
-                        console.print(f"[yellow]Error cleaning up file {f.name}: {e}[/yellow]")
-                
+                    if attempt < MAX_RETRIES:
+                        sleep_time = 2 ** attempt
+                        console.print(f"[yellow]Retrying batch {batch_num + 1} (Attempt {attempt}/{MAX_RETRIES}) after {sleep_time} seconds...[/yellow]")
+                        time.sleep(sleep_time)
+                    else:
+                        console.print(f"[red]Max retries reached for batch {batch_num + 1}. Marking all files in this batch as failed.[/red]")
+                        for file in current_batch:
+                            encoded_name = file['path'].replace("/", "_").replace("\n", "").replace("\r", "")
+                            failed_files_list.append({'file': encoded_name, 'error': 'Batch upload failed after maximum retries'})
+        finally:
+            for f in file_streams:
                 try:
-                    os.removedirs(temp_dir)  # Remove directories recursively
+                    path = f.name
+                    f.close()
+                    os.remove(path)
                 except Exception as e:
-                    console.print(f"[yellow]Error removing temp directory: {e}[/yellow]")
+                    console.print(f"[yellow]Error cleaning up file {f.name}: {e}[/yellow]")
+            
+            try:
+                os.rmdir(temp_dir)
+            except Exception as e:
+                console.print(f"[yellow]Error removing temp directory: {e}[/yellow]")
 
-        # After all batches are processed, attach vector store to assistant
-        if all_file_counts['completed'] > 0:
+    # After all batches are processed, attach vector store to assistant
+    if all_file_counts['completed'] > 0:
+        try:
             openai.beta.assistants.update(
                 assistant_id=assistant_id,
                 tool_resources={"file_search": {"vector_store_ids": [vector_store_id]}}
             )
             console.print(f"[green]Attached vector store {vector_store_id} to assistant[/green]")
-            
-            return {
-                'vector_store_id': vector_store_id,
-                'file_count': all_file_counts
-            }
-        else:
-            console.print("[red]No files were successfully uploaded[/red]")
-            return None
-    
-    except Exception as e:
-        console.print(f"[red]Error setting up vector store: {e}[/red]")
+        except Exception as e:
+            console.print(f"[red]Error attaching vector store to assistant: {e}[/red]")
+
+        console.print(f"[blue]Total Files Processed: {all_file_counts['total']}[/blue]")
+        console.print(f"[green]Completed: {all_file_counts['completed']}[/green]")
+        console.print(f"[red]Failed: {all_file_counts['failed']}[/red]")
+        console.print(f"[yellow]Cancelled: {all_file_counts['cancelled']}[/yellow]")
+        console.print(f"[magenta]In Progress: {all_file_counts['in_progress']}[/magenta]")
+        
+        return {
+            'vector_store_id': vector_store_id,
+            'file_count': all_file_counts,
+            'failed_files': failed_files_list  # Include failed files details
+        }
+    else:
+        console.print("[red]No files were successfully uploaded[/red]")
         return None
-
-
 
 def is_valid_objectid(value):
     """Check if the provided value is a valid ObjectId."""
@@ -307,9 +365,10 @@ def is_valid_objectid(value):
     except (bson.errors.InvalidId, TypeError):
         return False
 
-
 def main():
     console = Console()
+    current_dir = os.getcwd()
+    console.print(f"[bold blue]Current Working Directory: {current_dir}[/bold blue]")
     console.print("[bold blue]Starting GitHub Repository Processing...[/bold blue]")
     temp_dir = None
 
@@ -335,17 +394,12 @@ def main():
         first_upload_done = False
 
         try:
-            # Fetch users with GitHub links
-            users = db.users.find({
-                "$or": [
-                    {"github_link": {"$exists": True, "$ne": ""}},
-                    {"personal_website": {"$regex": "github.com", "$options": "i"}}
-                ]
-            })
+            # Fetch only the specified user by _id
+            users = db.users.find({"_id": ObjectId("66bd4c2e74f6118200cf3baa")})
 
-            # Process each user's repositories
+            # Process the user's repositories
             for user in users:
-                if first_upload_done:  # Check the flag to break the loop
+                if first_upload_done:
                     break
 
                 try:
@@ -378,7 +432,6 @@ def main():
                             if sleep_time > 0:
                                 console.print(f"[red]GitHub API rate limit exceeded. Sleeping for {int(sleep_time)} seconds...[/red]")
                                 time.sleep(sleep_time)
-                                # Retry after sleep
                                 for repo in user_data.get_repos():
                                     repositories.append(repo.full_name)
                         
@@ -403,7 +456,7 @@ def main():
                                     total_files += len(files_data)
                                     console.print(f"[green]Collected {len(files_data)} files from {owner}/{repo_name}[/green]")
                                 
-                                time.sleep(0.1)  # Rate limit protection
+                                time.sleep(0.1)
                                 
                             except Exception as repo_error:
                                 console.print(f"[red]Error processing repository {repo_path}: {repo_error}[/red]")
@@ -444,8 +497,12 @@ def main():
                     console.print(f"\n[green]Info saved to: {output_file}[/green]")
                     console.print(f"[green]Total completed uploads: {vector_store_info['file_count']['completed']}[/green]")
                     
-                    if vector_store_info['file_count']['failed'] > 0:
-                        console.print(f"[red]{vector_store_info['file_count']['failed']} files failed to upload.[/red]")
+                    # Handle failed uploads
+                    if vector_store_info['failed_files']:
+                        console.print(f"[red]{len(vector_store_info['failed_files'])} files failed to upload.[/red]")
+                        save_failed_uploads(vector_store_info['failed_files'], console)
+                    else:
+                        console.print("[yellow]No failed uploads to save.[/yellow]")
                     
                     console.print(f"[green]Repositories processed: {', '.join(processed_repos)}[/green]")
                     
@@ -475,5 +532,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-

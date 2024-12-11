@@ -1,0 +1,707 @@
+{
+  "query": "Sta\ufb00 So\u0000ware Engineer, Data\nAlpharetta, GA\nDevelopment \u2013 PlayOn! Sports /Full-Time /Hybrid\nTHE ROLE\n...",
+  "results": {
+    "skills_searched": [
+      "Experience with cloud native software development principles and design patterns",
+      "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust",
+      "Experience with cloud native technologies such as containers, container orchestration, and service mesh",
+      "Experience with web application development using cloud native technologies such as microservices, APIs, and serverless functions",
+      "Experience with agile software development methodologies",
+      "Experience with cloud computing platforms such as AWS, Azure, or Google Cloud Platform",
+      "Experience with CI/CD tools and related technologies such as Jenkins, Travis CI, CircleCI, Git, Docker, and Kubernetes",
+      "Experience with relational and non-relational databases in a cloud native environment",
+      "Strong understanding of software design principles and patterns such as SOLID, DRY, and GoF design patterns",
+      "Strong understanding of event-driven architecture and distributed systems",
+      "Strong understanding of domain-driven design principles and practices"
+    ],
+    "candidates": [
+      {
+        "id": "66e34478261016236189c86a",
+        "name": "Benjamin Benscher",
+        "email": "benbenscher@gmail.com",
+        "github_link": "https://github.com/donbool",
+        "skills_matched": [
+          "Strong understanding of event-driven architecture and distributed systems",
+          "Experience with web application development using cloud native technologies such as microservices, APIs, and serverless functions",
+          "Experience with cloud native technologies such as containers, container orchestration, and service mesh",
+          "Strong understanding of domain-driven design principles and practices",
+          "Experience with relational and non-relational databases in a cloud native environment",
+          "Strong understanding of software design principles and patterns such as SOLID, DRY, and GoF design patterns",
+          "Experience with cloud native software development principles and design patterns",
+          "Experience with CI/CD tools and related technologies such as Jenkins, Travis CI, CircleCI, Git, Docker, and Kubernetes",
+          "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust"
+        ],
+        "match_score": 81.81818181818183,
+        "matches": [
+          {
+            "file_path": "api.ts",
+            "repository_name": "nextjs-blog",
+            "github_username": "unknown",
+            "function_name": "getBaseUrl",
+            "explanation": "Determines the base URL for API requests, handling different environments for cloud-native deployment."
+          },
+          {
+            "file_path": "trpc.ts",
+            "repository_name": "nextjs-blog",
+            "github_username": "unknown",
+            "function_name": "createTRPCContext",
+            "explanation": "Creates a context for tRPC, which manages the handling of requests in a cloud-native environment."
+          },
+          {
+            "file_path": "db.ts",
+            "repository_name": "nextjs-blog",
+            "github_username": "unknown",
+            "function_name": "db",
+            "explanation": "Initializes the PrismaClient, facilitating connection to a database in a cloud-native setup."
+          },
+          {
+            "file_path": "main.cpp",
+            "repository_name": "unknown",
+            "github_username": "unknown",
+            "function_name": "scoreOfString",
+            "explanation": "A C++ function that calculates the score of a string based on character differences, showcasing strong programming skills in C++."
+          },
+          {
+            "file_path": "community.py",
+            "repository_name": "unknown",
+            "github_username": "unknown",
+            "function_name": "run_simulation",
+            "explanation": "A Python function that simulates community member actions and task completion, demonstrating strong programming skills in Python."
+          },
+          {
+            "file_path": "distribution_tournament.py",
+            "repository_name": "unknown",
+            "github_username": "unknown",
+            "function_name": "ability_distribution",
+            "explanation": "Defines the ability distribution method for players in a community simulation, showcasing programming skills in Python."
+          },
+          {
+            "file_path": "train.py",
+            "repository_name": "unknown",
+            "github_username": "unknown",
+            "function_name": "mutate",
+            "explanation": "A function in Python that mutates neural network parameters, demonstrating advanced programming skills in handling machine learning tasks."
+          },
+          {
+            "file_path": "solution.py",
+            "repository_name": "unknown",
+            "github_username": "unknown",
+            "function_name": "canPlaceFlowers",
+            "explanation": "Python function that checks if flowers can be planted in a flowerbed, showcasing strong programming skills in solving algorithmic problems."
+          },
+          {
+            "file_path": "README.md",
+            "repository_name": "unknown",
+            "github_username": "unknown",
+            "function_name": "Deployment Instructions",
+            "explanation": "The README file includes deployment guides for Docker, indicating experience with cloud native technologies such as containers and orchestration."
+          },
+          {
+            "file_path": "trpc.ts",
+            "repository_name": "unknown",
+            "github_username": "unknown",
+            "function_name": "createTRPCContext",
+            "explanation": "This file establishes the context for tRPC API, allowing for microservices architecture where different services can interact seamlessly through defined APIs."
+          },
+          {
+            "file_path": "post.ts",
+            "repository_name": "unknown",
+            "github_username": "unknown",
+            "function_name": "postRouter",
+            "explanation": "Defines the main router for handling API requests using tRPC with microservices, which includes creating and retrieving posts."
+          },
+          {
+            "file_path": "api.ts",
+            "repository_name": "unknown",
+            "github_username": "unknown",
+            "function_name": "api",
+            "explanation": "Sets up the client-side entry for the tRPC API, enabling type-safe communication between the client and server in a microservices environment."
+          },
+          {
+            "file_path": "hello.ts",
+            "repository_name": "unknown",
+            "github_username": "unknown",
+            "function_name": "handler",
+            "explanation": "Basic API handler responding with a simple JSON object, illustrating the structure of serverless functions."
+          },
+          {
+            "file_path": "README.md",
+            "repository_name": "sesh",
+            "github_username": "joshmedeski",
+            "function_name": "CI/CD",
+            "explanation": "This repository includes CI/CD configurations with GitHub actions for testing and deploying the project."
+          },
+          {
+            "file_path": "package.json",
+            "repository_name": "2fa-site",
+            "github_username": "undefined",
+            "function_name": "scripts",
+            "explanation": "This configuration file includes scripts for various CI/CD tasks including 'build' and 'start' which are commonly used in CI environments."
+          },
+          {
+            "file_path": "db.ts",
+            "repository_name": "PrismaProject",
+            "github_username": "undefined",
+            "function_name": "PrismaClient",
+            "explanation": "This file sets up a Prisma client to interact with relational databases in a cloud-native environment."
+          },
+          {
+            "file_path": "post.ts",
+            "repository_name": "TRPCProject",
+            "github_username": "undefined",
+            "function_name": "create",
+            "explanation": "This function demonstrates interaction with a database, where it simulates a database call for creating a post in a modern cloud-native application."
+          },
+          {
+            "file_path": "g1_player.py",
+            "repository_name": "PlayerCodebase",
+            "github_username": "undefined",
+            "function_name": "move",
+            "explanation": "This function implements strategies that adhere to the DRY principle by reusing code for handling knife positioning and cuts based on the cake area."
+          },
+          {
+            "file_path": "g4_player2.py",
+            "repository_name": "PlayerCodebase",
+            "github_username": "undefined",
+            "function_name": "_assign_requests",
+            "explanation": "This method utilizes the optimal assignment algorithm reflecting the GoF design pattern to minimize the penalty while assigning requests efficiently."
+          },
+          {
+            "file_path": "g5_player.py",
+            "repository_name": "PlayerCodebase",
+            "github_username": "undefined",
+            "function_name": "decide_strategy",
+            "explanation": "This function utilizes event-driven architecture principles to manage the player's strategy based on incoming requests, demonstrating a strong grasp of dynamic decision-making in distributed systems."
+          },
+          {
+            "file_path": "G2_Player.py",
+            "repository_name": "PlayerCodebase",
+            "github_username": "undefined",
+            "function_name": "process_percept",
+            "explanation": "This method processes percepts from the environment, integrating various data points, showcasing an event-driven approach to adapt the player's actions based on the current state and requests."
+          },
+          {
+            "file_path": "post.ts",
+            "repository_name": "API-Codebase",
+            "github_username": "undefined",
+            "function_name": "postRouter",
+            "explanation": "The postRouter function demonstrates a strong understanding of domain-driven design principles by clearly defining data structures and query procedures that reflect the business logic and needs of the domain."
+          }
+        ]
+      },
+      {
+        "id": "66bd4c2e74f6118200cf3baa",
+        "name": "Nico Bykhovsky",
+        "email": "nb3227@columbia.edu",
+        "github_link": "github.com/Bykho",
+        "skills_matched": [
+          "Experience with cloud native software development principles and design patterns",
+          "Strong understanding of event-driven architecture and distributed systems",
+          "Experience with CI/CD tools and related technologies such as Jenkins, Travis CI, CircleCI, Git, Docker, and Kubernetes",
+          "Experience with web application development using cloud native technologies such as microservices, APIs, and serverless functions",
+          "Experience with relational and non-relational databases in a cloud native environment",
+          "Strong understanding of software design principles and patterns such as SOLID, DRY, and GoF design patterns"
+        ],
+        "match_score": 54.54545454545454,
+        "matches": [
+          {
+            "file_path": "trpc.ts",
+            "repository_name": "undefined",
+            "github_username": "undefined",
+            "function_name": "createTRPCContext",
+            "explanation": "This function initializes the context for the tRPC API, providing access to the database and other essential services, aligning with cloud native principles of modularity and reusability."
+          },
+          {
+            "file_path": "trpc.ts",
+            "repository_name": "undefined",
+            "github_username": "undefined",
+            "function_name": "createInnerTRPCContext",
+            "explanation": "It creates a context for handling requests, following cloud native design patterns by leveraging context for dependency injection."
+          },
+          {
+            "file_path": "api.ts",
+            "repository_name": "undefined",
+            "github_username": "undefined",
+            "function_name": "getBaseUrl",
+            "explanation": "A utility function that determines the base URL for API calls based on the environment, showcasing the adaptability of cloud-native applications."
+          },
+          {
+            "file_path": "[7]:[0] tRPC API handler",
+            "repository_name": "T3 Stack Project",
+            "github_username": "unknown",
+            "function_name": "createNextApiHandler",
+            "explanation": "This file demonstrates the use of tRPC to set up an API handler in a Next.js application, which facilitates communication between client and server using APIs in a cloud-native way."
+          },
+          {
+            "file_path": "[7]:[1] Post Router",
+            "repository_name": "T3 Stack Project",
+            "github_username": "unknown",
+            "function_name": "postRouter",
+            "explanation": "This router defines several API endpoints, showcasing how to implement CRUD operations using tRPC, which aligns with microservices architecture."
+          },
+          {
+            "file_path": "[7]:[2] Hello API",
+            "repository_name": "T3 Stack Project",
+            "github_username": "unknown",
+            "function_name": "handler",
+            "explanation": "A simple API endpoint that returns a JSON response, illustrating the deployment of serverless functions in a cloud native context."
+          },
+          {
+            "file_path": "[7]:[4] tRPC Initialization",
+            "repository_name": "T3 Stack Project",
+            "github_username": "unknown",
+            "function_name": "createTRPCContext",
+            "explanation": "This file initializes the tRPC server, which is crucial for setting up the backend for handling microservices and serverless functions."
+          },
+          {
+            "file_path": "[7]:[6] Spotify Token Generation Script",
+            "repository_name": "T3 Stack Project",
+            "github_username": "unknown",
+            "function_name": "get_access_token",
+            "explanation": "This Python script demonstrates interaction with an external API (Spotify) to create access tokens, showing integration with cloud services."
+          },
+          {
+            "file_path": "README.md",
+            "repository_name": "sesh",
+            "github_username": "joshmedeski",
+            "function_name": "CI/CD integration",
+            "explanation": "The project mentions using GitHub Actions for CI/CD, indicating continuous integration and deployment practices."
+          },
+          {
+            "file_path": "README.md",
+            "repository_name": "sesh",
+            "github_username": "joshmedeski",
+            "function_name": "Docker deployment",
+            "explanation": "The README includes instructions for deploying the application using Docker, highlighting the use of containerization."
+          },
+          {
+            "file_path": "db.ts",
+            "repository_name": "sesh",
+            "github_username": "joshmedeski",
+            "function_name": "PrismaClient setup",
+            "explanation": "This code sets up a Prisma client, which is a component designed for connecting to relational databases such as PostgreSQL or MySQL in a cloud-native environment."
+          },
+          {
+            "file_path": "post.ts",
+            "repository_name": "sesh",
+            "github_username": "joshmedeski",
+            "function_name": "CRUD operations with Prisma",
+            "explanation": "The code demonstrates how to perform Create, Read, Update, and Delete operations using Prisma, which allows for interaction with a relational database in a cloud-native setup."
+          },
+          {
+            "file_path": "post.ts",
+            "repository_name": "sesh",
+            "github_username": "joshmedeski",
+            "function_name": "postRouter",
+            "explanation": "This file outlines a router for managing post-related operations, demonstrating adherence to the DRY principle by using structured input validation with Zod, and utilizing Object-Oriented Programming practices."
+          },
+          {
+            "file_path": "even_cuts.py",
+            "repository_name": "players.g2",
+            "github_username": "players",
+            "function_name": "EvenCuts",
+            "explanation": "This class implementation for even cuts demonstrates the use of design patterns and principles such as encapsulation and separation of concerns, which are fundamental to software design best practices."
+          },
+          {
+            "file_path": "post.ts",
+            "repository_name": "sesh",
+            "github_username": "joshmedeski",
+            "function_name": "postRouter",
+            "explanation": "This code demonstrates an event-driven approach using a router for managing post-related operations, emphasizing asynchronous handling and validation."
+          },
+          {
+            "file_path": "trpc.ts",
+            "repository_name": "sesh",
+            "github_username": "joshmedeski",
+            "function_name": "createTRPCContext",
+            "explanation": "This file contains the initialization of tRPC context, showcasing event-driven programming through context management for handling requests, integral to distributed system architecture."
+          },
+          {
+            "file_path": "even_cuts.py",
+            "repository_name": "players.g2",
+            "github_username": "players",
+            "function_name": "EvenCuts",
+            "explanation": "The EvenCuts class demonstrates a structured approach to processing requests and distributing resources in a potential distributed system framework."
+          }
+        ]
+      },
+      {
+        "id": "66e355781bfd88fa2be9564e",
+        "name": "kristofer bjornsson",
+        "email": "kfb2117@columbia.edu",
+        "github_link": "https://github.com/kristoferfannar",
+        "skills_matched": [
+          "Experience with cloud native software development principles and design patterns",
+          "Experience with CI/CD tools and related technologies such as Jenkins, Travis CI, CircleCI, Git, Docker, and Kubernetes",
+          "Experience with web application development using cloud native technologies such as microservices, APIs, and serverless functions",
+          "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust",
+          "Experience with relational and non-relational databases in a cloud native environment",
+          "Strong understanding of software design principles and patterns such as SOLID, DRY, and GoF design patterns"
+        ],
+        "match_score": 54.54545454545454,
+        "matches": [
+          {
+            "file_path": "1.api.ts",
+            "repository_name": "T3 Stack Project",
+            "github_username": "Unknown",
+            "function_name": "createTRPCNext",
+            "explanation": "This code creates a type-safe tRPC API client for a Next.js application, illustrating principles of cloud-native software such as scalability through API management."
+          },
+          {
+            "file_path": "0.trpc.ts",
+            "repository_name": "T3 Stack Project",
+            "github_username": "Unknown",
+            "function_name": "createTRPCContext",
+            "explanation": "Defines the context for tRPC API calls, focusing on middleware and context management, which are essential in cloud-native architectures."
+          },
+          {
+            "file_path": "2.trpc.ts",
+            "repository_name": "T3 Stack Project",
+            "github_username": "Unknown",
+            "function_name": "publicProcedure",
+            "explanation": "Public procedure creation for tRPC, exemplifying the use of modular design patterns commonly used in cloud-native development."
+          },
+          {
+            "file_path": "6.main.py",
+            "repository_name": "Unknown",
+            "github_username": "Unknown",
+            "function_name": "closeStrings",
+            "explanation": "This Python function checks if two strings are close in terms of character frequency, showcasing strong programming skills in Python."
+          },
+          {
+            "file_path": "5.main.cpp",
+            "repository_name": "Unknown",
+            "github_username": "Unknown",
+            "function_name": "scoreOfString",
+            "explanation": "This C++ function calculates the score of a string based on the difference between adjacent characters, demonstrating programming skills in C++."
+          },
+          {
+            "file_path": "11.train.py",
+            "repository_name": "Unknown",
+            "github_username": "Unknown",
+            "function_name": "evaluate_fitness",
+            "explanation": "A function that evaluates the fitness of a model using a neural network in PyTorch, indicating strong programming skills in Python and familiarity with neural networks."
+          },
+          {
+            "file_path": "19.train.py",
+            "repository_name": "Unknown",
+            "github_username": "Unknown",
+            "function_name": "select_parents",
+            "explanation": "This function sorts the population based on fitness scores and selects the best parents for evolution, showcasing programming expertise in Python."
+          },
+          {
+            "file_path": "17.distributions_easy.py",
+            "repository_name": "Unknown",
+            "github_username": "Unknown",
+            "function_name": "ability_distribution",
+            "explanation": "A function to generate ability distributions for players, demonstrating logical programming skills in Python."
+          },
+          {
+            "file_path": "12.distributions_easy.py",
+            "repository_name": "Unknown",
+            "github_username": "Unknown",
+            "function_name": "task_difficulty_distribution",
+            "explanation": "Defines task difficulty based on abilities, showcasing the use of Python programming for simulations."
+          },
+          {
+            "file_path": "8.community.py",
+            "repository_name": "Unknown",
+            "github_username": "Unknown",
+            "function_name": "run_simulation",
+            "explanation": "Simulates a community task distribution in Python, reflecting strong programming competencies in Python."
+          },
+          {
+            "file_path": "10.main.py",
+            "repository_name": "Unknown",
+            "github_username": "Unknown",
+            "function_name": "fizzbuzz",
+            "explanation": "A fun implementation of the classic FizzBuzz problem in Python, demonstrating basic programming skills."
+          },
+          {
+            "file_path": "7.community.py",
+            "repository_name": "Unknown",
+            "github_username": "Unknown",
+            "function_name": "getPairPreferencesPhaseI",
+            "explanation": "A function to obtain preferences for players in a simulation, showcasing advanced programming capabilities in Python."
+          },
+          {
+            "file_path": "19.train.py",
+            "repository_name": "Unknown",
+            "github_username": "Unknown",
+            "function_name": "plot",
+            "explanation": "This Python function plots fitness scores over generations, demonstrating data visualization skills in Python."
+          },
+          {
+            "file_path": "[trpc].ts",
+            "repository_name": "T3 App",
+            "github_username": "unknown",
+            "function_name": "createNextApiHandler",
+            "explanation": "This function sets up a Next.js API route using tRPC, integrating the application router and context creation."
+          },
+          {
+            "file_path": "post.ts",
+            "repository_name": "T3 App",
+            "github_username": "unknown",
+            "function_name": "createTRPCRouter",
+            "explanation": "Defines an API router with various procedures for handling inputs and database operations related to posts."
+          },
+          {
+            "file_path": "hello.ts",
+            "repository_name": "T3 App",
+            "github_username": "unknown",
+            "function_name": "handler",
+            "explanation": "A simple API handler responding with a JSON object, showcasing basic endpoint creation in a serverless fashion."
+          },
+          {
+            "file_path": "api.ts",
+            "repository_name": "T3 App",
+            "github_username": "unknown",
+            "function_name": "createTRPCNext",
+            "explanation": "Sets up a tRPC client for React with safe type inference, enhancing API integration with Next.js."
+          },
+          {
+            "file_path": "trpc.ts",
+            "repository_name": "T3 App",
+            "github_username": "unknown",
+            "function_name": "createTRPCContext",
+            "explanation": "Creates a context for tRPC handling which can access the database and manage request states."
+          },
+          {
+            "file_path": "README.md",
+            "repository_name": "sesh",
+            "github_username": "joshmedeski",
+            "function_name": "CI/CD configuration",
+            "explanation": "The README provides a link to the CI/CD configuration file which runs tests and manages the deployment processes."
+          },
+          {
+            "file_path": "README.md",
+            "repository_name": "sesh",
+            "github_username": "joshmedeski",
+            "function_name": "Installation instructions",
+            "explanation": "Installation instructions mention using Homebrew and Go for setting up the project, indicating dependency on CI/CD tools for automated deployment."
+          },
+          {
+            "file_path": "db.ts",
+            "repository_name": "sesh",
+            "github_username": "joshmedeski",
+            "function_name": "PrismaClient",
+            "explanation": "This code initializes a database connection using Prisma, which can be used with both relational (e.g., PostgreSQL) and non-relational databases (e.g., MongoDB) in a cloud-native environment."
+          },
+          {
+            "file_path": "post.ts",
+            "repository_name": "sesh",
+            "github_username": "joshmedeski",
+            "function_name": "CRUD operations",
+            "explanation": "This code contains CRUD operations that demonstrate interaction with a database, showcasing how both relational and non-relational database functionalities can be integrated using Prisma in a cloud-native setup."
+          },
+          {
+            "file_path": "g1_player.py",
+            "repository_name": "cake-cutting",
+            "github_username": "unknown",
+            "function_name": "assignPolygons",
+            "explanation": "This function implements a strategy for assigning pieces based on the size of polygons, which reflects the DRY principle through reuse of the assignment logic."
+          },
+          {
+            "file_path": "player_4.py",
+            "repository_name": "cake-cutting",
+            "github_username": "unknown",
+            "function_name": "cost_function",
+            "explanation": "Calculates the total cost of assigning pieces, demonstrating adherence to the SOLID principles by encapsulating the cost calculation in a single function."
+          }
+        ]
+      },
+      {
+        "id": "670480c80b6f35d94b92ba7f",
+        "name": "Jhovan Daniel",
+        "email": "jhovanedaniel@gmail.com",
+        "github_link": "https://github.com/JhovanDaniel",
+        "skills_matched": [
+          "Strong understanding of event-driven architecture and distributed systems",
+          "Experience with web application development using cloud native technologies such as microservices, APIs, and serverless functions",
+          "Experience with cloud native technologies such as containers, container orchestration, and service mesh"
+        ],
+        "match_score": 27.27272727272727,
+        "matches": [
+          {
+            "file_path": "66bd4c2e74f6118200cf3baa_yonahd/kor/README.md",
+            "repository_name": "kor",
+            "github_username": "yonahd",
+            "function_name": "Kor",
+            "explanation": "Kor is a tool designed to discover unused Kubernetes resources, which is a fundamental part of cloud-native technologies, specifically dealing with containers and orchestration."
+          },
+          {
+            "file_path": "66bd4c2e74f6118200cf3baa_yonahd/kor/README.md",
+            "repository_name": "kor",
+            "github_username": "yonahd",
+            "function_name": "usage",
+            "explanation": "The usage section describes how to interact with Kor, which functions with Kubernetes resources pertinent to cloud-native architecture."
+          },
+          {
+            "file_path": "66bd4c2e74f6118200cf3baa_yonahd/kor/README.md",
+            "repository_name": "kor",
+            "github_username": "yonahd",
+            "function_name": "ignore resources",
+            "explanation": "The section on ignoring resources indicates how users can manage Kubernetes resources, reflecting a hands-on approach to managing cloud-native environments."
+          },
+          {
+            "file_path": "5yKSzR9Cf2cbhCcURebUnc/count.ts",
+            "repository_name": "unknown",
+            "github_username": "unknown",
+            "function_name": "handler",
+            "explanation": "This file contains a server handler that processes POST requests for counting, demonstrating web application development using serverless functions."
+          },
+          {
+            "file_path": "5yKSzR9Cf2cbhCcURebUnc/db.ts",
+            "repository_name": "unknown",
+            "github_username": "unknown",
+            "function_name": "setCount",
+            "explanation": "This function sets the count in a Deno KV storage, which is an example of using cloud-native technologies for maintaining state in web applications."
+          },
+          {
+            "file_path": "5yKSzR9Cf2cbhCcURebUnc/README.md",
+            "repository_name": "unknown",
+            "github_username": "unknown",
+            "function_name": "usage",
+            "explanation": "The README provides a guide on how to run the web application locally and deploy it using Deno, highlighting the use of serverless and cloud-native features."
+          },
+          {
+            "file_path": "tensorboard_amp_ddp.py",
+            "repository_name": "NVIDIA-HACKATHON2022",
+            "github_username": "Medical Vision Lab",
+            "function_name": "init_distributed",
+            "explanation": "This function initializes distributed training settings for event-driven architecture, ensuring that the CUDA device is set correctly and initializing communication between processes."
+          },
+          {
+            "file_path": "amp_ddp_unet.py",
+            "repository_name": "NVIDIA-HACKATHON2022",
+            "github_username": "Medical Vision Lab",
+            "function_name": "init_distributed",
+            "explanation": "Similar to the previous instance, it prepares the environment for distributed training by initializing process groups needed for event-driven architecture."
+          }
+        ]
+      },
+      {
+        "id": "67196e61e4298ccdc5d58ba6",
+        "name": "Nikolay Kolev",
+        "email": "nikolaynkolev@gmail.com",
+        "github_link": "https://github.com/nikolay",
+        "skills_matched": [
+          "Experience with cloud native software development principles and design patterns",
+          "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust",
+          "Experience with cloud native technologies such as containers, container orchestration, and service mesh"
+        ],
+        "match_score": 27.27272727272727,
+        "matches": [
+          {
+            "file_path": "README.md",
+            "repository_name": "Kor",
+            "github_username": "yonahd",
+            "function_name": "kor",
+            "explanation": "Kor is a tool designed to discover unused Kubernetes resources, aligning with cloud native principles by effectively managing resources within a cloud environment."
+          },
+          {
+            "file_path": "README.md",
+            "repository_name": "Deno KV Template",
+            "github_username": "unknown",
+            "function_name": "Deno KV handling",
+            "explanation": "This application uses Deno KV for data persistence, showcasing cloud native software development by leveraging serverless storage capabilities."
+          },
+          {
+            "file_path": "README.md",
+            "repository_name": "Advent of Code",
+            "github_username": "unknown",
+            "function_name": "Advent of Code Solutions in Go",
+            "explanation": "The repository contains solutions to programming challenges using the Go programming language, showcasing strong Go programming skills."
+          },
+          {
+            "file_path": "README.md",
+            "repository_name": "Advent of Code (2022)",
+            "github_username": "unknown",
+            "function_name": "Python Solutions",
+            "explanation": "This repository has Python solutions to the Advent of Code challenges, demonstrating strong programming skills in Python."
+          },
+          {
+            "file_path": "README.md",
+            "repository_name": "Kor",
+            "github_username": "yonahd",
+            "function_name": "Kubernetes Orphaned Resources Finder",
+            "explanation": "Kor is a tool specifically designed to discover unused Kubernetes resources such as ConfigMaps, Secrets, Services, and more, showcasing expertise in cloud-native technologies including container orchestration."
+          }
+        ]
+      },
+      {
+        "id": "67201dfe7646d00b2402c633",
+        "name": "Mihika Riya Sanghvi",
+        "email": "mrs2356@columbia.edu",
+        "github_link": "https://github.com/mihikasanghvi/Image-Classification-using-Vision-Transformer",
+        "skills_matched": [
+          "Strong understanding of event-driven architecture and distributed systems"
+        ],
+        "match_score": 9.090909090909092,
+        "matches": [
+          {
+            "file_path": "psp_net.py",
+            "repository_name": "NVIDIA-HACKATHON2022",
+            "github_username": "Medical Vision Lab",
+            "function_name": "init_distributed",
+            "explanation": "Initializes distributed training environment for multiple GPUs, setting up the necessary communication backend, which is crucial for event-driven architecture in distributed systems."
+          },
+          {
+            "file_path": "tensorboard_amp_ddp.py",
+            "repository_name": "NVIDIA-HACKATHON2022",
+            "github_username": "Medical Vision Lab",
+            "function_name": "init_distributed",
+            "explanation": "Sets up the distributed training environment, ensuring that multiple processes can communicate effectively, highlighting the principles of distributed systems."
+          }
+        ]
+      },
+      {
+        "id": "67203ab77646d00b2402c637",
+        "name": "Chaeeun Ryu",
+        "email": "cr3413@columbia.edu",
+        "github_link": "",
+        "skills_matched": [
+          "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust"
+        ],
+        "match_score": 9.090909090909092,
+        "matches": [
+          {
+            "file_path": "splay_tree_proffessional.py",
+            "repository_name": "Tree Data Structures",
+            "github_username": "AlgorithmTutor",
+            "function_name": "__search_tree_helper",
+            "explanation": "This function is part of a Splay Tree implementation in Java and demonstrates how to search for a key based on binary tree principles."
+          },
+          {
+            "file_path": "array_queue.py",
+            "repository_name": "Queue Implementation",
+            "github_username": "Unknown",
+            "function_name": "enqueue",
+            "explanation": "This function implements a FIFO queue using a Python list. It shows how to add an element to the back of the queue."
+          },
+          {
+            "file_path": "CircularQueue.py",
+            "repository_name": "Queue Implementation",
+            "github_username": "Unknown",
+            "function_name": "enqueue",
+            "explanation": "This is a circular queue implementation in Python, which showcases how to handle elements in a circular manner while maintaining efficient memory usage."
+          },
+          {
+            "file_path": "red_black_tree.py",
+            "repository_name": "Tree Data Structures",
+            "github_username": "Unknown",
+            "function_name": "search_tree_helper",
+            "explanation": "This function searches for a key in a Red-Black Tree and demonstrates the use of binary search principles."
+          },
+          {
+            "file_path": "app.py",
+            "repository_name": "Flask Web App",
+            "github_username": "Unknown",
+            "function_name": "index",
+            "explanation": "This function sets up a simple Flask route for the web application, demonstrating basic web application development in Python."
+          }
+        ]
+      }
+    ]
+  }
+}

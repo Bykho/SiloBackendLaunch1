@@ -1,0 +1,25 @@
+[
+  {
+    "user_id": "67196e61e4298ccdc5d58ba6",
+    "github_username": "nikolay",
+    "github_url": "https://github.com/nikolay",
+    "vector_store_id": "vs_smy6VsC3flZ3TTbYIeZke8yG",
+    "file_count": {
+      "completed": 134,
+      "failed": 3,
+      "total": 137
+    },
+    "repositories": [
+      "nikolay/advent-of-code",
+      "nikolay/advent-of-code-2022",
+      "nikolay/adventofcode",
+      "nikolay/am",
+      "nikolay/codery",
+      "nikolay/dotfiles",
+      "nikolay/kor",
+      "nikolay/microblog",
+      "nikolay/terraform-scalr",
+      "nikolay/yamlfmt",
+      "nikolay/zfs-on-nix-test"
+    ],
+    "created_at": 

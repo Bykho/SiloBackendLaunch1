@@ -1,0 +1,15 @@
+[
+  {
+    "user_id": "670480c80b6f35d94b92ba7f",
+    "github_username": "JhovanDaniel",
+    "github_url": "https://github.com/JhovanDaniel",
+    "vector_store_id": "vs_OkJ2D8zBPPpiSkgXJQzexCXa",
+    "file_count": {
+      "completed": 41,
+      "failed": 0,
+      "total": 41
+    },
+    "repositories": [
+      "JhovanDaniel/Rails-7-2FA-Implementation"
+    ],
+    "created_at": 

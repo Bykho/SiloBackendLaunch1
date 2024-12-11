@@ -1,0 +1,40 @@
+[
+  {
+    "user_id": "66e355781bfd88fa2be9564e",
+    "github_username": "kristoferfannar",
+    "github_url": "https://github.com/kristoferfannar",
+    "vector_store_id": "vs_kADMqG6oZJOUa88UBkxcchIG",
+    "file_count": {
+      "completed": 491,
+      "failed": 107,
+      "total": 598
+    },
+    "repositories": [
+      "kristoferfannar/2fa-site",
+      "kristoferfannar/AOC",
+      "kristoferfannar/Community",
+      "kristoferfannar/css-exercises",
+      "kristoferfannar/cv",
+      "kristoferfannar/editDistance",
+      "kristoferfannar/goto",
+      "kristoferfannar/javascript-exercises",
+      "kristoferfannar/kristoferfannar",
+      "kristoferfannar/kristoferfannar.github.io",
+      "kristoferfannar/leetcode",
+      "kristoferfannar/measurements",
+      "kristoferfannar/nextjs-blog",
+      "kristoferfannar/none-ls.nvim",
+      "kristoferfannar/odin-calculator",
+      "kristoferfannar/odin-etch-a-sketch",
+      "kristoferfannar/odin-recipes",
+      "kristoferfannar/odin-rock-paper-scissors",
+      "kristoferfannar/odin-website",
+      "kristoferfannar/PieceOfCake",
+      "kristoferfannar/sesh",
+      "kristoferfannar/soundboard",
+      "kristoferfannar/terminal_games",
+      "kristoferfannar/tmux2k",
+      "kristoferfannar/ultimate_spotify_playlist",
+      "kristoferfannar/urlopen.nvim"
+    ],
+    "created_at": 

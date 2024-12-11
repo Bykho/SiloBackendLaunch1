@@ -1,0 +1,107 @@
+{
+  "query": "Sta\ufb00 So\u0000ware Engineer, Data\nAlpharetta, GA\nDevelopment \u2013 PlayOn! Sports /Full-Time /Hybrid\nTHE ROLE\n...",
+  "results": {
+    "skills_searched": [
+      "Cloud native software development",
+      "Java programming",
+      "Python programming",
+      "Go programming",
+      "C# programming",
+      "Rust programming",
+      "Software design principles",
+      "SOLID principles",
+      "DRY principles",
+      "GoF design patterns",
+      "Event-driven architecture",
+      "Distributed systems",
+      "Domain-driven design (DDD)",
+      "Docker",
+      "Kubernetes",
+      "Istio",
+      "Microservices",
+      "APIs",
+      "Serverless functions",
+      "Agile software development",
+      "AWS",
+      "Azure",
+      "Google Cloud Platform",
+      "CI/CD tools",
+      "Jenkins",
+      "Travis CI",
+      "CircleCI",
+      "Git",
+      "Relational databases",
+      "Non-relational databases",
+      "Postgres",
+      "MySQL",
+      "MongoDB",
+      "Cassandra",
+      "DynamoDB"
+    ],
+    "candidates": [
+      {
+        "id": "66bd4c2e74f6118200cf3baa",
+        "name": "Nico Bykhovsky",
+        "email": "nb3227@columbia.edu",
+        "github_link": "github.com/Bykho",
+        "skills_matched": [],
+        "match_score": 0.0,
+        "matches": []
+      },
+      {
+        "id": "66e34478261016236189c86a",
+        "name": "Benjamin Benscher",
+        "email": "benbenscher@gmail.com",
+        "github_link": "https://github.com/donbool",
+        "skills_matched": [],
+        "match_score": 0.0,
+        "matches": []
+      },
+      {
+        "id": "66e355781bfd88fa2be9564e",
+        "name": "kristofer bjornsson",
+        "email": "kfb2117@columbia.edu",
+        "github_link": "https://github.com/kristoferfannar",
+        "skills_matched": [],
+        "match_score": 0.0,
+        "matches": []
+      },
+      {
+        "id": "670480c80b6f35d94b92ba7f",
+        "name": "Jhovan Daniel",
+        "email": "jhovanedaniel@gmail.com",
+        "github_link": "https://github.com/JhovanDaniel",
+        "skills_matched": [],
+        "match_score": 0.0,
+        "matches": []
+      },
+      {
+        "id": "67196e61e4298ccdc5d58ba6",
+        "name": "Nikolay Kolev",
+        "email": "nikolaynkolev@gmail.com",
+        "github_link": "https://github.com/nikolay",
+        "skills_matched": [],
+        "match_score": 0.0,
+        "matches": []
+      },
+      {
+        "id": "67201dfe7646d00b2402c633",
+        "name": "Mihika Riya Sanghvi",
+        "email": "mrs2356@columbia.edu",
+        "github_link": "https://github.com/mihikasanghvi/Image-Classification-using-Vision-Transformer",
+        "skills_matched": [],
+        "match_score": 0.0,
+        "matches": []
+      },
+      {
+        "id": "67203ab77646d00b2402c637",
+        "name": "Chaeeun Ryu",
+        "email": "cr3413@columbia.edu",
+        "github_link": "",
+        "skills_matched": [],
+        "match_score": 0.0,
+        "matches": []
+      }
+    ]
+  }
+}
