@@ -1,0 +1,540 @@
+{
+  "query": "Sta\ufb00 So\u0000ware Engineer, Data\nAlpharetta, GA\nDevelopment \u2013 PlayOn! Sports /Full-Time /Hybrid\nTHE ROLE\n...",
+  "results": {
+    "skills_searched": [
+      "Experience with cloud native software development principles and design patterns",
+      "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust",
+      "Strong understanding of software design principles and patterns, such as SOLID, DRY, and GoF design patterns",
+      "Strong understanding of event-driven architecture and distributed systems",
+      "Strong understanding of domain-driven design (DDD) principles and practices",
+      "Experience with cloud native technologies such as containers like Docker, container orchestration like Kubernetes, and service mesh like Istio",
+      "Experience with web application development using cloud native technologies such as microservices, APIs, and serverless functions",
+      "Experience with agile software development methodologies",
+      "Experience with cloud computing platforms such as AWS, Azure, or Google Cloud Platform",
+      "Experience with CI/CD tools like Jenkins, Travis CI, or CircleCI and related technologies such as Git, Docker, and Kubernetes",
+      "Experience with relational and non-relational databases like Postgres, MySQL, MongoDB, Cassandra, or DynamoDB in a cloud native environment"
+    ],
+    "candidates": [
+      {
+        "id": "66bd4c2e74f6118200cf3baa",
+        "name": "Nico Bykhovsky",
+        "email": "nb3227@columbia.edu",
+        "github_link": "github.com/Bykho",
+        "skills_matched": [
+          "Strong understanding of event-driven architecture and distributed systems",
+          "Experience with CI/CD tools like Jenkins, Travis CI, or CircleCI and related technologies such as Git, Docker, and Kubernetes",
+          "Strong understanding of domain-driven design (DDD) principles and practices",
+          "Experience with relational and non-relational databases like Postgres, MySQL, MongoDB, Cassandra, or DynamoDB in a cloud native environment",
+          "Experience with cloud native technologies such as containers like Docker, container orchestration like Kubernetes, and service mesh like Istio",
+          "Experience with cloud native software development principles and design patterns",
+          "Strong understanding of software design principles and patterns, such as SOLID, DRY, and GoF design patterns",
+          "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust",
+          "Experience with web application development using cloud native technologies such as microservices, APIs, and serverless functions"
+        ],
+        "match_score": 81.81818181818183,
+        "matches": [
+          {
+            "skill": "Experience with cloud native software development principles and design patterns",
+            "file_path": "api.ts",
+            "explanation": "This function sets up a tRPC API client with type-safe React Query hooks, exemplifying cloud-native principles through type safety and decentralized fetching."
+          },
+          {
+            "skill": "Experience with cloud native software development principles and design patterns",
+            "file_path": "[trpc].ts",
+            "explanation": "The API handler facilitates serverless functions and API calls, which embody cloud-native principles through scalability and efficient error handling."
+          },
+          {
+            "skill": "Experience with cloud native software development principles and design patterns",
+            "file_path": "env.js",
+            "explanation": "Defines environment variables for the application, a crucial aspect of cloud-native development, ensuring proper configuration across different environments."
+          },
+          {
+            "skill": "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust",
+            "file_path": "main.cpp",
+            "explanation": "This function demonstrates strong programming skills in C++ by calculating the score of a string based on character differences."
+          },
+          {
+            "skill": "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust",
+            "file_path": "main.py",
+            "explanation": "This Python function compares two strings based on character frequency, showcasing proficiency in Python programming."
+          },
+          {
+            "skill": "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust",
+            "file_path": "preferences.py",
+            "explanation": "Defined preferences for players in a game simulation using Python, reflecting strong programming skills in game development."
+          },
+          {
+            "skill": "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust",
+            "file_path": "distributions_hard.py",
+            "explanation": "This function defines ability distributions for players, demonstrating effective programming practices in Python."
+          },
+          {
+            "skill": "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust",
+            "file_path": "g4_player.py",
+            "explanation": "This function calculates losses from strategic cuts in a cake-cutting simulation, demonstrating strong programming logic."
+          },
+          {
+            "skill": "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust",
+            "file_path": "train.py",
+            "explanation": "A neural network model defined in PyTorch, showing advanced programming capabilities in Python for AI tasks."
+          },
+          {
+            "skill": "Strong understanding of software design principles and patterns, such as SOLID, DRY, and GoF design patterns",
+            "file_path": "even_cuts.py",
+            "explanation": "Implements the Even Cuts strategy for cutting a cake. Demonstrates strong understanding of design principles by encapsulating logic in a class and using methods to manage the state."
+          },
+          {
+            "skill": "Strong understanding of software design principles and patterns, such as SOLID, DRY, and GoF design patterns",
+            "file_path": "g4_player2.py",
+            "explanation": "This method assigns requests based on area matching, reflecting adherence to the DRY principle by consolidating logic for request assignment."
+          },
+          {
+            "skill": "Strong understanding of software design principles and patterns, such as SOLID, DRY, and GoF design patterns",
+            "file_path": "player_4.py",
+            "explanation": "Calculates the total cost of assignments, showing an application of the SOLID principles by keeping methods focused on single responsibilities."
+          },
+          {
+            "skill": "Strong understanding of software design principles and patterns, such as SOLID, DRY, and GoF design patterns",
+            "file_path": "g1_player.py",
+            "explanation": "This function implements a cutting strategy within a player class, showcasing the application of encapsulation and clear object-oriented design patterns."
+          },
+          {
+            "skill": "Strong understanding of software design principles and patterns, such as SOLID, DRY, and GoF design patterns",
+            "file_path": "group_3.py",
+            "explanation": "Demonstrates understanding of design patterns by optimizing grid cuts and separating logic for horizontal and vertical cuts."
+          },
+          {
+            "skill": "Strong understanding of software design principles and patterns, such as SOLID, DRY, and GoF design patterns",
+            "file_path": "main.py",
+            "explanation": "This method integrates various functionalities related to a Twitter service, reflecting complex design patterns like factory and observer."
+          },
+          {
+            "skill": "Strong understanding of event-driven architecture and distributed systems",
+            "file_path": "post.ts",
+            "explanation": "This mutation simulates a slow database call and demonstrates event-driven architecture by using asynchronous patterns in JavaScript."
+          },
+          {
+            "skill": "Strong understanding of event-driven architecture and distributed systems",
+            "file_path": "g4_player2.py",
+            "explanation": "Processes percepts in a player class, reflecting a component-driven model that is typical in event-driven architectures."
+          },
+          {
+            "skill": "Strong understanding of event-driven architecture and distributed systems",
+            "file_path": "even_cuts.py",
+            "explanation": "Implements an even cutting strategy that may be triggered by events within the game logic, showcasing an understanding of event-driven systems."
+          },
+          {
+            "skill": "Strong understanding of event-driven architecture and distributed systems",
+            "file_path": "helpers.py",
+            "explanation": "Determines if the requests can be well-distributed based on certain inputs, reflecting a distributed systems strategy."
+          },
+          {
+            "skill": "Strong understanding of event-driven architecture and distributed systems",
+            "file_path": "solution.js",
+            "explanation": "This function demonstrates event-driven development by responding to user input through event listeners to show/hide a modal."
+          },
+          {
+            "skill": "Strong understanding of domain-driven design (DDD) principles and practices",
+            "file_path": "group_3.py",
+            "explanation": "This class constructor initializes parameters for a grid optimization problem, showcasing a fundamental understanding of domain modeling in domain-driven design."
+          },
+          {
+            "skill": "Strong understanding of domain-driven design (DDD) principles and practices",
+            "file_path": "main.py",
+            "explanation": "Demonstrates the encapsulation of business logic in a domain model, managing intervals in a specific context which aligns with domain-driven design principles."
+          },
+          {
+            "skill": "Strong understanding of domain-driven design (DDD) principles and practices",
+            "file_path": "main.py",
+            "explanation": "This method retrieves intervals managed by the domain model, reflecting a clear bounded context in the domain-driven design framework."
+          },
+          {
+            "skill": "Strong understanding of domain-driven design (DDD) principles and practices",
+            "file_path": "post.ts",
+            "explanation": "Defines a mutation that encapsulates business behavior related to post creation, exemplifying DDD principles by leveraging a domain-specific language in the context of an API."
+          },
+          {
+            "skill": "Experience with cloud native technologies such as containers like Docker, container orchestration like Kubernetes, and service mesh like Istio",
+            "file_path": "README.md",
+            "explanation": "The README discusses deployment guides for Docker, indicating experience with containerization as part of cloud-native technologies."
+          },
+          {
+            "skill": "Experience with cloud native technologies such as containers like Docker, container orchestration like Kubernetes, and service mesh like Istio",
+            "file_path": "package-lock.json",
+            "explanation": "The package-lock.json file contains dependencies relevant to cloud-native applications, which may include libraries that work with containers and orchestration tools."
+          },
+          {
+            "skill": "Experience with web application development using cloud native technologies such as microservices, APIs, and serverless functions",
+            "file_path": "README.md",
+            "explanation": "The README introduces the T3 Stack project which integrates cloud-native technologies including Next.js for web applications, emphasizing the use of microservices and APIs."
+          },
+          {
+            "skill": "Experience with web application development using cloud native technologies such as microservices, APIs, and serverless functions",
+            "file_path": "trpc.ts",
+            "explanation": "Defines the context for tRPC that may connect to microservices or databases, showcasing cloud-native architecture in API development."
+          },
+          {
+            "skill": "Experience with web application development using cloud native technologies such as microservices, APIs, and serverless functions",
+            "file_path": "post.ts",
+            "explanation": "Defines a router for handling API requests such as creating posts and fetching data, illustrating microservices and API development in a cloud-native context."
+          },
+          {
+            "skill": "Experience with web application development using cloud native technologies such as microservices, APIs, and serverless functions",
+            "file_path": "api.ts",
+            "explanation": "Sets up a client-side entry point for a tRPC API, enabling serverless functions to handle requests and responses effectively."
+          },
+          {
+            "skill": "Experience with CI/CD tools like Jenkins, Travis CI, or CircleCI and related technologies such as Git, Docker, and Kubernetes",
+            "file_path": "README.md",
+            "explanation": "The README file includes a CI/CD badge that shows the status of the continuous integration pipeline implemented using GitHub Actions, indicating how the deployment process is integrated with CI/CD tools."
+          },
+          {
+            "skill": "Experience with CI/CD tools like Jenkins, Travis CI, or CircleCI and related technologies such as Git, Docker, and Kubernetes",
+            "file_path": "README.md",
+            "explanation": "Instructions for deploying the application using Docker, indicating familiarity with Docker as a containerization tool and showcasing CI/CD integration by suggesting specific deployment platforms."
+          },
+          {
+            "skill": "Experience with relational and non-relational databases like Postgres, MySQL, MongoDB, Cassandra, or DynamoDB in a cloud native environment",
+            "file_path": "post.ts",
+            "explanation": "The create function simulates a slow database call and uses Prisma to create a new post in the database, indicating experience with a relational database management system like PostgreSQL or MySQL."
+          },
+          {
+            "skill": "Experience with relational and non-relational databases like Postgres, MySQL, MongoDB, Cassandra, or DynamoDB in a cloud native environment",
+            "file_path": "db.ts",
+            "explanation": "This file initializes a Prisma client, which is commonly used as an interface for both relational and non-relational databases, showcasing cloud-native database management."
+          }
+        ]
+      },
+      {
+        "id": "66e34478261016236189c86a",
+        "name": "Benjamin Benscher",
+        "email": "benbenscher@gmail.com",
+        "github_link": "https://github.com/donbool",
+        "skills_matched": [
+          "Strong understanding of event-driven architecture and distributed systems",
+          "Experience with CI/CD tools like Jenkins, Travis CI, or CircleCI and related technologies such as Git, Docker, and Kubernetes",
+          "Strong understanding of domain-driven design (DDD) principles and practices",
+          "Experience with relational and non-relational databases like Postgres, MySQL, MongoDB, Cassandra, or DynamoDB in a cloud native environment",
+          "Experience with cloud native technologies such as containers like Docker, container orchestration like Kubernetes, and service mesh like Istio",
+          "Experience with cloud native software development principles and design patterns",
+          "Strong understanding of software design principles and patterns, such as SOLID, DRY, and GoF design patterns",
+          "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust",
+          "Experience with web application development using cloud native technologies such as microservices, APIs, and serverless functions"
+        ],
+        "match_score": 81.81818181818183,
+        "matches": [
+          {
+            "skill": "Experience with cloud native software development principles and design patterns",
+            "file_path": "db.ts",
+            "explanation": "Utilizes Prisma Client for database access, a common practice in cloud-native applications to manage data persistence."
+          },
+          {
+            "skill": "Experience with cloud native software development principles and design patterns",
+            "file_path": "api.ts",
+            "explanation": "Creates type-safe API interactions using tRPC, illustrating server communication principles in cloud-native software."
+          },
+          {
+            "skill": "Experience with cloud native software development principles and design patterns",
+            "file_path": "trpc.ts",
+            "explanation": "Defines a context structure for handling requests, showcasing context management in serverless architectures."
+          },
+          {
+            "skill": "Experience with cloud native software development principles and design patterns",
+            "file_path": "env.js",
+            "explanation": "Establishes environment variables configuration, aligning with cloud-native practices for managing deployment settings."
+          },
+          {
+            "skill": "Experience with cloud native software development principles and design patterns",
+            "file_path": "[trpc].ts",
+            "explanation": "Exports an API handler for Next.js using tRPC, demonstrating an event-driven approach favored in cloud-native applications."
+          },
+          {
+            "skill": "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust",
+            "file_path": "main+.py",
+            "explanation": "The function implements depth-first search logic to find trails in a grid based on specific rules, showcasing algorithmic skills in Python."
+          },
+          {
+            "skill": "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust",
+            "file_path": "main.py",
+            "explanation": "A function written in Python that checks if two strings can be made equal through permutations. Demonstrates proficiency in Python and understanding of string manipulation."
+          },
+          {
+            "skill": "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust",
+            "file_path": "distributions_easy.py",
+            "explanation": "Implements a function to generate ability distributions for players, reflecting skills in Python and mathematical modeling."
+          },
+          {
+            "skill": "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust",
+            "file_path": "distributions_hard.py",
+            "explanation": "Defines the task difficulty distribution logic, illustrating expertise in data manipulation and probabilistic functions using Python."
+          },
+          {
+            "skill": "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust",
+            "file_path": "main.cpp",
+            "explanation": "A C++ function that calculates the score of a string based on character differences, demonstrating knowledge of algorithms and C++ programming."
+          },
+          {
+            "skill": "Strong understanding of software design principles and patterns, such as SOLID, DRY, and GoF design patterns",
+            "file_path": "post.ts",
+            "explanation": "The code demonstrates the use of software design principles such as Single Responsibility and DRY through the separation of router procedures, ensuring clear responsibilities and minimal duplication."
+          },
+          {
+            "skill": "Strong understanding of software design principles and patterns, such as SOLID, DRY, and GoF design patterns",
+            "file_path": "preferences.py",
+            "explanation": "This Python function follows the DRY principle by reusing logic for generating partnerships and calculating costs, thus adhering to best practices in software design."
+          },
+          {
+            "skill": "Strong understanding of software design principles and patterns, such as SOLID, DRY, and GoF design patterns",
+            "file_path": "player_4.py",
+            "explanation": "Utilizes a clear and efficient design for generating cost matrices, which adheres to design principles ensuring modularity and separation of concerns."
+          },
+          {
+            "skill": "Strong understanding of software design principles and patterns, such as SOLID, DRY, and GoF design patterns",
+            "file_path": "group10_player.py",
+            "explanation": "Implements a strategy-based approach in the context of game AI, demonstrating the use of design patterns for clear and maintainable code structure."
+          },
+          {
+            "skill": "Strong understanding of software design principles and patterns, such as SOLID, DRY, and GoF design patterns",
+            "file_path": "g4_player2.py",
+            "explanation": "The function exemplifies the use of clean code principles and algorithms, facilitating maintainability and encapsulation of logic for future extensions."
+          },
+          {
+            "skill": "Strong understanding of event-driven architecture and distributed systems",
+            "file_path": "5d519ecfa3c9400ea906c92c_G2/SiloV3/G2_Player.py",
+            "explanation": "This function decides the strategy based on the distribution of requests and the current state of the cake area, exhibiting characteristics of event-driven architecture by responding dynamically to input."
+          },
+          {
+            "skill": "Strong understanding of event-driven architecture and distributed systems",
+            "file_path": "c4db3d054f57e3777c622674_Cuts/helpers.py",
+            "explanation": "This function evaluates whether the requests can be distributed effectively, showcasing principles of distributed systems by considering variances in distribution."
+          },
+          {
+            "skill": "Strong understanding of domain-driven design (DDD) principles and practices",
+            "file_path": "18_G2/uneven_cuts.py",
+            "explanation": "This constructor initializes an instance of the UnevenCuts class with specific parameters, demonstrating how to model a domain with requests and geometric constraints, reflecting domain-driven design principles by encapsulating data and behavior."
+          },
+          {
+            "skill": "Strong understanding of domain-driven design (DDD) principles and practices",
+            "file_path": "5d519ecfa3c9400ea906c92c_G2/SiloV3/G2_Player.py",
+            "explanation": "This function decides the strategy based on the distribution of requests and the current state of the cake area, which is an application of domain-driven design as it strategically aligns actions with the domain model."
+          },
+          {
+            "skill": "Experience with cloud native technologies such as containers like Docker, container orchestration like Kubernetes, and service mesh like Istio",
+            "file_path": "README.md",
+            "explanation": "The README provides guidance on deploying the application using Docker, illustrating cloud-native practices by enabling containerization of the app."
+          },
+          {
+            "skill": "Experience with cloud native technologies such as containers like Docker, container orchestration like Kubernetes, and service mesh like Istio",
+            "file_path": "next.config.js",
+            "explanation": "The configuration allows skipping environment validation specifically for Docker builds, reflecting a cloud-native approach to optimizing application deployment."
+          },
+          {
+            "skill": "Experience with web application development using cloud native technologies such as microservices, APIs, and serverless functions",
+            "file_path": "[trpc].ts",
+            "explanation": "This code demonstrates creating an API handler using tRPC, showcasing microservices architecture by managing requests and responses between client and server."
+          },
+          {
+            "skill": "Experience with web application development using cloud native technologies such as microservices, APIs, and serverless functions",
+            "file_path": "post.ts",
+            "explanation": "This function simulates a database operation using a public procedure in tRPC, which aligns with the RESTful API design by managing the creation of posts."
+          },
+          {
+            "skill": "Experience with web application development using cloud native technologies such as microservices, APIs, and serverless functions",
+            "file_path": "hello.ts",
+            "explanation": "This basic API endpoint serves as a demonstration of handling HTTP requests in a serverless architecture with Next.js, reflecting serverless function usage."
+          },
+          {
+            "skill": "Experience with CI/CD tools like Jenkins, Travis CI, or CircleCI and related technologies such as Git, Docker, and Kubernetes",
+            "file_path": "README.md",
+            "explanation": "The repository has a CI/CD pipeline set up, as indicated by the badge linking to GitHub Actions workflows."
+          },
+          {
+            "skill": "Experience with CI/CD tools like Jenkins, Travis CI, or CircleCI and related technologies such as Git, Docker, and Kubernetes",
+            "file_path": "package.json",
+            "explanation": "The package.json file outlines various scripts for development, including build commands, database operations with Prisma, and deployment, potentially integrating CI/CD processes."
+          },
+          {
+            "skill": "Experience with relational and non-relational databases like Postgres, MySQL, MongoDB, Cassandra, or DynamoDB in a cloud native environment",
+            "file_path": "post.ts",
+            "explanation": "This function simulates a database call to create a new post in the database using Prisma, which is compatible with relational databases like Postgres and MySQL."
+          },
+          {
+            "skill": "Experience with relational and non-relational databases like Postgres, MySQL, MongoDB, Cassandra, or DynamoDB in a cloud native environment",
+            "file_path": "db.ts",
+            "explanation": "This file initializes a Prisma Client instance, which can connect to various databases like Postgres, MySQL, and other relational databases in a cloud-native environment."
+          }
+        ]
+      },
+      {
+        "id": "66e355781bfd88fa2be9564e",
+        "name": "kristofer bjornsson",
+        "email": "kfb2117@columbia.edu",
+        "github_link": "https://github.com/kristoferfannar",
+        "skills_matched": [
+          "Strong understanding of event-driven architecture and distributed systems",
+          "Experience with CI/CD tools like Jenkins, Travis CI, or CircleCI and related technologies such as Git, Docker, and Kubernetes",
+          "Strong understanding of domain-driven design (DDD) principles and practices",
+          "Experience with relational and non-relational databases like Postgres, MySQL, MongoDB, Cassandra, or DynamoDB in a cloud native environment",
+          "Experience with cloud native technologies such as containers like Docker, container orchestration like Kubernetes, and service mesh like Istio",
+          "Experience with cloud native software development principles and design patterns",
+          "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust",
+          "Experience with web application development using cloud native technologies such as microservices, APIs, and serverless functions"
+        ],
+        "match_score": 72.72727272727273,
+        "matches": [
+          {
+            "skill": "Experience with cloud native software development principles and design patterns",
+            "file_path": "[4] api.ts",
+            "explanation": "This file demonstrates the use of tRPC in a cloud-native application setup, implementing type-safe API calls with context management."
+          },
+          {
+            "skill": "Experience with cloud native software development principles and design patterns",
+            "file_path": "[4] trpc.ts",
+            "explanation": "Defines the structure of the tRPC API router, allowing for customization of request handling in a cloud-native architecture."
+          },
+          {
+            "skill": "Experience with cloud native software development principles and design patterns",
+            "file_path": "[4] env.js",
+            "explanation": "Creates a schema for environment variables ensuring that only valid configurations are used, vital for cloud deployments."
+          },
+          {
+            "skill": "Experience with cloud native software development principles and design patterns",
+            "file_path": "[4] db.ts",
+            "explanation": "Establishes a connection to the database, demonstrating cloud-native practices of database management and context provisioning."
+          },
+          {
+            "skill": "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust",
+            "file_path": "g5_player.py",
+            "explanation": "The move function in this player model uses programming logic to coordinate actions depending on the current state of the game. This illustrates a strong command of programming concepts in Python."
+          },
+          {
+            "skill": "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust",
+            "file_path": "5.py",
+            "explanation": "This function handles file loading and parsing, showcasing Python programming skills involving file input/output operations."
+          },
+          {
+            "skill": "Strong programming skills in one or more programming languages such as Java, Python, Go, C#, or Rust",
+            "file_path": "5.py",
+            "explanation": "This function retrieves a location based on a mapping, demonstrating programming logic and control flow in Python."
+          },
+          {
+            "skill": "Strong understanding of event-driven architecture and distributed systems",
+            "file_path": "G2_Player.py",
+            "explanation": "Processes the percept of the current game state in an event-driven model, updating the player status and determining the next actions based on the received data."
+          },
+          {
+            "skill": "Strong understanding of event-driven architecture and distributed systems",
+            "file_path": "helpers.py",
+            "explanation": "Calculates all uneven cuts based on given requests, applying distributed logic to manage resources across multiple dimensions."
+          },
+          {
+            "skill": "Strong understanding of domain-driven design (DDD) principles and practices",
+            "file_path": "post.ts",
+            "explanation": "Demonstrates DDD principles by encapsulating business logic within procedures, which map closely to the domain model of posts."
+          },
+          {
+            "skill": "Strong understanding of domain-driven design (DDD) principles and practices",
+            "file_path": "helpers.py",
+            "explanation": "Implements domain logic regarding optimal cake cuts, aligning closely with the core domain of resource allocation in games."
+          },
+          {
+            "skill": "Strong understanding of domain-driven design (DDD) principles and practices",
+            "file_path": "uneven_cuts.py",
+            "explanation": "Initializes the domain-specific class for uneven cuts, ensuring separation of domain logic from other concerns."
+          },
+          {
+            "skill": "Experience with cloud native technologies such as containers like Docker, container orchestration like Kubernetes, and service mesh like Istio",
+            "file_path": "README.md",
+            "explanation": "The deployment section provides guidance on using Docker for app deployment, aligning with cloud-native practices."
+          },
+          {
+            "skill": "Experience with cloud native technologies such as containers like Docker, container orchestration like Kubernetes, and service mesh like Istio",
+            "file_path": "next.config.js",
+            "explanation": "Includes notes on skipping environment validation for building Docker images, indicating a use case related to Docker."
+          },
+          {
+            "skill": "Experience with web application development using cloud native technologies such as microservices, APIs, and serverless functions",
+            "file_path": "[7] [trpc].ts",
+            "explanation": "This file sets up a tRPC API handler, showcasing the use of APIs in a cloud-native environment."
+          },
+          {
+            "skill": "Experience with web application development using cloud native technologies such as microservices, APIs, and serverless functions",
+            "file_path": "[7] post.ts",
+            "explanation": "Defines a router for handling post-related operations, illustrating microservices architecture."
+          },
+          {
+            "skill": "Experience with web application development using cloud native technologies such as microservices, APIs, and serverless functions",
+            "file_path": "[7] api.ts",
+            "explanation": "Establishes a tRPC client for type-safe API communication, which represents a modern approach to web applications."
+          },
+          {
+            "skill": "Experience with web application development using cloud native technologies such as microservices, APIs, and serverless functions",
+            "file_path": "[7] trpc.ts",
+            "explanation": "Initializes a context for the tRPC API, managing the backend interactions typical for microservices."
+          },
+          {
+            "skill": "Experience with CI/CD tools like Jenkins, Travis CI, or CircleCI and related technologies such as Git, Docker, and Kubernetes",
+            "file_path": "10 README.md",
+            "explanation": "The project employs CI/CD workflows with GitHub Actions, allowing automated testing and deployment, ensuring code reliability and facilitating collaboration."
+          },
+          {
+            "skill": "Experience with CI/CD tools like Jenkins, Travis CI, or CircleCI and related technologies such as Git, Docker, and Kubernetes",
+            "file_path": "0 README.md",
+            "explanation": "The deployment guide includes instructions for Docker, highlighting its role in containerization, providing a consistent environment across different stages of development and production."
+          },
+          {
+            "skill": "Experience with relational and non-relational databases like Postgres, MySQL, MongoDB, Cassandra, or DynamoDB in a cloud native environment",
+            "file_path": "0 post.ts",
+            "explanation": "This function simulates a database call to create a post using a database context defined by Prisma, indicating experience with relational database concepts."
+          },
+          {
+            "skill": "Experience with relational and non-relational databases like Postgres, MySQL, MongoDB, Cassandra, or DynamoDB in a cloud native environment",
+            "file_path": "1 db.ts",
+            "explanation": "This file initializes a PrismaClient for connecting to a PostgreSQL database, showcasing experience with relational databases in a cloud-native environment."
+          },
+          {
+            "skill": "Experience with relational and non-relational databases like Postgres, MySQL, MongoDB, Cassandra, or DynamoDB in a cloud native environment",
+            "file_path": "3 package.json",
+            "explanation": "The project has @prisma/client listed in its dependencies, indicating usage of relational databases like PostgreSQL or MySQL in managing data persistence."
+          }
+        ]
+      },
+      {
+        "id": "670480c80b6f35d94b92ba7f",
+        "name": "Jhovan Daniel",
+        "email": "jhovanedaniel@gmail.com",
+        "github_link": "https://github.com/JhovanDaniel",
+        "skills_matched": [],
+        "match_score": 0.0,
+        "matches": []
+      },
+      {
+        "id": "67196e61e4298ccdc5d58ba6",
+        "name": "Nikolay Kolev",
+        "email": "nikolaynkolev@gmail.com",
+        "github_link": "https://github.com/nikolay",
+        "skills_matched": [],
+        "match_score": 0.0,
+        "matches": []
+      },
+      {
+        "id": "67201dfe7646d00b2402c633",
+        "name": "Mihika Riya Sanghvi",
+        "email": "mrs2356@columbia.edu",
+        "github_link": "https://github.com/mihikasanghvi/Image-Classification-using-Vision-Transformer",
+        "skills_matched": [],
+        "match_score": 0.0,
+        "matches": []
+      },
+      {
+        "id": "67203ab77646d00b2402c637",
+        "name": "Chaeeun Ryu",
+        "email": "cr3413@columbia.edu",
+        "github_link": "",
+        "skills_matched": [],
+        "match_score": 0.0,
+        "matches": []
+      }
+    ]
+  }
+}
