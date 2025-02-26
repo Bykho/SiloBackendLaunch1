@@ -16,7 +16,7 @@ from pdfminer.high_level import extract_text as pdfminer_extract
 from PIL import Image
 from pdf2image import convert_from_bytes
 from bson import ObjectId
-from ..routes.pinecone_utils import initialize_pinecone, query_similar_vectors, query_similar_vectors_users  # Adjust import paths as necessary
+from ..routes.pinecone_utils import initialize_pinecone, query_similar_vectors  # Adjust import paths as necessary
 import base64
 
 candidate_search_bp = Blueprint('candidate_search', __name__)
